@@ -1,2 +1,2 @@
 # SDP_Cabbage_Squad
-An application for recording prefessional journal entries
+System.Console.WriteLine("What up my fellow Cabbagarians!"); 
