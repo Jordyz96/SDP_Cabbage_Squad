@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "472772675524",
+    "firebase_url": "https://sdp-journal-project.firebaseio.com",
+    "project_id": "sdp-journal-project",
+    "storage_bucket": "sdp-journal-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472772675524:android:6eb8200aa7c58da3",
+        "android_client_info": {
+          "package_name": "com.cabbage.sdpjournal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472772675524-5beq2vu0d1bsbuj6637h445gcqjhcemn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb5kDipVBjqujZZfFSzp6M2rqtVoLEWSo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
