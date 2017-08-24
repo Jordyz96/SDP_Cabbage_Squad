@@ -9,6 +9,7 @@ All journal entries are immutable. That is, they can't be modified and can't be 
 
 The journal must be secure, accessible only by its owner and author.
 
+[Below are the listed functions in the assignment document, refer to Trello & Google Drive for a more thorough list of functions]
 Required functions:
 * Register an author (a user)
 * Sign in to the journal system.
