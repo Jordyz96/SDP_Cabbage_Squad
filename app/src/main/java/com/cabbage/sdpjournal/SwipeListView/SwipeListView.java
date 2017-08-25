@@ -54,9 +54,12 @@ public class SwipeListView extends ListView {
     public void clearSwipeListViewScroll(){
         scrolls.clear();
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         closeAllSwipeListViewScroll();
         return super.onTouchEvent(ev);
     }
+
+
 }

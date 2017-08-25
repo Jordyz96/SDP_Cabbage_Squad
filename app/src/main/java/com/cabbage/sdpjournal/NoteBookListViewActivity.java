@@ -25,7 +25,6 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     private Button addNoteButton;
     private DatabaseReference db;
 
-
     private ListView listViewNote;
     private ArrayList<Note> noteList;
 
@@ -58,8 +57,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                     Note note = noteDS.getValue(Note.class);
                     noteList.add(note);
                 }
-
-                 listAdapter = new ListAdapter(noteList);
+                listAdapter = new ListAdapter(noteList);
                 listViewNote.setAdapter(listAdapter);
             }
 
@@ -109,7 +107,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder = new ViewHolder();
 
             if(convertView == null){
@@ -127,13 +125,32 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
             viewHolder.title.setText(listData.get(position).getNoteTitle());
             viewHolder.content.setText(listData.get(position).getNoteContent());
+            final String title = listData.get(position).getNoteTitle();
             final int id = position;
+            viewHolder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                    ab.setTitle("Title");
+                    ab.setMessage("You are clicking "+title);
+                    ab.create().show();
+                }
+            });
+            viewHolder.content.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                    ab.setTitle("Content");
+                    ab.setMessage("You are clicking "+title);
+                    ab.create().show();
+                }
+            });
             viewHolder.hide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                     ab.setTitle("Hide");
-                    ab.setMessage("You will hide list "+id);
+                    ab.setMessage("You will hide "+title);
                     ab.create().show();
                 }
             });
@@ -142,7 +159,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 public void onClick(View v) {
                     AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                     ab.setTitle("Modify");
-                    ab.setMessage("You will modify list "+id);
+                    ab.setMessage("You will modify "+title);
                     ab.create().show();
                 }
             });
@@ -151,12 +168,13 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 public void onClick(View v) {
                     AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                     ab.setTitle("Delete");
-                    ab.setMessage("You will delete list "+id);
+                    ab.setMessage("You will delete "+title);
                     ab.create().show();
                 }
             });
-
             return convertView;
         }
+
     }
+
 }
