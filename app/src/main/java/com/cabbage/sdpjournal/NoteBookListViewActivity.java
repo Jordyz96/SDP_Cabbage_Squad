@@ -126,23 +126,25 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
             viewHolder.title.setText(listData.get(position).getNoteTitle());
             viewHolder.content.setText(listData.get(position).getNoteContent());
             final String title = listData.get(position).getNoteTitle();
+            final String content = listData.get(position).getNoteContent();
             final int id = position;
             viewHolder.title.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
-                    ab.setTitle("Title");
-                    ab.setMessage("You are clicking "+title);
-                    ab.create().show();
+                    Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
+                    intent.putExtra("Title", title);
+                    intent.putExtra("Content", content);
+                    startActivity(intent);
+
                 }
             });
             viewHolder.content.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
-                    ab.setTitle("Content");
-                    ab.setMessage("You are clicking "+title);
-                    ab.create().show();
+                    Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
+                    intent.putExtra("Title", title);
+                    intent.putExtra("Content", content);
+                    startActivity(intent);
                 }
             });
             viewHolder.hide.setOnClickListener(new View.OnClickListener() {
