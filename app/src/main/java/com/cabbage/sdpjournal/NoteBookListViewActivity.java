@@ -1,8 +1,9 @@
 package com.cabbage.sdpjournal;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,58 +11,87 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cabbage.sdpjournal.NoteModel.Note;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 
-public class NoteBookListViewActivity extends AppCompatActivity {
+public class NoteBookListViewActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private ListView listView;
+    private Button addNoteButton;
+    private DatabaseReference db;
+
+
+    private ListView listViewNote;
+    private ArrayList<Note> noteList;
+
     private ListAdapter listAdapter;
-    private ArrayList<Info> listData = new ArrayList<Info>();
+    private ArrayList<Note> listData = new ArrayList<Note>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_book_list_view);
 
-        //Hard coding stuff below...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!for testing
-        listView = (ListView) findViewById(R.id.listView);
-        for(int a=0;a<59;a++){
-            Info info = new Info();
-            info.name = "Title here "+a;
-            info.desc = "descriptions ";
-            info.timeCreated = "5:"+a+"pm";
-            listData.add(info);
-        }
-        listAdapter = new ListAdapter(listData);
-        listView.setAdapter(listAdapter);
+        addNoteButton = (Button) findViewById(R.id.addButton);
+        addNoteButton.setOnClickListener(this);
+
+        db = FirebaseDatabase.getInstance().getReference();
+        listViewNote = (ListView) findViewById(R.id.listView);
+        noteList = new ArrayList<>();
+
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
+    protected void onStart() {
+        super.onStart();
+        db.child("notes").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-    class Info{
-        public String name="";
-        public String desc="";
-        public String timeCreated="";
+                noteList.clear();
+                for (DataSnapshot noteDS : dataSnapshot.getChildren()){
+                    Note note = noteDS.getValue(Note.class);
+                    noteList.add(note);
+                }
+
+                 listAdapter = new ListAdapter(noteList);
+                listViewNote.setAdapter(listAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     class ViewHolder{
-        public TextView name;
-        public TextView desc;
-        public TextView timeCreated;
+        public TextView title;
+        public TextView content;
         public Button hide;
         public Button modify;
         public Button delete;
     }
-    //Hard coding stuff above...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for testing
 
-    //Adapter implementation below
+    @Override
+    public void onClick(View v) {
+        if (v == addNoteButton){
+            startActivity(new Intent(this, WriteNoteActivity.class));
+            finish();
+            return;
+        }
+    }
+
+    //Adapter implementation below including swipeItems' onclick activities.
     class ListAdapter extends BaseAdapter {
-        private ArrayList<Info> listData;
-        public ListAdapter(ArrayList<Info> listData){
-            this.listData= (ArrayList<Info>) listData.clone();
+        private ArrayList<Note> listData;
+        public ListAdapter(ArrayList<Note> listData){
+            this.listData= (ArrayList<Note>) listData.clone();
         }
         @Override
         public int getCount() {
@@ -84,9 +114,8 @@ public class NoteBookListViewActivity extends AppCompatActivity {
 
             if(convertView == null){
                 convertView = View.inflate(getBaseContext(),R.layout.style_list,null);
-                viewHolder.name = (TextView) convertView.findViewById(R.id.name);
-                viewHolder.desc = (TextView) convertView.findViewById(R.id.desc);
-                viewHolder.timeCreated = (TextView) convertView.findViewById(R.id.textViewTimeCreated);
+                viewHolder.title = (TextView) convertView.findViewById(R.id.tvNoteTitleInStyle_list);
+                viewHolder.content = (TextView) convertView.findViewById(R.id.tvNoteContentInStyle_list);
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
                 viewHolder.modify = (Button) convertView.findViewById(R.id.modify);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
@@ -96,8 +125,8 @@ public class NoteBookListViewActivity extends AppCompatActivity {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            viewHolder.name.setText(listData.get(position).name);
-            viewHolder.desc.setText(listData.get(position).desc);
+            viewHolder.title.setText(listData.get(position).getNoteTitle());
+            viewHolder.content.setText(listData.get(position).getNoteContent());
             final int id = position;
             viewHolder.hide.setOnClickListener(new View.OnClickListener() {
                 @Override

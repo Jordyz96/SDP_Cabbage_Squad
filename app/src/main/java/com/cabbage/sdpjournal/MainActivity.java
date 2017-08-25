@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myFirebaseAuth = FirebaseAuth.getInstance();
         myFirebaseUser = myFirebaseAuth.getCurrentUser();
         if(myFirebaseUser == null){
-            startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
             return;
         }else {
