@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tvEntryDetailsLabel"
+        android:layout_gravity="center"
+        android:textSize="30sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Detail" />
+
+    <TextView
+        android:id="@+id/tvEntryDetailsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:layout_marginTop="20dp"
+        android:text="Title" />
+
+    <TextView
+        android:id="@+id/tvEntryDetailsContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginTop="5dp"
+        android:text="Content" />
+
+    <Button
+        android:id="@+id/bCloseEntryDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@color/colorAccent"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="Close" />
+</LinearLayout>

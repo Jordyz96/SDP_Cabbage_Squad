@@ -6,12 +6,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cabbage.sdpjournal.NoteModel.Note;
+import com.cabbage.sdpjournal.SwipeListView.OnSwipeListItemClickListener;
+import com.cabbage.sdpjournal.SwipeListView.SwipeListView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,11 +25,11 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     private Button addNoteButton;
     private DatabaseReference db;
 
-    private ListView listViewNote;
+    private SwipeListView listViewNote;
     private ArrayList<Note> noteList;
 
     private ListAdapter listAdapter;
-    private ArrayList<Note> listData = new ArrayList<Note>();
+//    private ArrayList<Note> listData = new ArrayList<Note>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +40,76 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         addNoteButton.setOnClickListener(this);
 
         db = FirebaseDatabase.getInstance().getReference();
-        listViewNote = (ListView) findViewById(R.id.listView);
+        listViewNote = (SwipeListView) findViewById(R.id.listView);
         noteList = new ArrayList<>();
 
+
+        listViewNote.setListener(new OnSwipeListItemClickListener() {
+            @Override
+            public void OnClick(View view, int index) {
+                String title = noteList.get(index).getNoteTitle();
+                String content = noteList.get(index).getNoteContent();
+
+                Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
+                intent.putExtra("titleKey", title);
+                intent.putExtra("contentKey", content);
+                startActivity(intent);
+            }
+
+            @Override
+            public boolean OnLongClick(View view, int index) {
+
+                String title = noteList.get(index).getNoteTitle();
+                String content = noteList.get(index).getNoteContent();
+
+                AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                View myview = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
+
+                TextView detailTitle = (TextView) myview.findViewById(R.id.tvEntryDetailsTitle);
+                TextView detailContent = (TextView) myview.findViewById(R.id.tvEntryDetailsContent);
+                Button closeButton = (Button) myview.findViewById(R.id.bCloseEntryDetails);
+
+                detailTitle.setText(title);
+                detailContent.setText(content);
+                ab.setView(myview);
+                final AlertDialog dialog = ab.create();
+                dialog.show();
+
+                closeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //close
+                        dialog.cancel();
+                    }
+                });
+                return false;
+            }
+
+            @Override
+            public void OnControlClick(int rid, View view, int index) {
+                AlertDialog.Builder ab;
+                switch (rid){
+                    case R.id.modify:
+                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab.setTitle("Modify");
+                        ab.setMessage("You will modify item "+index);
+                        ab.create().show();
+                        break;
+                    case R.id.delete:
+                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab.setTitle("Delete");
+                        ab.setMessage("You will delete item "+index);
+                        ab.create().show();
+                        break;
+                    case R.id.hide:
+                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab.setTitle("Hide");
+                        ab.setMessage("You will hide item "+index);
+                        ab.create().show();
+                        break;
+                }
+            }
+        },new int[]{R.id.modify,R.id.delete,R.id.hide});
     }
 
     @Override
@@ -66,6 +133,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
             }
         });
+
     }
 
     class ViewHolder{
@@ -86,7 +154,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     }
 
     //Adapter implementation below including swipeItems' onclick activities.
-    class ListAdapter extends BaseAdapter {
+    class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
         private ArrayList<Note> listData;
         public ListAdapter(ArrayList<Note> listData){
             this.listData= (ArrayList<Note>) listData.clone();
@@ -128,53 +196,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
             final String title = listData.get(position).getNoteTitle();
             final String content = listData.get(position).getNoteContent();
             final int id = position;
-            viewHolder.title.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
-                    intent.putExtra("Title", title);
-                    intent.putExtra("Content", content);
-                    startActivity(intent);
-
-                }
-            });
-            viewHolder.content.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
-                    intent.putExtra("Title", title);
-                    intent.putExtra("Content", content);
-                    startActivity(intent);
-                }
-            });
-            viewHolder.hide.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
-                    ab.setTitle("Hide");
-                    ab.setMessage("You will hide "+title);
-                    ab.create().show();
-                }
-            });
-            viewHolder.modify.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
-                    ab.setTitle("Modify");
-                    ab.setMessage("You will modify "+title);
-                    ab.create().show();
-                }
-            });
-            viewHolder.delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
-                    ab.setTitle("Delete");
-                    ab.setMessage("You will delete "+title);
-                    ab.create().show();
-                }
-            });
-            return convertView;
+            return super.bindView(position, convertView);
         }
 
     }

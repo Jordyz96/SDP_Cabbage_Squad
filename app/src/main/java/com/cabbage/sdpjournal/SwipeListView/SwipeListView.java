@@ -11,9 +11,10 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-
 public class SwipeListView extends ListView {
     private ArrayList<SwipeListViewScroll> scrolls = new ArrayList<>();
+    protected int[] controlIds;
+    protected OnSwipeListItemClickListener listener;
     public SwipeListView(Context context) {
         super(context);
         setMotionEventSplittingEnabled(false);
@@ -40,26 +41,28 @@ public class SwipeListView extends ListView {
             e.printStackTrace();
         }
     }
-    public void addSwipeListViewScroll(SwipeListViewScroll swipeListViewScroll){
+    protected void addSwipeListViewScroll(SwipeListViewScroll swipeListViewScroll){
         if(scrolls.indexOf(swipeListViewScroll) == -1){
             scrolls.add(swipeListViewScroll);
         }
     }
-    public void removeSwipeListViewScroll(SwipeListViewScroll swipeListViewScroll){
+    protected void removeSwipeListViewScroll(SwipeListViewScroll swipeListViewScroll){
         int id = scrolls.indexOf(swipeListViewScroll);
         if(id != -1){
             scrolls.remove(id);
         }
     }
-    public void clearSwipeListViewScroll(){
+    protected void clearSwipeListViewScroll(){
         scrolls.clear();
     }
-
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         closeAllSwipeListViewScroll();
         return super.onTouchEvent(ev);
     }
 
-
+    public void setListener(OnSwipeListItemClickListener onClickListener,int[] controlIds){
+        this.controlIds = controlIds;
+        listener = onClickListener;
+    }
 }

@@ -20,8 +20,8 @@ public class NoteViewActivity extends AppCompatActivity {
         tvContent = (TextView) findViewById(R.id.tvContentInNoteView);
         tvTitle = (TextView) findViewById(R.id.tvTitleInNoteView);
 
-        title = getIntent().getExtras().getString("Title");
-        content = getIntent().getExtras().getString("Content");
+        title = getIntent().getExtras().getString("titleKey");
+        content = getIntent().getExtras().getString("contentKey");
 
         tvTitle.setText(title);
         tvContent.setText(content);
