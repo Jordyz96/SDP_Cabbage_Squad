@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView lnikToNoteActivity;
     private FirebaseAuth myFirebaseAuth;
@@ -23,11 +23,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //just prevent being required to login everytime...
         myFirebaseAuth = FirebaseAuth.getInstance();
         myFirebaseUser = myFirebaseAuth.getCurrentUser();
-        if(myFirebaseUser == null){
+        if (myFirebaseUser == null) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
             return;
-        }else {
+        } else {
             //User is logged in;
         }
 
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v == lnikToNoteActivity){
+        if (v == lnikToNoteActivity) {
             //move to next Scene by clicking the TEXTVIEW
             startActivity(new Intent(this, NoteBookListViewActivity.class));
             finish();

@@ -23,11 +23,12 @@ import static android.content.ContentValues.TAG;
 /**
  * Gets the email and password of a user and matches it with the database, signs the user in and
  * moves to the main activity if successful. Offers access to the register activity from new users
+ *
  * @author Sean Carmichael
  * @version 1.0
  * @since 22.08.2017
  */
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     //Constants
     private static final String LOGGING_IN_MESSAGE = "Logging in...";
     private static final String EXIT_KEY = "EXIT";
@@ -50,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     /**
      * What happens on the creation of the activity.
+     *
      * @param savedInstanceState
      */
     @Override
@@ -116,12 +118,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     /**
      * OnClick method for when either of the listeners are triggered
+     *
      * @param v The view of the button clicked
      */
     @Override
     public void onClick(View v) {
         //Determine which button was pressed
-        if(v == loginBtn){
+        if (v == loginBtn) {
             //Calls loginUser function
             loginUser();
         } else {
@@ -157,9 +160,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             passwordEt.setError(getString(R.string.error_no_password));
             focusView = passwordEt;
             cancel = true;
-        } else{
+        } else {
             //otherwise check if the password is too long or short
-            switch (isPasswordValid(password)){
+            switch (isPasswordValid(password)) {
                 case 0:
                     //If too short tell user
                     passwordEt.setError(getString(R.string.error_invalid_short_password));
@@ -202,14 +205,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     /**
      * Function checking if the password too long or short
+     *
      * @param password password entered in the password field
      * @return too short, too long or correct
      */
-    private int isPasswordValid(String password){
+    private int isPasswordValid(String password) {
         int output = 0;
-        if(password.length()< 6){
+        if (password.length() < 6) {
             output = 0;
-        } else if(password.length() > 16){
+        } else if (password.length() > 16) {
             output = 1;
         } else {
             output = 2;

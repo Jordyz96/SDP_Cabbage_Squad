@@ -30,7 +30,8 @@ public class SwipeListAdpter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         return null;
     }
-    protected View bindView(int position, View view){
+
+    protected View bindView(int position, View view) {
         ViewGroup viewGroup = (ViewGroup) view;
         SwipeListViewScroll swipeListViewScroll = (SwipeListViewScroll) viewGroup.getChildAt(0);
         swipeListViewScroll.setIndex(position);

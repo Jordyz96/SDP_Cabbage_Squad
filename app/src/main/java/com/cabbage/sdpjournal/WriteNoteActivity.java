@@ -12,7 +12,7 @@ import com.cabbage.sdpjournal.NoteModel.Note;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class WriteNoteActivity extends AppCompatActivity implements View.OnClickListener{
+public class WriteNoteActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button saveButton;
     private EditText etNoteTitle;
@@ -36,7 +36,7 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        if (v == saveButton){
+        if (v == saveButton) {
             saveNoteToDatabase();
             startActivity(new Intent(this, NoteBookListViewActivity.class));
             finish();
@@ -51,10 +51,10 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         String id = db.push().getKey();
 
         //validation...
-        if (TextUtils.isEmpty(title)){
+        if (TextUtils.isEmpty(title)) {
             etNoteTitle.setError("Title must not be empty");
         }
-        if (TextUtils.isEmpty(content)){
+        if (TextUtils.isEmpty(content)) {
             etNoteContent.setError("Content must not be empty");
         }
 

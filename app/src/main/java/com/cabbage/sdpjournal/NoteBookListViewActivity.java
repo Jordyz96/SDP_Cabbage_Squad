@@ -20,7 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class NoteBookListViewActivity extends AppCompatActivity implements View.OnClickListener{
+public class NoteBookListViewActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button addNoteButton;
     private DatabaseReference db;
@@ -88,28 +88,28 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
             @Override
             public void OnControlClick(int rid, View view, int index) {
                 AlertDialog.Builder ab;
-                switch (rid){
+                switch (rid) {
                     case R.id.modify:
                         ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                         ab.setTitle("Modify");
-                        ab.setMessage("You will modify item "+index);
+                        ab.setMessage("You will modify item " + index);
                         ab.create().show();
                         break;
                     case R.id.delete:
                         ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                         ab.setTitle("Delete");
-                        ab.setMessage("You will delete item "+index);
+                        ab.setMessage("You will delete item " + index);
                         ab.create().show();
                         break;
                     case R.id.hide:
                         ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                         ab.setTitle("Hide");
-                        ab.setMessage("You will hide item "+index);
+                        ab.setMessage("You will hide item " + index);
                         ab.create().show();
                         break;
                 }
             }
-        },new int[]{R.id.modify,R.id.delete,R.id.hide});
+        }, new int[]{R.id.modify, R.id.delete, R.id.hide});
     }
 
     @Override
@@ -120,7 +120,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 noteList.clear();
-                for (DataSnapshot noteDS : dataSnapshot.getChildren()){
+                for (DataSnapshot noteDS : dataSnapshot.getChildren()) {
                     Note note = noteDS.getValue(Note.class);
                     noteList.add(note);
                 }
@@ -136,7 +136,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
     }
 
-    class ViewHolder{
+    class ViewHolder {
         public TextView title;
         public TextView content;
         public Button hide;
@@ -146,7 +146,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
     @Override
     public void onClick(View v) {
-        if (v == addNoteButton){
+        if (v == addNoteButton) {
             startActivity(new Intent(this, WriteNoteActivity.class));
             finish();
             return;
@@ -156,9 +156,11 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     //Adapter implementation below including swipeItems' onclick activities.
     class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
         private ArrayList<Note> listData;
-        public ListAdapter(ArrayList<Note> listData){
-            this.listData= (ArrayList<Note>) listData.clone();
+
+        public ListAdapter(ArrayList<Note> listData) {
+            this.listData = (ArrayList<Note>) listData.clone();
         }
+
         @Override
         public int getCount() {
             return listData.size();
@@ -178,16 +180,15 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder = new ViewHolder();
 
-            if(convertView == null){
-                convertView = View.inflate(getBaseContext(),R.layout.style_list,null);
+            if (convertView == null) {
+                convertView = View.inflate(getBaseContext(), R.layout.style_list, null);
                 viewHolder.title = (TextView) convertView.findViewById(R.id.tvNoteTitleInStyle_list);
                 viewHolder.content = (TextView) convertView.findViewById(R.id.tvNoteContentInStyle_list);
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
                 viewHolder.modify = (Button) convertView.findViewById(R.id.modify);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
                 convertView.setTag(viewHolder);
-            }
-            else{
+            } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
