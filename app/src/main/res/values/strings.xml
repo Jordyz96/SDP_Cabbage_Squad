@@ -49,4 +49,5 @@
     <string name="create_chat_btn">Create Chat</string>
     <string name="chat_title_hint">Enter a chat name</string>
     <string name="action_select_chat">Select Chat</string>
+    <string name="title_activity_reset_password">ResetPasswordActivity</string>
 </resources>

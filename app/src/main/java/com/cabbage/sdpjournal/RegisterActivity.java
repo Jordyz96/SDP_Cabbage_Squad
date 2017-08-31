@@ -218,7 +218,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             progressDialog.show();
 
             //Create a user with the email and password enter
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     //If successful show a toast telling the user and call the loginUser to log them in

@@ -8,7 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.cabbage.sdpjournal.NoteModel.Constants;
 import com.cabbage.sdpjournal.NoteModel.Note;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -19,6 +22,9 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
     private EditText etNoteContent;
     private boolean validated;
     private DatabaseReference db;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
+    private DatabaseReference noteReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +54,7 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         //save data.
         String title = etNoteTitle.getText().toString().trim();
         String content = etNoteContent.getText().toString().trim();
-        String id = db.push().getKey();
+        String noteId = db.push().getKey();
 
         //validation...
         if (TextUtils.isEmpty(title)) {
@@ -59,10 +65,14 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         }
 
         //if validates
-        Note note = new Note(id, title, content);
-        //save the user input to the database under the root named "notes",
-        //and the subroot is the note's id
-        //the root named "notes" should be changed to user's email account or something unique
-        db.child("notes").child(id).setValue(note);
+        Note note = new Note(noteId, title, content);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        db = FirebaseDatabase.getInstance().getReference();
+        String userID = firebaseUser.getUid();
+
+        noteReference = db.child(Constants.Users_End_Point).child(userID).child(Constants.Notes_End_Point).child(noteId);
+        noteReference.setValue(note);
     }
 }

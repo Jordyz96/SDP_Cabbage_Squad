@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -12,6 +13,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView lnikToNoteActivity;
+    private Button setting;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseUser myFirebaseUser;
 
@@ -24,9 +26,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myFirebaseAuth = FirebaseAuth.getInstance();
         myFirebaseUser = myFirebaseAuth.getCurrentUser();
         if (myFirebaseUser == null) {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
-            return;
         } else {
             //User is logged in;
         }
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //just a link to the listView for testing...
         lnikToNoteActivity = (TextView) findViewById(R.id.tvLinkToListView);
         lnikToNoteActivity.setOnClickListener(this);
+
+        setting = (Button) findViewById(R.id.bSettings);
+        setting.setOnClickListener(this);
 
     }
 
@@ -44,6 +48,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(new Intent(this, NoteBookListViewActivity.class));
             finish();
             return;
+        }
+        if (v == setting){
+            startActivity(new Intent(this, SettingActivity.class));
+            finish();
         }
     }
 }

@@ -9,9 +9,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.cabbage.sdpjournal.NoteModel.Constants;
 import com.cabbage.sdpjournal.NoteModel.Note;
 import com.cabbage.sdpjournal.SwipeListView.OnSwipeListItemClickListener;
 import com.cabbage.sdpjournal.SwipeListView.SwipeListView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,7 +32,9 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     private ArrayList<Note> noteList;
 
     private ListAdapter listAdapter;
-//    private ArrayList<Note> listData = new ArrayList<Note>();
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +44,6 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         addNoteButton = (Button) findViewById(R.id.addButton);
         addNoteButton.setOnClickListener(this);
 
-        db = FirebaseDatabase.getInstance().getReference();
         listViewNote = (SwipeListView) findViewById(R.id.listView);
         noteList = new ArrayList<>();
 
@@ -115,7 +119,15 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     @Override
     protected void onStart() {
         super.onStart();
-        db.child("notes").addValueEventListener(new ValueEventListener() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        String userID = null;
+        if (firebaseUser != null) {
+            userID = firebaseUser.getUid();
+        }
+        db = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference noteRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Notes_End_Point);
+        noteRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -149,15 +161,14 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         if (v == addNoteButton) {
             startActivity(new Intent(this, WriteNoteActivity.class));
             finish();
-            return;
         }
     }
 
     //Adapter implementation below including swipeItems' onclick activities.
-    class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
+    private class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
         private ArrayList<Note> listData;
 
-        public ListAdapter(ArrayList<Note> listData) {
+        ListAdapter(ArrayList<Note> listData) {
             this.listData = (ArrayList<Note>) listData.clone();
         }
 
@@ -194,9 +205,6 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
             viewHolder.title.setText(listData.get(position).getNoteTitle());
             viewHolder.content.setText(listData.get(position).getNoteContent());
-            final String title = listData.get(position).getNoteTitle();
-            final String content = listData.get(position).getNoteContent();
-            final int id = position;
             return super.bindView(position, convertView);
         }
 
