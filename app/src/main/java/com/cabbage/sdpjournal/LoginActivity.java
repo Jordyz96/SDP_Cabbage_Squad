@@ -142,7 +142,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             //if a user forgot his password and click "forgotPassword", popup dialog will show up and ask for an email address
             //and send a reset email to the given email address
-            
+
             AlertDialog.Builder ab = new AlertDialog.Builder(LoginActivity.this);
             View myview = getLayoutInflater().inflate(R.layout.dialog_reset_password, null);
 
