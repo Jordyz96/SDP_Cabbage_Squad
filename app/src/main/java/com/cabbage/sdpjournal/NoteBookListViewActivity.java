@@ -4,13 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.cabbage.sdpjournal.NoteModel.Constants;
-import com.cabbage.sdpjournal.NoteModel.Note;
+import com.cabbage.sdpjournal.Model.Constants;
+import com.cabbage.sdpjournal.Model.Entry;
 import com.cabbage.sdpjournal.SwipeListView.OnSwipeListItemClickListener;
 import com.cabbage.sdpjournal.SwipeListView.SwipeListView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,12 +30,20 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     private DatabaseReference db;
 
     private SwipeListView listViewNote;
-    private ArrayList<Note> noteList;
+    private ArrayList<Entry> noteList;
 
     private ListAdapter listAdapter;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+
+    class ViewHolder {
+        public TextView title;
+        public TextView dateTimeCreated;
+        public Button hide;
+        public Button modify;
+        public Button delete;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,26 +54,34 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         addNoteButton.setOnClickListener(this);
 
         listViewNote = (SwipeListView) findViewById(R.id.listView);
+
         noteList = new ArrayList<>();
 
 
         listViewNote.setListener(new OnSwipeListItemClickListener() {
             @Override
             public void OnClick(View view, int index) {
-                String title = noteList.get(index).getNoteTitle();
-                String content = noteList.get(index).getNoteContent();
+                String entryName = noteList.get(index).getEntryName();
+                String responsibilities = noteList.get(index).getEntryResponsibilities();
+                String decision = noteList.get(index).getEntryDecision();
+                String outcome = noteList.get(index).getEntryOutcome();
+                String entryComment = noteList.get(index).getEntryComment();
+
 
                 Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
-                intent.putExtra("titleKey", title);
-                intent.putExtra("contentKey", content);
+                intent.putExtra("entryName", entryName);
+                intent.putExtra("responsibilities", responsibilities);
+                intent.putExtra("decision", decision);
+                intent.putExtra("outcome", outcome);
+                intent.putExtra("entryComment", entryComment);
                 startActivity(intent);
             }
 
             @Override
             public boolean OnLongClick(View view, int index) {
 
-                String title = noteList.get(index).getNoteTitle();
-                String content = noteList.get(index).getNoteContent();
+                String entryName = noteList.get(index).getEntryName();
+                String comment = noteList.get(index).getEntryComment();
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                 View myview = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
@@ -73,8 +90,8 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 TextView detailContent = (TextView) myview.findViewById(R.id.tvEntryDetailsContent);
                 Button closeButton = (Button) myview.findViewById(R.id.bCloseEntryDetails);
 
-                detailTitle.setText(title);
-                detailContent.setText(content);
+                detailTitle.setText(entryName);
+                detailContent.setText(comment);
                 ab.setView(myview);
                 final AlertDialog dialog = ab.create();
                 dialog.show();
@@ -93,18 +110,21 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
             public void OnControlClick(int rid, View view, int index) {
                 AlertDialog.Builder ab;
                 switch (rid) {
+                    //if click modify from the swipe list view
                     case R.id.modify:
                         ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                         ab.setTitle("Modify");
                         ab.setMessage("You will modify item " + index);
                         ab.create().show();
                         break;
+                    //if click delete
                     case R.id.delete:
                         ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                         ab.setTitle("Delete");
                         ab.setMessage("You will delete item " + index);
                         ab.create().show();
                         break;
+                    //if click hide
                     case R.id.hide:
                         ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
                         ab.setTitle("Hide");
@@ -121,19 +141,23 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         super.onStart();
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        String userID = null;
+        String userID = "";
         if (firebaseUser != null) {
             userID = firebaseUser.getUid();
         }
+        String journalID = getIntent().getExtras().getString(Constants.journalID);
         db = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference noteRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Notes_End_Point);
+        DatabaseReference noteRef = db.child(Constants.Users_End_Point)
+                .child(userID).child("journals").child(journalID)
+                .child("entries");
         noteRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 noteList.clear();
                 for (DataSnapshot noteDS : dataSnapshot.getChildren()) {
-                    Note note = noteDS.getValue(Note.class);
+                    Log.d("Journal "," ==>"+noteDS.toString());
+                    Entry note = noteDS.getValue(Entry.class);
                     noteList.add(note);
                 }
                 listAdapter = new ListAdapter(noteList);
@@ -148,28 +172,25 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
     }
 
-    class ViewHolder {
-        public TextView title;
-        public TextView content;
-        public Button hide;
-        public Button modify;
-        public Button delete;
-    }
+
 
     @Override
     public void onClick(View v) {
         if (v == addNoteButton) {
-            startActivity(new Intent(this, WriteNoteActivity.class));
+            String journalID = getIntent().getExtras().getString(Constants.journalID);
+            Intent intent = new Intent(this, WriteNoteActivity.class);
+            intent.putExtra("journalID", journalID);
+            startActivity(intent);
             finish();
         }
     }
 
     //Adapter implementation below including swipeItems' onclick activities.
     private class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
-        private ArrayList<Note> listData;
+        private ArrayList<Entry> listData;
 
-        ListAdapter(ArrayList<Note> listData) {
-            this.listData = (ArrayList<Note>) listData.clone();
+        ListAdapter(ArrayList<Entry> listData) {
+            this.listData = (ArrayList<Entry>) listData.clone();
         }
 
         @Override
@@ -194,7 +215,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
             if (convertView == null) {
                 convertView = View.inflate(getBaseContext(), R.layout.style_list, null);
                 viewHolder.title = (TextView) convertView.findViewById(R.id.tvNoteTitleInStyle_list);
-                viewHolder.content = (TextView) convertView.findViewById(R.id.tvNoteContentInStyle_list);
+                viewHolder.dateTimeCreated = (TextView) convertView.findViewById(R.id.tvNoteContentInStyle_list);
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
                 viewHolder.modify = (Button) convertView.findViewById(R.id.modify);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
@@ -203,8 +224,8 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            viewHolder.title.setText(listData.get(position).getNoteTitle());
-            viewHolder.content.setText(listData.get(position).getNoteContent());
+            viewHolder.title.setText(listData.get(position).getEntryName());
+            viewHolder.dateTimeCreated.setText(listData.get(position).getDateTimeCreated());
             return super.bindView(position, convertView);
         }
 

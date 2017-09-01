@@ -1,4 +1,4 @@
-package com.cabbage.sdpjournal.NoteModel;
+package com.cabbage.sdpjournal.Model;
 
 /**
  * Created by Junwen on 30/8/17.
@@ -14,6 +14,7 @@ public class Constants {
     //other Strings
     public static final String Welcome_Text = "Welcome ";
     public static final String Reset_Password = "Reset Password";
+    public static final String journalID = "journalID";
 }
 
 //        etnewPassword = (EditText) findViewById(R.id.etNewPassword);

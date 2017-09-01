@@ -28,6 +28,7 @@
             android:name=".ResetPasswordActivity"
             android:label="@string/title_activity_reset_password"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".CreateJournalActivity"></activity>
     </application>
 
 </manifest>
