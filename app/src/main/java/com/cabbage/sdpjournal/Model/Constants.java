@@ -16,6 +16,8 @@ public class Constants {
     public static final String Welcome_Text = "Welcome ";
     public static final String Reset_Password = "Reset Password";
     public static final String journalID = "journalID";
+    public static final String Default_Color = "defualt";
+    public static final String Select_Color = "Select your cover color";
 }
 
 //        etnewPassword = (EditText) findViewById(R.id.etNewPassword);

@@ -2,6 +2,7 @@ package com.cabbage.sdpjournal.Adpter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,19 @@ public class GridViewAdapter extends BaseAdapter {
 
         tvJournalName.setText(journals.get(i).getJournalName());
         tvCompanyName.setText("Company: "+journals.get(i).getCompanyName());
+
+        if (journals.get(i).getJournalColor().equals("Red")){
+            view.setBackgroundColor(Color.parseColor("#E41E1E"));
+        }
+        if (journals.get(i).getJournalColor().equals("Green")){
+            view.setBackgroundColor(Color.parseColor("#43E272"));
+        }
+        if (journals.get(i).getJournalColor().equals("Blue")){
+            view.setBackgroundColor(Color.parseColor("#4348E2"));
+        }
+        if (journals.get(i).getJournalColor().equals("Yellow")){
+            view.setBackgroundColor(Color.parseColor("#FFFA52"));
+        }
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
