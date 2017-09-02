@@ -24,32 +24,48 @@
         android:id="@+id/passwordEt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:ems="10"
-        android:inputType="textPassword"
         android:hint="@string/password_prompt"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+        android:inputType="textPassword" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/loginBtn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:textColor="@color/colorAccent"
-            android:text="@string/login_btn" />
+            android:text="@string/login_btn"
+            android:textColor="@color/colorAccent" />
 
         <Button
             android:id="@+id/registerBtn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            android:text="@string/register_btn"
+            android:textColor="@color/colorAccent" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvForgotPassword"
+            android:background="@android:color/transparent"
+            android:text="Forgot Password?"
             android:textColor="@color/colorAccent"
-            android:text="@string/register_btn" />
+            android:textSize="15dp"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"/>
     </LinearLayout>
 
 </LinearLayout>
