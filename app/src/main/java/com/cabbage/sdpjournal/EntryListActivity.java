@@ -23,7 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class NoteBookListViewActivity extends AppCompatActivity implements View.OnClickListener {
+public class EntryListActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button addNoteButton;
     private DatabaseReference db;
@@ -39,7 +39,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_note_book_list_view);
+        setContentView(R.layout.activity_entry_list);
 
         addNoteButton = (Button) findViewById(R.id.addButton);
         addNoteButton.setOnClickListener(this);
@@ -54,7 +54,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 String title = noteList.get(index).getNoteTitle();
                 String content = noteList.get(index).getNoteContent();
 
-                Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
+                Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
                 intent.putExtra("titleKey", title);
                 intent.putExtra("contentKey", content);
                 startActivity(intent);
@@ -66,7 +66,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 String title = noteList.get(index).getNoteTitle();
                 String content = noteList.get(index).getNoteContent();
 
-                AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
                 View myview = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
 
                 TextView detailTitle = (TextView) myview.findViewById(R.id.tvEntryDetailsTitle);
@@ -94,19 +94,19 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 AlertDialog.Builder ab;
                 switch (rid) {
                     case R.id.modify:
-                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
                         ab.setTitle("Modify");
                         ab.setMessage("You will modify item " + index);
                         ab.create().show();
                         break;
                     case R.id.delete:
-                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
                         ab.setTitle("Delete");
                         ab.setMessage("You will delete item " + index);
                         ab.create().show();
                         break;
                     case R.id.hide:
-                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
                         ab.setTitle("Hide");
                         ab.setMessage("You will hide item " + index);
                         ab.create().show();

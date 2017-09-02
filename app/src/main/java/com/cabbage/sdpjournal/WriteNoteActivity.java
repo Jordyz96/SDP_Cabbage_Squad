@@ -44,7 +44,7 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         if (v == saveButton) {
             saveNoteToDatabase();
-            startActivity(new Intent(this, NoteBookListViewActivity.class));
+            startActivity(new Intent(this, EntryListActivity.class));
             finish();
             return;
         }
