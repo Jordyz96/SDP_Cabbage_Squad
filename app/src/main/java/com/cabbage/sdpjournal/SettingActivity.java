@@ -14,11 +14,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private TextView tvwelcomeText;
     private Button logout;
     private Button resetPassword;
     private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -26,15 +24,15 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        tvwelcomeText = (TextView) findViewById(R.id.tvWelcome);
+        TextView tvWelcomeText = (TextView) findViewById(R.id.tvWelcome);
         logout = (Button) findViewById(R.id.bLogout);
         resetPassword = (Button) findViewById(R.id.bResetPassword);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser != null) {
-            tvwelcomeText.setText(Constants.Welcome_Text + firebaseUser.getEmail());
+            tvWelcomeText.setText(Constants.Welcome_Text + firebaseUser.getEmail());
         }
 
         logout.setOnClickListener(this);

@@ -27,15 +27,11 @@ import java.util.ArrayList;
 public class NoteBookListViewActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button addNoteButton;
-    private DatabaseReference db;
 
     private SwipeListView listViewNote;
     private ArrayList<Entry> noteList;
 
     private ListAdapter listAdapter;
-
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
 
     class ViewHolder {
         public TextView title;
@@ -66,7 +62,8 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 String decision = noteList.get(index).getEntryDecision();
                 String outcome = noteList.get(index).getEntryOutcome();
                 String entryComment = noteList.get(index).getEntryComment();
-
+                String entryDateTime = noteList.get(index).getDateTimeCreated();
+                String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
                 intent.putExtra("entryName", entryName);
@@ -74,12 +71,14 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 intent.putExtra("decision", decision);
                 intent.putExtra("outcome", outcome);
                 intent.putExtra("entryComment", entryComment);
+                intent.putExtra("dateTime", entryDateTime);
+                intent.putExtra(Constants.journalID, journalID);
                 startActivity(intent);
             }
 
             @Override
             public boolean OnLongClick(View view, int index) {
-
+                //long click entries -- popup dialog
                 String entryName = noteList.get(index).getEntryName();
                 String comment = noteList.get(index).getEntryComment();
 
@@ -139,17 +138,21 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     @Override
     protected void onStart() {
         super.onStart();
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        //setting up firebase stuff
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        //get userID
         String userID = "";
         if (firebaseUser != null) {
             userID = firebaseUser.getUid();
         }
+        //get back the journalID
         String journalID = getIntent().getExtras().getString(Constants.journalID);
-        db = FirebaseDatabase.getInstance().getReference();
+        //setting up reference
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
         DatabaseReference noteRef = db.child(Constants.Users_End_Point)
-                .child(userID).child("journals").child(journalID)
-                .child("entries");
+                .child(userID).child(Constants.Journals_End_Point).child(journalID)
+                .child(Constants.Entries_End_Point);
         noteRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -179,13 +182,12 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
         if (v == addNoteButton) {
             String journalID = getIntent().getExtras().getString(Constants.journalID);
             Intent intent = new Intent(this, WriteNoteActivity.class);
-            intent.putExtra("journalID", journalID);
+            intent.putExtra(Constants.journalID, journalID);
             startActivity(intent);
             finish();
         }
     }
 
-    //Adapter implementation below including swipeItems' onclick activities.
     private class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
         private ArrayList<Entry> listData;
 

@@ -24,9 +24,6 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
     private EditText etEntryName;
     private EditText etResponsibilities, etDecisions, etOutcome, etComment;
     private DatabaseReference db;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
-    private DatabaseReference noteReference;
     Calendar calendar;
     SimpleDateFormat simpleDateFormat;
 
@@ -71,7 +68,7 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         String entryID = db.push().getKey();
         String entryDecision = etDecisions.getText().toString().trim();
         String entryOutcome = etOutcome.getText().toString().trim();
-        String entryComment = etOutcome.getText().toString().trim();
+        String entryComment = etComment.getText().toString().trim();
         String status = "Normal";
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         String predecessorEntryID = "";
@@ -95,22 +92,24 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         if (TextUtils.isEmpty(entryOutcome)) {
             etOutcome.setError("Outcome must not be empty");
         }
-        if (TextUtils.isEmpty(entryComment)) {
-            etComment.setError("Comment must not be empty");
-        }
 
         //if validates, store a new entry to database
-        Entry entry = new Entry(entryID, entryName, entryResponsibilities, entryDecision, entryOutcome, entryComment
+        Entry entry = new Entry(entryID, entryName
+                ,entryResponsibilities, entryDecision, entryOutcome, entryComment
                 ,dataTimeCreated, status, journalID, predecessorEntryID);
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        if (TextUtils.isEmpty(entryComment)) {
+            entry.setEntryComment("You did not leave any comment on it");
+        }
+
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         db = FirebaseDatabase.getInstance().getReference();
         String userID = firebaseUser.getUid();
 
-        noteReference = db.child(Constants.Users_End_Point).child(userID)
-        .child("journals")
-        .child(journalID).child("entries").child(entryID);
+        DatabaseReference noteReference = db.child(Constants.Users_End_Point).child(userID)
+                .child(Constants.Journals_End_Point)
+                .child(journalID).child(Constants.Entries_End_Point).child(entryID);
         noteReference.setValue(entry);
     }
 }

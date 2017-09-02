@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.GridView;
 
 import com.cabbage.sdpjournal.Adpter.GridViewAdapter;
+import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Journal;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,10 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button setting;
     private Button addJournalBtn;
-    private FirebaseAuth myFirebaseAuth;
-    private FirebaseUser myFirebaseUser;
     GridView gridView;
-    private DatabaseReference db;
     ArrayList<Journal> journalArrayList;
     GridViewAdapter gridViewAdapter;
 
@@ -37,8 +35,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         //just prevent being required to login everytime...
-        myFirebaseAuth = FirebaseAuth.getInstance();
-        myFirebaseUser = myFirebaseAuth.getCurrentUser();
+        FirebaseAuth myFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser myFirebaseUser = myFirebaseAuth.getCurrentUser();
         String userID = "";
         if (myFirebaseUser == null) {
             startActivity(new Intent(MainActivity.this, RegisterActivity.class));
@@ -61,9 +59,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //setting adapter
         journalArrayList = new ArrayList<>();
         DatabaseReference journalRef = FirebaseDatabase.getInstance().getReference();
-        journalRef.child("users")
+        journalRef.child(Constants.Users_End_Point)
                 .child(userID)
-                .child("journals")
+                .child(Constants.Journals_End_Point)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -82,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 });
-
     }
 
     @Override
@@ -98,5 +95,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             finish();
         }
     }
-
 }

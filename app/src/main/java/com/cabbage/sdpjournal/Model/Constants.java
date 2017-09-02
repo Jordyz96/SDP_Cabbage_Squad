@@ -9,7 +9,8 @@ public class Constants {
 
     //Database
     public final static String Users_End_Point = "users";
-    public final static String Notes_End_Point = "notes";
+    public final static String Entries_End_Point = "entries";
+    public final static String Journals_End_Point = "journals";
 
     //other Strings
     public static final String Welcome_Text = "Welcome ";
