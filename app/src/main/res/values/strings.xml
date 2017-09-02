@@ -17,6 +17,9 @@
     <string name="title_activity_test_login">Sign in</string>
     <string name="error_invalid_title">Please enter a valid title</string>
     <string name="close_btn">Close</string>
+    <string name="action_reset_password">Reset Password</string>
+
+
 
     <!-- Strings related to login -->
     <string name="login_btn">Login</string>
@@ -41,13 +44,10 @@
         completions."
     </string>
 
-    <!-- Strings related to the chat -->
-    <string name="send_btn">Send</string>
-    <string name="enter_message">Type a message</string>
-    <string name="title_activity_chat_select">ChatSelectActivity</string>
-    <string name="chat_title_tv">Chat Name</string>
-    <string name="create_chat_btn">Create Chat</string>
-    <string name="chat_title_hint">Enter a chat name</string>
-    <string name="action_select_chat">Select Chat</string>
-    <string name="title_activity_reset_password">ResetPasswordActivity</string>
+    <!-- Strings related to the manifest -->
+    <string name="title_activity_reset_password">Reset Password</string>
+    <string name="title_activity_entry_list">Entry List</string>
+    <string name="title_activity_entry_view">Entry View</string>
+    <string name="title_activity_new_entry">New Entry</string>
+    <string name="title_activity_journal_list">Journals</string>
 </resources>

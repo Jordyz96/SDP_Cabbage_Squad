@@ -5,22 +5,33 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
 
+import com.cabbage.sdpjournal.NoteModel.Constants;
+import com.cabbage.sdpjournal.NoteModel.Note;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import static android.content.ContentValues.TAG;
 
-public class JournalListActivity extends AppCompatActivity implements View.OnClickListener {
+public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView lnikToNoteActivity;
+    private Button saveButton;
+    private EditText etNoteTitle;
+    private EditText etNoteContent;
 
+    private boolean validated;
+
+    private DatabaseReference db;
+    private DatabaseReference noteReference;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser myFirebaseUser;
@@ -31,24 +42,19 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_journal_list);
+        setContentView(R.layout.activity_new_entry);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //just prevent being required to login everytime...
+        db = FirebaseDatabase.getInstance().getReference();
         myFirebaseAuth = FirebaseAuth.getInstance();
         myFirebaseUser = myFirebaseAuth.getCurrentUser();
-        if (myFirebaseUser == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        } else {
-            //User is logged in;
-        }
 
-        //just a link to the listView for testing...
-        lnikToNoteActivity = (TextView) findViewById(R.id.tvLinkToListView);
-        lnikToNoteActivity.setOnClickListener(this);
+        saveButton = (Button) findViewById(R.id.saveButton);
+        etNoteTitle = (EditText) findViewById(R.id.etTitle);
+        etNoteContent = (EditText) findViewById(R.id.etContent);
 
+        saveButton.setOnClickListener(this);
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -107,12 +113,12 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
                 myFirebaseAuth.signOut();
-                JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, LoginActivity.class));
+                NewEntryActivity.this.startActivity(new Intent(NewEntryActivity.this, LoginActivity.class));
                 return true;
 
             //If item is reset password
             case R.id.action_reset_password:
-                JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, ResetPasswordActivity.class));
+                NewEntryActivity.this.startActivity(new Intent(NewEntryActivity.this, ResetPasswordActivity.class));
                 return true;
         }
 
@@ -121,9 +127,37 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        if (v == lnikToNoteActivity) {
-            //move to next Scene by clicking the TEXTVIEW
+        if (v == saveButton) {
+            saveNoteToDatabase();
             startActivity(new Intent(this, EntryListActivity.class));
+            finish();
+            return;
         }
+    }
+
+    private void saveNoteToDatabase() {
+        //save data.
+        String title = etNoteTitle.getText().toString().trim();
+        String content = etNoteContent.getText().toString().trim();
+        String noteId = db.push().getKey();
+
+        //validation...
+        if (TextUtils.isEmpty(title)) {
+            etNoteTitle.setError("Title must not be empty");
+        }
+        if (TextUtils.isEmpty(content)) {
+            etNoteContent.setError("Content must not be empty");
+        }
+
+        //if validates
+        Note note = new Note(noteId, title, content);
+
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        myFirebaseUser = myFirebaseAuth.getCurrentUser();
+        db = FirebaseDatabase.getInstance().getReference();
+        String userID = myFirebaseUser.getUid();
+
+        noteReference = db.child(Constants.Users_End_Point).child(userID).child(Constants.Notes_End_Point).child(noteId);
+        noteReference.setValue(note);
     }
 }
