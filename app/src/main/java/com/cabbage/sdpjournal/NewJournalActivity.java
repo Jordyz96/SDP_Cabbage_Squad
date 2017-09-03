@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class CreateJournalActivity extends AppCompatActivity implements View.OnClickListener{
+public class NewJournalActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button createBtn;
     private EditText etJournalName;
@@ -29,7 +29,7 @@ public class CreateJournalActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_journal);
+        setContentView(R.layout.activity_new_journal);
         init();
 
     }
@@ -61,7 +61,7 @@ public class CreateJournalActivity extends AppCompatActivity implements View.OnC
                     //make it default
                     journalColor = Constants.Default_Color;
                 }else {
-                    Toast.makeText(CreateJournalActivity.this, journalColor, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NewJournalActivity.this, journalColor, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -77,7 +77,7 @@ public class CreateJournalActivity extends AppCompatActivity implements View.OnC
     public void onClick(View v) {
         if (v == createBtn){
             createJournal();
-            startActivity(new Intent(CreateJournalActivity.this, MainActivity.class));
+            startActivity(new Intent(NewJournalActivity.this, JournalListActivity.class));
             finish();
         }
     }

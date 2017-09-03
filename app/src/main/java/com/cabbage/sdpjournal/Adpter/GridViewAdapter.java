@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Journal;
-import com.cabbage.sdpjournal.NoteBookListViewActivity;
+import com.cabbage.sdpjournal.EntryListActivity;
 import com.cabbage.sdpjournal.R;
 
 import java.util.ArrayList;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 
 public class GridViewAdapter extends BaseAdapter {
 
-    Context context;
-    ArrayList<Journal> journals;
+    private Context context;
+    private ArrayList<Journal> journals;
 
     public GridViewAdapter(Context context, ArrayList<Journal> journals) {
         this.context = context;
@@ -74,7 +74,7 @@ public class GridViewAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 String journalID = journal.getJournalID();
-                Intent intent = new Intent(context, NoteBookListViewActivity.class);
+                Intent intent = new Intent(context, EntryListActivity.class);
                 intent.putExtra(Constants.journalID, journalID);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);

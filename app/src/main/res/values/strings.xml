@@ -50,4 +50,7 @@
     <string name="chat_title_hint">Enter a chat name</string>
     <string name="action_select_chat">Select Chat</string>
     <string name="title_activity_reset_password">ResetPasswordActivity</string>
+    <string name="action_reset_password">Reset Password</string>
+    <string name="logout">Logout</string>
+    <string name="addItem">addItem</string>
 </resources>

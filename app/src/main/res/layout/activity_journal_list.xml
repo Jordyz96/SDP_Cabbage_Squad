@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.cabbage.sdpjournal.JournalListActivity">
+
+    <include android:id="@+id/toolbar"
+        layout="@layout/tool_bar"/>
+
+    <GridView
+        android:id="@+id/gvJournalView"
+        android:layout_width="368dp"
+        android:layout_height="383dp"
+        android:columnWidth="100dp"
+        android:numColumns="auto_fit"
+        app:layout_constraintBottom_toTopOf="@+id/toolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignLeft="@+id/toolbar"
+        android:layout_alignStart="@+id/toolbar"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+    </GridView>
+
+</RelativeLayout>

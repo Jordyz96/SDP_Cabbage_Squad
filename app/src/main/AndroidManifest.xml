@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".JournalListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,15 +20,15 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".NoteBookListViewActivity" />
-        <activity android:name=".WriteNoteActivity" />
-        <activity android:name=".NoteViewActivity" />
+        <activity android:name=".EntryListActivity" />
+        <activity android:name=".NewEntryActivity" />
+        <activity android:name=".EntryViewActivity" />
         <activity android:name=".SettingActivity" />
         <activity
             android:name=".ResetPasswordActivity"
             android:label="@string/title_activity_reset_password"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".CreateJournalActivity"></activity>
+        <activity android:name=".NewJournalActivity"></activity>
     </application>
 
 </manifest>

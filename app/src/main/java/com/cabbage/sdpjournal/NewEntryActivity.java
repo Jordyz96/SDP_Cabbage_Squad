@@ -1,3 +1,4 @@
+
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
@@ -18,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class WriteNoteActivity extends AppCompatActivity implements View.OnClickListener {
+public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button saveButton;
     private EditText etEntryName;
@@ -30,7 +31,7 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_write_note);
+        setContentView(R.layout.activity_new_entry);
 
         db = FirebaseDatabase.getInstance().getReference();
 
@@ -53,10 +54,10 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void backToEntryViewWithExtra(){
+    private void backToEntryViewWithExtra() {
         //Must !!! put back the journalID to EntryView
         String journalID = getIntent().getExtras().getString(Constants.journalID);
-        Intent intent = new Intent(this, NoteBookListViewActivity.class);
+        Intent intent = new Intent(this, EntryListActivity.class);
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
     }
@@ -95,8 +96,8 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
 
         //if validates, store a new entry to database
         Entry entry = new Entry(entryID, entryName
-                ,entryResponsibilities, entryDecision, entryOutcome, entryComment
-                ,dataTimeCreated, status, journalID, predecessorEntryID);
+                , entryResponsibilities, entryDecision, entryOutcome, entryComment
+                , dataTimeCreated, status, journalID, predecessorEntryID);
 
         if (TextUtils.isEmpty(entryComment)) {
             entry.setEntryComment("You did not leave any comment on it");
@@ -113,4 +114,3 @@ public class WriteNoteActivity extends AppCompatActivity implements View.OnClick
         noteReference.setValue(entry);
     }
 }
-

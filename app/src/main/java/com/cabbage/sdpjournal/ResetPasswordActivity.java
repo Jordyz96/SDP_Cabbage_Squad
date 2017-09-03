@@ -57,10 +57,12 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
 
         if (validationPassed(newPassword, confirmPassword)){
             if (user != null) {
+                progressDialog.show();
                 user.updatePassword(newPassword)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                progressDialog.dismiss();
                                 if (task.isSuccessful()){
                                     Toast.makeText(ResetPasswordActivity.this, "Password updated, login with new password", Toast.LENGTH_SHORT).show();
                                     startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
@@ -74,9 +76,13 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
                         });
             }
         }
-
-
     }
+
+    /**
+     * Checks if the passed two passwords are valid and are the same
+     * Password must not be empty, shorter than 6 and greater than 25
+     * Two passwords provided must be the same
+     */
 
     private boolean validationPassed(String newP, String confirmP){
         isValid = false;

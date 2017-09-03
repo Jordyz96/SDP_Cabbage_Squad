@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.cabbage.sdpjournal.EntryListActivity">
+
+    <include android:id="@+id/toolbar"
+        layout="@layout/tool_bar"/>
+
+    <com.cabbage.sdpjournal.SwipeListView.SwipeListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:splitMotionEvents="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_below="@id/toolbar"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="10dp"></com.cabbage.sdpjournal.SwipeListView.SwipeListView>
+
+
+</RelativeLayout>

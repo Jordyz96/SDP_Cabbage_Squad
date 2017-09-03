@@ -1,10 +1,15 @@
+
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,14 +29,20 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class NoteBookListViewActivity extends AppCompatActivity implements View.OnClickListener {
+import static android.content.ContentValues.TAG;
 
-    private Button addNoteButton;
+public class EntryListActivity extends AppCompatActivity implements View.OnClickListener {
+
+    Toolbar toolbar;
 
     private SwipeListView listViewNote;
     private ArrayList<Entry> noteList;
-
     private ListAdapter listAdapter;
+
+    private FirebaseAuth firebaseAuth;
+
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
 
     class ViewHolder {
         public TextView title;
@@ -44,15 +55,17 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_note_book_list_view);
+        setContentView(R.layout.activity_entry_list);
 
-        addNoteButton = (Button) findViewById(R.id.addButton);
-        addNoteButton.setOnClickListener(this);
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        //toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         listViewNote = (SwipeListView) findViewById(R.id.listView);
 
         noteList = new ArrayList<>();
-
 
         listViewNote.setListener(new OnSwipeListItemClickListener() {
             @Override
@@ -65,7 +78,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 String entryDateTime = noteList.get(index).getDateTimeCreated();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
-                Intent intent = new Intent(NoteBookListViewActivity.this, NoteViewActivity.class);
+                Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
                 intent.putExtra("entryName", entryName);
                 intent.putExtra("responsibilities", responsibilities);
                 intent.putExtra("decision", decision);
@@ -82,16 +95,16 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 String entryName = noteList.get(index).getEntryName();
                 String comment = noteList.get(index).getEntryComment();
 
-                AlertDialog.Builder ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
-                View myview = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
+                AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
+                View myView = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
 
-                TextView detailTitle = (TextView) myview.findViewById(R.id.tvEntryDetailsTitle);
-                TextView detailContent = (TextView) myview.findViewById(R.id.tvEntryDetailsContent);
-                Button closeButton = (Button) myview.findViewById(R.id.bCloseEntryDetails);
+                TextView detailTitle = (TextView) myView.findViewById(R.id.tvEntryDetailsTitle);
+                TextView detailContent = (TextView) myView.findViewById(R.id.tvEntryDetailsContent);
+                Button closeButton = (Button) myView.findViewById(R.id.bCloseEntryDetails);
 
                 detailTitle.setText(entryName);
                 detailContent.setText(comment);
-                ab.setView(myview);
+                ab.setView(myView);
                 final AlertDialog dialog = ab.create();
                 dialog.show();
 
@@ -111,21 +124,21 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 switch (rid) {
                     //if click modify from the swipe list view
                     case R.id.modify:
-                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
                         ab.setTitle("Modify");
                         ab.setMessage("You will modify item " + index);
                         ab.create().show();
                         break;
                     //if click delete
                     case R.id.delete:
-                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
                         ab.setTitle("Delete");
                         ab.setMessage("You will delete item " + index);
                         ab.create().show();
                         break;
                     //if click hide
                     case R.id.hide:
-                        ab = new AlertDialog.Builder(NoteBookListViewActivity.this);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
                         ab.setTitle("Hide");
                         ab.setMessage("You will hide item " + index);
                         ab.create().show();
@@ -133,13 +146,30 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
                 }
             }
         }, new int[]{R.id.modify, R.id.delete, R.id.hide});
+
+        //Set listener that triggers when a user signs out
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, Constants.AUTH_IN + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, Constants.AUTH_OUT);
+                }
+                // ...
+            }
+        };
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        //setting up firebase stuff
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        //Sets a listener to catch when the user is signing in.
+        firebaseAuth.addAuthStateListener(mAuthListener);
+        //setting up fireBase stuff
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         //get userID
         String userID = "";
@@ -159,7 +189,7 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
 
                 noteList.clear();
                 for (DataSnapshot noteDS : dataSnapshot.getChildren()) {
-                    Log.d("Journal "," ==>"+noteDS.toString());
+                    Log.d("Journal ", " ==>" + noteDS.toString());
                     Entry note = noteDS.getValue(Entry.class);
                     noteList.add(note);
                 }
@@ -176,16 +206,63 @@ public class NoteBookListViewActivity extends AppCompatActivity implements View.
     }
 
 
+    //On stop method
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Sets listener to catch when the user is signing out.
+        if (mAuthListener != null) {
+            firebaseAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
 
     @Override
     public void onClick(View v) {
-        if (v == addNoteButton) {
-            String journalID = getIntent().getExtras().getString(Constants.journalID);
-            Intent intent = new Intent(this, WriteNoteActivity.class);
-            intent.putExtra(Constants.journalID, journalID);
-            startActivity(intent);
-            finish();
+        //.
+    }
+
+    /**
+     * Creates the options menu on the action bar.
+     * @param menu Menu at the top right of the screen
+     * @return true
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Inflates the menu menu_other which includes logout and quit functions.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /**
+     * Sets a listener that triggers when an option from the taskbar menu is selected.
+     * @param item Which item on the menu was selected.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Finds which item was selected
+        switch(item.getItemId()){
+            //If item is logout
+            case R.id.action_logout:
+                //Sign out of the authenticator and return to login activity.
+                firebaseAuth.signOut();
+                EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, LoginActivity.class));
+                return true;
+
+            //If item is reset password
+            case R.id.action_reset_password:
+                EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, ResetPasswordActivity.class));
+                return true;
+
+            case R.id.action_add:
+                String journalID = getIntent().getExtras().getString(Constants.journalID);
+                Intent intent = new Intent(this, NewEntryActivity.class);
+                intent.putExtra(Constants.journalID, journalID);
+                EntryListActivity.this.startActivity(intent);
+                return true;
         }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
