@@ -14,7 +14,7 @@
         android:layout_width="368dp"
         android:layout_height="383dp"
         android:columnWidth="100dp"
-        android:numColumns="auto_fit"
+        android:numColumns="3"
         app:layout_constraintBottom_toTopOf="@+id/toolbar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

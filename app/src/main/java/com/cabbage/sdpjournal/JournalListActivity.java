@@ -1,6 +1,7 @@
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageView;
 
 import com.cabbage.sdpjournal.Adpter.GridViewAdapter;
 import com.cabbage.sdpjournal.Model.Constants;

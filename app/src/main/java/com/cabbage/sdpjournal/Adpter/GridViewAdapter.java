@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cabbage.sdpjournal.Model.Constants;
@@ -52,22 +53,23 @@ public class GridViewAdapter extends BaseAdapter {
         }
         TextView tvJournalName = (TextView) view.findViewById(R.id.tvJournalName);
         TextView tvCompanyName = (TextView) view.findViewById(R.id.tvCompanyName);
+        ImageView journalImage = (ImageView) view.findViewById(R.id.ivJournalImage);
         final Journal journal = (Journal) this.getItem(i);
 
         tvJournalName.setText(journals.get(i).getJournalName());
         tvCompanyName.setText("Company: "+journals.get(i).getCompanyName());
 
         if (journals.get(i).getJournalColor().equals("Red")){
-            view.setBackgroundColor(Color.parseColor("#E41E1E"));
+            journalImage.setImageResource(R.drawable.red_journal);
         }
         if (journals.get(i).getJournalColor().equals("Green")){
-            view.setBackgroundColor(Color.parseColor("#43E272"));
+            journalImage.setImageResource(R.drawable.green_journal);
         }
         if (journals.get(i).getJournalColor().equals("Blue")){
-            view.setBackgroundColor(Color.parseColor("#4348E2"));
+            journalImage.setImageResource(R.drawable.blue_journal);
         }
         if (journals.get(i).getJournalColor().equals("Yellow")){
-            view.setBackgroundColor(Color.parseColor("#FFFA52"));
+            journalImage.setImageResource(R.drawable.yellow_journal);
         }
 
         view.setOnClickListener(new View.OnClickListener() {
