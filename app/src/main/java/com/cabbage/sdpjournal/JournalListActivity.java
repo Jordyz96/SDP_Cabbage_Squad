@@ -114,7 +114,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_add_action, menu);
         return true;
     }
 
@@ -150,7 +150,6 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     public void onStart() {
         super.onStart();
         //Sets a listener to catch when the user is signing in.
-
         myFireBaseAuth.addAuthStateListener(mAuthListener);
     }
 
@@ -169,4 +168,5 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         //.
     }
+    //git testing
 }

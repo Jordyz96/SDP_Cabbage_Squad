@@ -40,9 +40,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private ListAdapter listAdapter;
 
     private FirebaseAuth firebaseAuth;
-
     private FirebaseAuth.AuthStateListener mAuthListener;
-
 
     class ViewHolder {
         public TextView title;
@@ -230,7 +228,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_add_action, menu);
         return true;
     }
 

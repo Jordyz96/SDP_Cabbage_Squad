@@ -2,8 +2,13 @@ package com.cabbage.sdpjournal;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,12 +24,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import static android.content.ContentValues.TAG;
+
 public class NewJournalActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button createBtn;
     private EditText etJournalName;
     private EditText etCompanyName;
     private String journalColor;
+    Toolbar toolbar;
+    private FirebaseAuth myFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +45,11 @@ public class NewJournalActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void init(){
+
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        //toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         etJournalName = (EditText) findViewById(R.id.etJournalName);
         etCompanyName = (EditText) findViewById(R.id.etCompanyName);
@@ -71,6 +86,73 @@ public class NewJournalActivity extends AppCompatActivity implements View.OnClic
             }
         });
 
+        //Set listener that triggers when a user signs out
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, Constants.AUTH_IN + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, Constants.AUTH_OUT);
+                }
+                // ...
+            }
+        };
+
+    }
+
+    /**
+     * Creates the options menu on the action bar.
+     * @param menu Menu at the top right of the screen
+     * @return true
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Inflates the menu menu_other which includes logout and quit functions.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /**
+     * Sets a listener that triggers when an option from the taskbar menu is selected.
+     * @param item Which item on the menu was selected.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Finds which item was selected
+        switch(item.getItemId()){
+            //If item is logout
+            case R.id.action_logout:
+                //Sign out of the authenticator and return to login activity.
+                myFirebaseAuth.signOut();
+                NewJournalActivity.this.startActivity(new Intent(NewJournalActivity.this, LoginActivity.class));
+                return true;
+
+            //If item is reset password
+            case R.id.action_reset_password:
+                NewJournalActivity.this.startActivity(new Intent(NewJournalActivity.this, ResetPasswordActivity.class));
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Sets a listener to catch when the user is signing in.
+        myFirebaseAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Sets listener to catch when the user is signing out.
+        if (mAuthListener != null) {
+            myFirebaseAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
     @Override
@@ -84,8 +166,7 @@ public class NewJournalActivity extends AppCompatActivity implements View.OnClic
 
     private void createJournal() {
         //setting values
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        FirebaseUser firebaseUser = myFirebaseAuth.getCurrentUser();
         DatabaseReference journalReference = FirebaseDatabase.getInstance().getReference();
 
         String journalName = etJournalName.getText().toString().trim();

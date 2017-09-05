@@ -6,8 +6,13 @@ import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +24,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import static android.content.ContentValues.TAG;
+
 public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button saveButton;
@@ -27,11 +34,19 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     private DatabaseReference db;
     Calendar calendar;
     SimpleDateFormat simpleDateFormat;
+    Toolbar toolbar;
+    private FirebaseAuth myFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_entry);
+
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        //toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         db = FirebaseDatabase.getInstance().getReference();
 
@@ -43,6 +58,73 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         etComment = (EditText) findViewById(R.id.etComment);
 
         saveButton.setOnClickListener(this);
+
+        //Set listener that triggers when a user signs out
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, Constants.AUTH_IN + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, Constants.AUTH_OUT);
+                }
+                // ...
+            }
+        };
+    }
+
+    /**
+     * Creates the options menu on the action bar.
+     * @param menu Menu at the top right of the screen
+     * @return true
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Inflates the menu menu_other which includes logout and quit functions.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /**
+     * Sets a listener that triggers when an option from the taskbar menu is selected.
+     * @param item Which item on the menu was selected.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Finds which item was selected
+        switch(item.getItemId()){
+            //If item is logout
+            case R.id.action_logout:
+                //Sign out of the authenticator and return to login activity.
+                myFirebaseAuth.signOut();
+                NewEntryActivity.this.startActivity(new Intent(NewEntryActivity.this, LoginActivity.class));
+                return true;
+
+            //If item is reset password
+            case R.id.action_reset_password:
+                NewEntryActivity.this.startActivity(new Intent(NewEntryActivity.this, ResetPasswordActivity.class));
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Sets a listener to catch when the user is signing in.
+        myFirebaseAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Sets listener to catch when the user is signing out.
+        if (mAuthListener != null) {
+            myFirebaseAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
     @Override
