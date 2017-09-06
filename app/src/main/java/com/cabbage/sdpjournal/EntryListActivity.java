@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.cabbage.sdpjournal.Adpter.SwipeListAdapter;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Entry;
 import com.cabbage.sdpjournal.SwipeListView.OnSwipeListItemClickListener;
@@ -35,8 +36,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     Toolbar toolbar;
 
-    private SwipeListView listViewNote;
-    private ArrayList<Entry> noteList;
+    private SwipeListView entriesListView;
+    private ArrayList<Entry> entriesList;
     private ListAdapter listAdapter;
 
     private FirebaseAuth firebaseAuth;
@@ -61,19 +62,19 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        listViewNote = (SwipeListView) findViewById(R.id.listView);
+        entriesListView = (SwipeListView) findViewById(R.id.listView);
 
-        noteList = new ArrayList<>();
+        entriesList = new ArrayList<>();
 
-        listViewNote.setListener(new OnSwipeListItemClickListener() {
+        entriesListView.setListener(new OnSwipeListItemClickListener() {
             @Override
             public void OnClick(View view, int index) {
-                String entryName = noteList.get(index).getEntryName();
-                String responsibilities = noteList.get(index).getEntryResponsibilities();
-                String decision = noteList.get(index).getEntryDecision();
-                String outcome = noteList.get(index).getEntryOutcome();
-                String entryComment = noteList.get(index).getEntryComment();
-                String entryDateTime = noteList.get(index).getDateTimeCreated();
+                String entryName = entriesList.get(index).getEntryName();
+                String responsibilities = entriesList.get(index).getEntryResponsibilities();
+                String decision = entriesList.get(index).getEntryDecision();
+                String outcome = entriesList.get(index).getEntryOutcome();
+                String entryComment = entriesList.get(index).getEntryComment();
+                String entryDateTime = entriesList.get(index).getDateTimeCreated();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
@@ -90,8 +91,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public boolean OnLongClick(View view, int index) {
                 //long click entries -- popup dialog
-                String entryName = noteList.get(index).getEntryName();
-                String comment = noteList.get(index).getEntryComment();
+                String entryName = entriesList.get(index).getEntryName();
+                String comment = entriesList.get(index).getEntryComment();
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
                 View myView = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
@@ -120,30 +121,17 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             public void OnControlClick(int rid, View view, int index) {
                 AlertDialog.Builder ab;
                 switch (rid) {
-                    //if click modify from the swipe list view
-                    case R.id.modify:
-                        ab = new AlertDialog.Builder(EntryListActivity.this);
-                        ab.setTitle("Modify");
-                        ab.setMessage("You will modify item " + index);
-                        ab.create().show();
-                        break;
                     //if click delete
                     case R.id.delete:
-                        ab = new AlertDialog.Builder(EntryListActivity.this);
-                        ab.setTitle("Delete");
-                        ab.setMessage("You will delete item " + index);
-                        ab.create().show();
-                        break;
+                        //if user hides an entry, change the entry status.
+                        changeStatus(index, Constants.Entry_Status_Deleted);
                     //if click hide
                     case R.id.hide:
-                        ab = new AlertDialog.Builder(EntryListActivity.this);
-                        ab.setTitle("Hide");
-                        ab.setMessage("You will hide item " + index);
-                        ab.create().show();
-                        break;
+                        //if user hides an entry, change the entry status.
+                        changeStatus(index, Constants.Entry_Status_Hidden);
                 }
             }
-        }, new int[]{R.id.modify, R.id.delete, R.id.hide});
+        }, new int[]{R.id.delete, R.id.hide});
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -162,6 +150,21 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         };
     }
 
+    //Change the status of a chosen entry on the database
+    public void changeStatus(int index, String status){
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        String userID = null;
+        if (firebaseUser != null) {
+            userID = firebaseUser.getUid();
+        }
+        String journalID = getIntent().getExtras().getString(Constants.journalID);
+        String entryID = entriesList.get(index).getEntryID();
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference entryStatusRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
+                .child(journalID).child(Constants.Entries_End_Point).child(entryID).child("status");
+        entryStatusRef.setValue(status);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -178,21 +181,28 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         //setting up reference
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference noteRef = db.child(Constants.Users_End_Point)
+        DatabaseReference entryRef = db.child(Constants.Users_End_Point)
                 .child(userID).child(Constants.Journals_End_Point).child(journalID)
                 .child(Constants.Entries_End_Point);
-        noteRef.addValueEventListener(new ValueEventListener() {
+        entryRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                noteList.clear();
-                for (DataSnapshot noteDS : dataSnapshot.getChildren()) {
-                    Log.d("Journal ", " ==>" + noteDS.toString());
-                    Entry note = noteDS.getValue(Entry.class);
-                    noteList.add(note);
+                entriesList.clear();
+                for (DataSnapshot entryDS : dataSnapshot.getChildren()) {
+
+                    Log.d("Journal ", " ==>" + entryDS.toString());
+                    Entry entry = entryDS.getValue(Entry.class);
+
+                    //Only add entry objects on the database that are not hidden and deleted to the list
+
+                    if (entry.getStatus().equals(Constants.Entry_Status_Normal)){
+                        //if status is not hidden or deleted
+                        entriesList.add(entry);
+                    }
                 }
-                listAdapter = new ListAdapter(noteList);
-                listViewNote.setAdapter(listAdapter);
+                listAdapter = new ListAdapter(entriesList);
+                entriesListView.setAdapter(listAdapter);
             }
 
             @Override
@@ -263,7 +273,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         return super.onOptionsItemSelected(item);
     }
 
-    private class ListAdapter extends com.cabbage.sdpjournal.Adpter.SwipeListAdpter {
+    public class ListAdapter extends SwipeListAdapter {
         private ArrayList<Entry> listData;
 
         ListAdapter(ArrayList<Entry> listData) {
@@ -286,15 +296,14 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder = new ViewHolder();
 
             if (convertView == null) {
                 convertView = View.inflate(getBaseContext(), R.layout.style_list, null);
-                viewHolder.title = (TextView) convertView.findViewById(R.id.tvNoteTitleInStyle_list);
-                viewHolder.dateTimeCreated = (TextView) convertView.findViewById(R.id.tvNoteContentInStyle_list);
+                viewHolder.title = (TextView) convertView.findViewById(R.id.tvEntryTitleInStyle_list);
+                viewHolder.dateTimeCreated = (TextView) convertView.findViewById(R.id.tvEntryDateTimeInStyle_list);
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
-                viewHolder.modify = (Button) convertView.findViewById(R.id.modify);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
                 convertView.setTag(viewHolder);
             } else {

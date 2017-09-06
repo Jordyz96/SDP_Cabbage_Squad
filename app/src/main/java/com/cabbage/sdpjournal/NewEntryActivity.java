@@ -152,7 +152,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         String entryDecision = etDecisions.getText().toString().trim();
         String entryOutcome = etOutcome.getText().toString().trim();
         String entryComment = etComment.getText().toString().trim();
-        String status = "Normal";
+        String status = Constants.Entry_Status_Normal;
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         String predecessorEntryID = "";
         String dataTimeCreated = null;

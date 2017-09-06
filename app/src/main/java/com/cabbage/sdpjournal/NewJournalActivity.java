@@ -71,7 +71,7 @@ public class NewJournalActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 journalColor = adapterView.getItemAtPosition(i).toString().trim();
-                //If do not choose (select the default)
+                //If did not choose (select the default)
                 if (journalColor.equals(Constants.Select_Color)){
                     //make it default
                     journalColor = Constants.Default_Color;
