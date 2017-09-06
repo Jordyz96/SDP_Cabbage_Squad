@@ -138,6 +138,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         Intent intent = new Intent(this, EntryListActivity.class);
+        //journalID must be put back to EntryListActivity
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
     }

@@ -118,13 +118,37 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             }
 
             @Override
-            public void OnControlClick(int rid, View view, int index) {
+            public void OnControlClick(int rid, View view, final int index) {
                 AlertDialog.Builder ab;
                 switch (rid) {
                     //if click delete
                     case R.id.delete:
-                        //if user hides an entry, change the entry status.
-                        changeStatus(index, Constants.Entry_Status_Deleted);
+                        ab = new AlertDialog.Builder(EntryListActivity.this);
+                        View myView = getLayoutInflater().inflate(R.layout.dialog_alert_yes_or_no, null);
+
+                        TextView alertLabel = (TextView) myView.findViewById(R.id.tvAlertLabel);
+                        Button noBtn = (Button) myView.findViewById(R.id.alertBtnNo);
+                        Button yesBtn = (Button) myView.findViewById(R.id.alertBtnYes);
+
+                        alertLabel.setText("Are you sure?");
+                        ab.setView(myView);
+                        final AlertDialog dialog = ab.create();
+                        dialog.show();
+                        noBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.cancel();
+                            }
+                        });
+                        yesBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                changeStatus(index, Constants.Entry_Status_Deleted);
+                                dialog.cancel();
+                            }
+                        });
+                        break;
+                    //if user hides an entry, change the entry status.
                     //if click hide
                     case R.id.hide:
                         //if user hides an entry, change the entry status.
@@ -151,7 +175,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     //Change the status of a chosen entry on the database
-    public void changeStatus(int index, String status){
+    public void changeStatus(int index, String status) {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         String userID = null;
         if (firebaseUser != null) {
@@ -159,9 +183,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         String entryID = entriesList.get(index).getEntryID();
+        //setting path
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
         DatabaseReference entryStatusRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
                 .child(journalID).child(Constants.Entries_End_Point).child(entryID).child("status");
+        //overwrite the old value
         entryStatusRef.setValue(status);
     }
 
@@ -189,16 +215,19 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 entriesList.clear();
+                //loop through the reference given to search entries that match the reference
                 for (DataSnapshot entryDS : dataSnapshot.getChildren()) {
-
+                    //test log
                     Log.d("Journal ", " ==>" + entryDS.toString());
+
                     Entry entry = entryDS.getValue(Entry.class);
-
-                    //Only add entry objects on the database that are not hidden and deleted to the list
-
-                    if (entry.getStatus().equals(Constants.Entry_Status_Normal)){
+                    //Only add entry on the database that are not hidden and deleted to the list
+                    if (entry.getStatus().equals(Constants.Entry_Status_Normal)) {
                         //if status is not hidden or deleted
                         entriesList.add(entry);
+                    } else {
+                        //entry is deleted or hidden, which shouldn't be added to the list, just leave them
+                        //in the database instead.
                     }
                 }
                 listAdapter = new ListAdapter(entriesList);
@@ -232,6 +261,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * Creates the options menu on the action bar.
+     *
      * @param menu Menu at the top right of the screen
      * @return true
      */
@@ -244,12 +274,13 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * Sets a listener that triggers when an option from the taskbar menu is selected.
+     *
      * @param item Which item on the menu was selected.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Finds which item was selected
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             //If item is logout
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
