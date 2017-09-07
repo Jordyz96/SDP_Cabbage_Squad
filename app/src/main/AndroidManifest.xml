@@ -23,7 +23,6 @@
         <activity android:name=".EntryListActivity" />
         <activity android:name=".NewEntryActivity" />
         <activity android:name=".EntryViewActivity" />
-        <activity android:name=".SettingActivity" />
         <activity
             android:name=".ResetPasswordActivity"
             android:label="@string/title_activity_reset_password"
