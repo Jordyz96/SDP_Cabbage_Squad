@@ -1,19 +1,18 @@
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
-import android.widget.ImageView;
+import android.widget.ListView;
 
-import com.cabbage.sdpjournal.Adpter.GridViewAdapter;
+import com.cabbage.sdpjournal.Adpter.JournalListAdapter;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Journal;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,12 +29,13 @@ import static android.content.ContentValues.TAG;
 
 public class JournalListActivity extends AppCompatActivity implements View.OnClickListener {
 
-    GridView gridView;
+    ListView listView;
     ArrayList<Journal> journalArrayList;
-    GridViewAdapter gridViewAdapter;
+    JournalListAdapter gridViewAdapter;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     Toolbar toolbar;
+    FloatingActionButton fab;
 
     private FirebaseAuth myFireBaseAuth;
 
@@ -47,6 +47,9 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         //toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //floating button
+        fab = (FloatingActionButton) findViewById(R.id.fabAddAction);
+        fab.setOnClickListener(this);
 
         //just prevent being required to login everytime...
         myFireBaseAuth = FirebaseAuth.getInstance();
@@ -77,7 +80,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         };
 
         //setting up things
-        gridView = (GridView) findViewById(R.id.gvJournalView);
+        listView = (ListView) findViewById(R.id.gvJournalView);
 
         //setting adapter
         journalArrayList = new ArrayList<>();
@@ -97,8 +100,8 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                             journalArrayList.add(journal);
                         }
                         //add data to the view adapter
-                        gridViewAdapter = new GridViewAdapter(JournalListActivity.this, journalArrayList);
-                        gridView.setAdapter(gridViewAdapter);
+                        gridViewAdapter = new JournalListAdapter(JournalListActivity.this, journalArrayList);
+                        listView.setAdapter(gridViewAdapter);
                     }
 
                     @Override
@@ -116,7 +119,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_add_action, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -124,6 +127,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
      * Sets a listener that triggers when an option from the taskbar menu is selected.
      * @param item Which item on the menu was selected.
      */
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Finds which item was selected
@@ -138,10 +142,6 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
             //If item is reset password
             case R.id.action_reset_password:
                 JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, ResetPasswordActivity.class));
-                return true;
-
-            case R.id.action_add:
-                JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, NewJournalActivity.class));
                 return true;
         }
 
@@ -168,7 +168,9 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        //.
+        if (v == fab){
+            startActivity(new Intent(JournalListActivity.this, NewJournalActivity.class));
+            finish();
+        }
     }
-    //git testing
 }

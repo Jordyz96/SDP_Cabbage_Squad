@@ -2,7 +2,6 @@ package com.cabbage.sdpjournal.Adpter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +20,12 @@ import java.util.ArrayList;
  * Created by Junwen on 31/8/17.
  */
 
-public class GridViewAdapter extends BaseAdapter {
+public class JournalListAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<Journal> journals;
 
-    public GridViewAdapter(Context context, ArrayList<Journal> journals) {
+    public JournalListAdapter(Context context, ArrayList<Journal> journals) {
         this.context = context;
         this.journals = journals;
     }
@@ -49,7 +48,7 @@ public class GridViewAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         if (view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.style_grid_view_journal_item, viewGroup,false);
+            view = LayoutInflater.from(context).inflate(R.layout.style_journal_list_item, viewGroup,false);
         }
         TextView tvJournalName = (TextView) view.findViewById(R.id.tvJournalName);
         TextView tvCompanyName = (TextView) view.findViewById(R.id.tvCompanyName);

@@ -18,12 +18,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener{
+public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener {
 
     Toolbar toolbar;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +84,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * Creates the options menu on the action bar.
+     *
      * @param menu Menu at the top right of the screen
      * @return true
      */
@@ -97,12 +97,13 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * Sets a listener that triggers when an option from the taskbar menu is selected.
+     *
      * @param item Which item on the menu was selected.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Finds which item was selected
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             //If item is logout
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
@@ -118,6 +119,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
 
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void onStart() {
         super.onStart();

@@ -4,6 +4,7 @@ package com.cabbage.sdpjournal;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.cabbage.sdpjournal.Adpter.SwipeListAdapter;
+import com.cabbage.sdpjournal.Adpter.EntryListAdapter;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Entry;
 import com.cabbage.sdpjournal.SwipeListView.OnSwipeListItemClickListener;
@@ -35,6 +36,8 @@ import static android.content.ContentValues.TAG;
 public class EntryListActivity extends AppCompatActivity implements View.OnClickListener {
 
     Toolbar toolbar;
+    FloatingActionButton fab;
+
 
     private SwipeListView entriesListView;
     private ArrayList<Entry> entriesList;
@@ -61,6 +64,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         //toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //floating button
+        fab = (FloatingActionButton) findViewById(R.id.fabAddAction);
+        fab.setOnClickListener(this);
 
         entriesListView = (SwipeListView) findViewById(R.id.listView);
 
@@ -242,7 +248,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     }
 
-
     //On stop method
     @Override
     public void onStop() {
@@ -256,7 +261,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        //.
+        if (v == fab){
+            String journalID = getIntent().getExtras().getString(Constants.journalID);
+            Intent intent = new Intent(this, NewEntryActivity.class);
+            intent.putExtra(Constants.journalID, journalID);
+            EntryListActivity.this.startActivity(intent);
+        }
     }
 
     /**
@@ -268,7 +278,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_add_action, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -293,18 +303,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, ResetPasswordActivity.class));
                 return true;
 
-            case R.id.action_add:
-                String journalID = getIntent().getExtras().getString(Constants.journalID);
-                Intent intent = new Intent(this, NewEntryActivity.class);
-                intent.putExtra(Constants.journalID, journalID);
-                EntryListActivity.this.startActivity(intent);
-                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public class ListAdapter extends SwipeListAdapter {
+    public class ListAdapter extends EntryListAdapter {
         private ArrayList<Entry> listData;
 
         ListAdapter(ArrayList<Entry> listData) {

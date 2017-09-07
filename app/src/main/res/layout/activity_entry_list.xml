@@ -21,5 +21,18 @@
         android:layout_marginBottom="3dp"
         android:layout_marginTop="10dp"></com.cabbage.sdpjournal.SwipeListView.SwipeListView>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabAddAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_action_add"
+        app:fabSize="mini"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        tools:ignore="RtlCompat" />
+
 
 </RelativeLayout>

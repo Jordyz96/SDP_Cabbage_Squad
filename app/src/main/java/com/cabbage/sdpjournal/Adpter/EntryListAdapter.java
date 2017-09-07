@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 
 import com.cabbage.sdpjournal.SwipeListView.SwipeListViewScroll;
 
-public class SwipeListAdapter extends BaseAdapter {
+public class EntryListAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         return 0;

@@ -17,7 +17,6 @@ public class Constants {
     public static final String AUTH_OUT = "onAuthStateChanged:signed_out";
 
     //other Strings
-    public static final String Welcome_Text = "Welcome ";
     public static final String Reset_Password = "Reset Password";
     public static final String journalID = "journalID";
     public static final String Default_Color = "defualt";
