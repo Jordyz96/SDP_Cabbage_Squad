@@ -8,44 +8,62 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.cabbage.sdpjournal.Model.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryViewActivity extends AppCompatActivity {
+public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView tvTitle;
-    private TextView tvContent;
-
+    Toolbar toolbar;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
-    private static final String AUTH_IN = "onAuthStateChanged:signed_in:";
-    private static final String AUTH_OUT = "onAuthStateChanged:signed_out";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry_view);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         myFirebaseAuth = FirebaseAuth.getInstance();
+        //toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        String title, content;
+        //setting var
+        String entryName, responsibilities, decision, outcome, comment, dateTime;
 
-        tvContent = (TextView) findViewById(R.id.tvContentInNoteView);
-        tvTitle = (TextView) findViewById(R.id.tvTitleInNoteView);
+        //setting items
+        TextView tvEntryName = (TextView) findViewById(R.id.tvEntryName);
+        TextView tvRes = (TextView) findViewById(R.id.tvResponsibilities);
+        TextView tvDecisions = (TextView) findViewById(R.id.tvDecisions);
+        TextView tvOutcome = (TextView) findViewById(R.id.tvOutcome);
+        TextView tvComment = (TextView) findViewById(R.id.tvComment);
+        TextView tvDateTime = (TextView) findViewById(R.id.tvDateTime);
+        Button backBtn = (Button) findViewById(R.id.backBtnEntryView);
 
-        title = getIntent().getExtras().getString("titleKey");
-        content = getIntent().getExtras().getString("contentKey");
+        //getting Extras from EntryListActivity
+        entryName = getIntent().getExtras().getString("entryName");
+        responsibilities = getIntent().getExtras().getString("responsibilities");
+        decision = getIntent().getExtras().getString("decision");
+        outcome = getIntent().getExtras().getString("outcome");
+        comment = getIntent().getExtras().getString("entryComment");
+        dateTime = getIntent().getExtras().getString("dateTime");
 
-        tvTitle.setText(title);
-        tvContent.setText(content);
+        //put extras into items
+        tvEntryName.setText(entryName);
+        tvRes.setText(responsibilities);
+        tvDecisions.setText(decision);
+        tvOutcome.setText(outcome);
+        tvComment.setText(comment);
+        tvDateTime.setText(dateTime);
+
+        //btn
+        backBtn.setOnClickListener(this);
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -54,35 +72,19 @@ public class EntryViewActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Log.d(TAG, AUTH_IN + user.getUid());
+                    Log.d(TAG, Constants.AUTH_IN + user.getUid());
                 } else {
                     // User is signed out
-                    Log.d(TAG, AUTH_OUT);
+                    Log.d(TAG, Constants.AUTH_OUT);
                 }
                 // ...
             }
         };
     }
 
-    //On start method
-    @Override
-    public void onStart() {
-        super.onStart();
-        //Sets a listener to catch when the user is signing in.
-        myFirebaseAuth.addAuthStateListener(mAuthListener);
-    }
-
-    //On stop method
-    @Override
-    public void onStop() {
-        super.onStop();
-        //Sets listener to catch when the user is signing out.
-        if (mAuthListener != null) {
-            myFirebaseAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
     /**
      * Creates the options menu on the action bar.
+     *
      * @param menu Menu at the top right of the screen
      * @return true
      */
@@ -95,12 +97,13 @@ public class EntryViewActivity extends AppCompatActivity {
 
     /**
      * Sets a listener that triggers when an option from the taskbar menu is selected.
+     *
      * @param item Which item on the menu was selected.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Finds which item was selected
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             //If item is logout
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
@@ -115,5 +118,30 @@ public class EntryViewActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Sets a listener to catch when the user is signing in.
+        myFirebaseAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Sets listener to catch when the user is signing out.
+        if (mAuthListener != null) {
+            myFirebaseAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        String journalID = getIntent().getExtras().getString(Constants.journalID);
+        Intent intent = new Intent(this, EntryListActivity.class);
+        //journalID must be put back to EntryListActivity
+        intent.putExtra(Constants.journalID, journalID);
+        startActivity(intent);
     }
 }

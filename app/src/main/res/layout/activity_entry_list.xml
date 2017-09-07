@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.cabbage.sdpjournal.EntryListActivity">
 
-    <android.support.design.widget.AppBarLayout
+    <include android:id="@+id/toolbar"
+        layout="@layout/tool_bar"/>
+
+    <com.cabbage.sdpjournal.SwipeListView.SwipeListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:splitMotionEvents="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_below="@id/toolbar"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="10dp"></com.cabbage.sdpjournal.SwipeListView.SwipeListView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabAddAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_action_add"
+        app:fabSize="mini"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        tools:ignore="RtlCompat" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_entry_list"/>
-
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

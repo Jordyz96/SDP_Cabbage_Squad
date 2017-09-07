@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.cabbage.sdpjournal.Model.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,26 +26,25 @@ import static android.content.ContentValues.TAG;
 
 public class ResetPasswordActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    final FirebaseAuth myFirebaseAuth = FirebaseAuth.getInstance();
-    FirebaseUser user = myFirebaseAuth.getCurrentUser();
-
-    private static final String AUTH_IN = "onAuthStateChanged:signed_in:";
-    private static final String AUTH_OUT = "onAuthStateChanged:signed_out";
-
     private Button reset;
     private EditText etnewPassword;
     private EditText etConfirmPassword;
     ProgressDialog progressDialog;
     Boolean isValid;
 
+    Toolbar toolbar;
+    private FirebaseAuth myFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        //toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("changing...");
@@ -60,33 +60,17 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Log.d(TAG, AUTH_IN + user.getUid());
+                    Log.d(TAG, Constants.AUTH_IN + user.getUid());
                 } else {
                     // User is signed out
-                    Log.d(TAG, AUTH_OUT);
+                    Log.d(TAG, Constants.AUTH_OUT);
                 }
                 // ...
             }
         };
+
     }
 
-    //On start method
-    @Override
-    public void onStart() {
-        super.onStart();
-        //Sets a listener to catch when the user is signing in.
-        myFirebaseAuth.addAuthStateListener(mAuthListener);
-    }
-
-    //On stop method
-    @Override
-    public void onStop() {
-        super.onStop();
-        //Sets listener to catch when the user is signing out.
-        if (mAuthListener != null) {
-            myFirebaseAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
     /**
      * Creates the options menu on the action bar.
      * @param menu Menu at the top right of the screen
@@ -95,7 +79,7 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_reset, menu);
+        getMenuInflater().inflate(R.menu.menu_reset_password, menu);
         return true;
     }
 
@@ -113,16 +97,25 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
                 myFirebaseAuth.signOut();
                 ResetPasswordActivity.this.startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
                 return true;
-
-            //If item is reset password
-            case R.id.action_reset_password:
-                ResetPasswordActivity.this.startActivity(new Intent(ResetPasswordActivity.this, ResetPasswordActivity.class));
-                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Sets a listener to catch when the user is signing in.
+        myFirebaseAuth.addAuthStateListener(mAuthListener);
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Sets listener to catch when the user is signing out.
+        if (mAuthListener != null) {
+            myFirebaseAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 
     @Override
     public void onClick(View view) {
@@ -132,6 +125,8 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
     }
 
     private void changePassword() {
+        final FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
         etnewPassword = (EditText) findViewById(R.id.etNewPassword);
         etConfirmPassword = (EditText) findViewById(R.id.etConfirmPassword);
 
@@ -140,10 +135,12 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
 
         if (validationPassed(newPassword, confirmPassword)){
             if (user != null) {
+                progressDialog.show();
                 user.updatePassword(newPassword)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                progressDialog.dismiss();
                                 if (task.isSuccessful()){
                                     Toast.makeText(ResetPasswordActivity.this, "Password updated, login with new password", Toast.LENGTH_SHORT).show();
                                     startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
@@ -157,9 +154,13 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
                         });
             }
         }
-
-
     }
+
+    /**
+     * Checks if the passed two passwords are valid and are the same
+     * Password must not be empty, shorter than 6 and greater than 25
+     * Two passwords provided must be the same
+     */
 
     private boolean validationPassed(String newP, String confirmP){
         isValid = false;

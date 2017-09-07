@@ -1,6 +1,10 @@
+
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +17,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.cabbage.sdpjournal.NoteModel.Constants;
-import com.cabbage.sdpjournal.NoteModel.Note;
+import com.cabbage.sdpjournal.Model.Constants;
+import com.cabbage.sdpjournal.Model.Entry;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -25,36 +29,36 @@ import static android.content.ContentValues.TAG;
 public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button saveButton;
-    private EditText etNoteTitle;
-    private EditText etNoteContent;
-
-    private boolean validated;
-
+    private EditText etEntryName;
+    private EditText etResponsibilities, etDecisions, etOutcome, etComment;
     private DatabaseReference db;
-    private DatabaseReference noteReference;
+    Calendar calendar;
+    SimpleDateFormat simpleDateFormat;
+    Toolbar toolbar;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseUser myFirebaseUser;
-
-    private static final String AUTH_IN = "onAuthStateChanged:signed_in:";
-    private static final String AUTH_OUT = "onAuthStateChanged:signed_out";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_entry);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        //toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         db = FirebaseDatabase.getInstance().getReference();
-        myFirebaseAuth = FirebaseAuth.getInstance();
-        myFirebaseUser = myFirebaseAuth.getCurrentUser();
 
         saveButton = (Button) findViewById(R.id.saveButton);
-        etNoteTitle = (EditText) findViewById(R.id.etTitle);
-        etNoteContent = (EditText) findViewById(R.id.etContent);
+        etEntryName = (EditText) findViewById(R.id.etEntryName);
+        etResponsibilities = (EditText) findViewById(R.id.etResponsibilities);
+        etDecisions = (EditText) findViewById(R.id.etDecision);
+        etOutcome = (EditText) findViewById(R.id.etOutcome);
+        etComment = (EditText) findViewById(R.id.etComment);
 
         saveButton.setOnClickListener(this);
+
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -62,33 +66,16 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Log.d(TAG, AUTH_IN + user.getUid());
+                    Log.d(TAG, Constants.AUTH_IN + user.getUid());
                 } else {
                     // User is signed out
-                    Log.d(TAG, AUTH_OUT);
+                    Log.d(TAG, Constants.AUTH_OUT);
                 }
                 // ...
             }
         };
     }
 
-    //On start method
-    @Override
-    public void onStart() {
-        super.onStart();
-        //Sets a listener to catch when the user is signing in.
-        myFirebaseAuth.addAuthStateListener(mAuthListener);
-    }
-
-    //On stop method
-    @Override
-    public void onStop() {
-        super.onStop();
-        //Sets listener to catch when the user is signing out.
-        if (mAuthListener != null) {
-            myFirebaseAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
     /**
      * Creates the options menu on the action bar.
      * @param menu Menu at the top right of the screen
@@ -124,40 +111,88 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
 
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Sets a listener to catch when the user is signing in.
+        myFirebaseAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Sets listener to catch when the user is signing out.
+        if (mAuthListener != null) {
+            myFirebaseAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 
     @Override
     public void onClick(View v) {
         if (v == saveButton) {
             saveNoteToDatabase();
-            startActivity(new Intent(this, EntryListActivity.class));
+            backToEntryViewWithExtra();
             finish();
-            return;
         }
     }
 
+    private void backToEntryViewWithExtra() {
+        //Must !!! put back the journalID to EntryView
+        String journalID = getIntent().getExtras().getString(Constants.journalID);
+        Intent intent = new Intent(this, EntryListActivity.class);
+        intent.putExtra(Constants.journalID, journalID);
+        startActivity(intent);
+    }
+
     private void saveNoteToDatabase() {
-        //save data.
-        String title = etNoteTitle.getText().toString().trim();
-        String content = etNoteContent.getText().toString().trim();
-        String noteId = db.push().getKey();
+        //setting up data.
+        String entryName = etEntryName.getText().toString().trim();
+        String entryResponsibilities = etResponsibilities.getText().toString().trim();
+        String entryID = db.push().getKey();
+        String entryDecision = etDecisions.getText().toString().trim();
+        String entryOutcome = etOutcome.getText().toString().trim();
+        String entryComment = etComment.getText().toString().trim();
+        String status = Constants.Entry_Status_Normal;
+        String journalID = getIntent().getExtras().getString(Constants.journalID);
+        String predecessorEntryID = "";
+        String dataTimeCreated = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            calendar = Calendar.getInstance();
+            simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            dataTimeCreated = simpleDateFormat.format(calendar.getTime());
+        }
 
         //validation...
-        if (TextUtils.isEmpty(title)) {
-            etNoteTitle.setError("Title must not be empty");
+        if (TextUtils.isEmpty(entryName)) {
+            etEntryName.setError("Entry name must not be empty");
         }
-        if (TextUtils.isEmpty(content)) {
-            etNoteContent.setError("Content must not be empty");
+        if (TextUtils.isEmpty(entryResponsibilities)) {
+            etResponsibilities.setError("Responsibilities must not be empty");
+        }
+        if (TextUtils.isEmpty(entryDecision)) {
+            etDecisions.setError("Decision must not be empty");
+        }
+        if (TextUtils.isEmpty(entryOutcome)) {
+            etOutcome.setError("Outcome must not be empty");
         }
 
-        //if validates
-        Note note = new Note(noteId, title, content);
+        //if validates, store a new entry to database
+        Entry entry = new Entry(entryID, entryName
+                , entryResponsibilities, entryDecision, entryOutcome, entryComment
+                , dataTimeCreated, status, journalID, predecessorEntryID);
 
-        myFirebaseAuth = FirebaseAuth.getInstance();
-        myFirebaseUser = myFirebaseAuth.getCurrentUser();
+        if (TextUtils.isEmpty(entryComment)) {
+            entry.setEntryComment("You did not leave any comment on it");
+        }
+
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         db = FirebaseDatabase.getInstance().getReference();
-        String userID = myFirebaseUser.getUid();
+        String userID = firebaseUser.getUid();
 
-        noteReference = db.child(Constants.Users_End_Point).child(userID).child(Constants.Notes_End_Point).child(noteId);
-        noteReference.setValue(note);
+        DatabaseReference noteReference = db.child(Constants.Users_End_Point).child(userID)
+                .child(Constants.Journals_End_Point)
+                .child(journalID).child(Constants.Entries_End_Point).child(entryID);
+        noteReference.setValue(entry);
     }
 }
