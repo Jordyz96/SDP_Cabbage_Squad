@@ -131,6 +131,7 @@ public class EntryViewActivity extends AppCompatActivity {
         //Sets listener to catch when the user is signing out.
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
+            
         }
     }
 }
