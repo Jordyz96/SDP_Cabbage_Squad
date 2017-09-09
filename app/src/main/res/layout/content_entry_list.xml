@@ -17,6 +17,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"></com.cabbage.sdpjournal.SwipeListView.SwipeListView>
+        android:layout_alignParentTop="true"/>
 
 </RelativeLayout>
