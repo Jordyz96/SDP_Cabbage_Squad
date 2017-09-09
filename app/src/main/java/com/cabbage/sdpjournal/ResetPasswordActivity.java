@@ -23,8 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import static android.content.ContentValues.TAG;
 
-
-public class ResetPasswordActivity extends AppCompatActivity implements View.OnClickListener {
+public class ResetPasswordActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button reset;
     private EditText etnewPassword;
@@ -32,7 +31,6 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
     ProgressDialog progressDialog;
     Boolean isValid;
 
-    Toolbar toolbar;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -40,12 +38,16 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-
-        myFirebaseAuth = FirebaseAuth.getInstance();
-        //toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        myFirebaseAuth = FirebaseAuth.getInstance();
+
+        init();
+    }
+
+    private void init() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("changing...");
 
@@ -68,11 +70,11 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
                 // ...
             }
         };
-
     }
 
     /**
      * Creates the options menu on the action bar.
+     *
      * @param menu Menu at the top right of the screen
      * @return true
      */
@@ -85,12 +87,13 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
 
     /**
      * Sets a listener that triggers when an option from the taskbar menu is selected.
+     *
      * @param item Which item on the menu was selected.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Finds which item was selected
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             //If item is logout
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
@@ -101,6 +104,7 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
 
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -133,7 +137,7 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
         String newPassword = etnewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        if (validationPassed(newPassword, confirmPassword)){
+        if (validationPassed(newPassword, confirmPassword)) {
             if (user != null) {
                 progressDialog.show();
                 user.updatePassword(newPassword)
@@ -141,7 +145,7 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 progressDialog.dismiss();
-                                if (task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     Toast.makeText(ResetPasswordActivity.this, "Password updated, login with new password", Toast.LENGTH_SHORT).show();
                                     startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
                                     finish();
@@ -162,14 +166,14 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
      * Two passwords provided must be the same
      */
 
-    private boolean validationPassed(String newP, String confirmP){
+    private boolean validationPassed(String newP, String confirmP) {
         isValid = false;
         etnewPassword = (EditText) findViewById(R.id.etNewPassword);
         etConfirmPassword = (EditText) findViewById(R.id.etConfirmPassword);
         //if empty
-        if (TextUtils.isEmpty(newP)){
+        if (TextUtils.isEmpty(newP)) {
             etnewPassword.setError("Please enter new password");
-        }else {
+        } else {
             //Length validation
             if (newP.length() < 6) {
                 etnewPassword.setError("Password too short");
@@ -178,7 +182,7 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
             } else {
                 //length is good
                 //if confirmP == newP
-                if (confirmP.equals(newP)){
+                if (confirmP.equals(newP)) {
                     isValid = true;
                 } else {
                     etConfirmPassword.setError("Please confirm again");
@@ -187,4 +191,5 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
         }
         return isValid;
     }
+
 }

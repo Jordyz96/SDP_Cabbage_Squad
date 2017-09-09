@@ -9,9 +9,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cabbage.sdpjournal.EntryListActivity;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Journal;
-import com.cabbage.sdpjournal.EntryListActivity;
 import com.cabbage.sdpjournal.R;
 
 import java.util.ArrayList;

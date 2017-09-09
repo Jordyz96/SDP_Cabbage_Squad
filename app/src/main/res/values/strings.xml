@@ -49,8 +49,13 @@
     <string name="create_chat_btn">Create Chat</string>
     <string name="chat_title_hint">Enter a chat name</string>
     <string name="action_select_chat">Select Chat</string>
-    <string name="title_activity_reset_password">ResetPasswordActivity</string>
     <string name="action_reset_password">Reset Password</string>
     <string name="logout">Logout</string>
     <string name="addItem">addItem</string>
+    <string name="title_activity_new_journal_test">NewJournalTestActivity</string>
+    <string name="title_activity_journal_list">Journals</string>
+    <string name="title_activity_entry_list">Entries</string>
+    <string name="title_activity_entry_view">Entry</string>
+    <string name="title_activity_new_entry">New Entry</string>
+    <string name="title_activity_reset_password">Reset Password</string>
 </resources>

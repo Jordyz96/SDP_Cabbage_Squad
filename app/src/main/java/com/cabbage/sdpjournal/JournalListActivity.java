@@ -4,17 +4,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cabbage.sdpjournal.Adpter.JournalListAdapter;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Journal;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,33 +37,36 @@ import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
-public class JournalListActivity extends AppCompatActivity implements View.OnClickListener {
+public class JournalListActivity extends AppCompatActivity implements View.OnClickListener{
 
     ListView listView;
     ArrayList<Journal> journalArrayList;
-    JournalListAdapter gridViewAdapter;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
-    Toolbar toolbar;
+    JournalListAdapter listAdapter;
     FloatingActionButton fab;
-
-    private FirebaseAuth myFireBaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseAuth myFirebaseAuth;
+    private String journalColor;
+    private EditText etTitle;
+    private EditText etCompany;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_journal_list);
-
-        //toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //floating button
-        fab = (FloatingActionButton) findViewById(R.id.fabAddAction);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
 
+        init();
+    }
+
+    //initialize stuff...
+    private void init() {
         //just prevent being required to login everytime...
-        myFireBaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser myFireBaseUser = myFireBaseAuth.getCurrentUser();
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser myFireBaseUser = myFirebaseAuth.getCurrentUser();
         String userID = "";
         if (myFireBaseUser == null) {
             startActivity(new Intent(JournalListActivity.this, LoginActivity.class));
@@ -80,7 +93,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         };
 
         //setting up things
-        listView = (ListView) findViewById(R.id.gvJournalView);
+        listView = (ListView) findViewById(R.id.gvJournalViewTest);
 
         //setting adapter
         journalArrayList = new ArrayList<>();
@@ -100,8 +113,8 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                             journalArrayList.add(journal);
                         }
                         //add data to the view adapter
-                        gridViewAdapter = new JournalListAdapter(JournalListActivity.this, journalArrayList);
-                        listView.setAdapter(gridViewAdapter);
+                        listAdapter = new JournalListAdapter(JournalListActivity.this, journalArrayList);
+                        listView.setAdapter(listAdapter);
                     }
 
                     @Override
@@ -135,7 +148,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
             //If item is logout
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
-                myFireBaseAuth.signOut();
+                myFirebaseAuth.signOut();
                 JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, LoginActivity.class));
                 return true;
 
@@ -152,7 +165,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     public void onStart() {
         super.onStart();
         //Sets a listener to catch when the user is signing in.
-        myFireBaseAuth.addAuthStateListener(mAuthListener);
+        myFirebaseAuth.addAuthStateListener(mAuthListener);
     }
 
     //On stop method
@@ -161,7 +174,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         super.onStop();
         //Sets listener to catch when the user is signing out.
         if (mAuthListener != null) {
-            myFireBaseAuth.removeAuthStateListener(mAuthListener);
+            myFirebaseAuth.removeAuthStateListener(mAuthListener);
         }
     }
 
@@ -169,8 +182,101 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         if (v == fab){
-            startActivity(new Intent(JournalListActivity.this, NewJournalActivity.class));
-            finish();
+            //if click the floating add btn, a dialog pops up for user to create a new journal.
+
+            //set up stuff
+            AlertDialog.Builder ab = new AlertDialog.Builder(JournalListActivity.this);
+            View myView = getLayoutInflater().inflate(R.layout.dialog_create_new_journal, null);
+
+            TextView tvNewjournalLabel = (TextView) myView.findViewById(R.id.tvNewJournalLabel);
+            etTitle = (EditText) myView.findViewById(R.id.etTitle);
+            etCompany = (EditText) myView.findViewById(R.id.etCompanyName);
+            Button cancelBtn = (Button) myView.findViewById(R.id.cancelBtn);
+            Button okBtn = (Button) myView.findViewById(R.id.okBtn);
+
+            //spinner
+            Spinner colorDropDown = (Spinner) myView.findViewById(R.id.spinner);
+            // Create an ArrayAdapter using the string array and a default spinner layout
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    R.array.journalCoverColor, android.R.layout.simple_spinner_item);
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // Apply the adapter to the spinner
+            colorDropDown.setAdapter(adapter);
+            //set on select listener
+            colorDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    //set the journalColor to the one selected
+                    journalColor = adapterView.getItemAtPosition(i).toString().trim();
+                    //If did not choose (select the default)
+                    if (journalColor.equals(Constants.Select_Color)){
+                        //make it default
+                        journalColor = Constants.Default_Color;
+                    }else {
+                        Toast.makeText(JournalListActivity.this, journalColor, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+
+
+            tvNewjournalLabel.setText(Constants.New_Journal);
+            //show dialog
+            ab.setView(myView);
+            final AlertDialog dialog = ab.create();
+            dialog.show();
+
+            //if click on cancel btn
+            cancelBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.cancel();
+                }
+            });
+
+            //if click on OK btn
+            okBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    createJournal();
+                    dialog.cancel();
+                }
+            });
+
         }
     }
+
+    private void createJournal() {
+        //setting values
+        FirebaseUser firebaseUser = myFirebaseAuth.getCurrentUser();
+        DatabaseReference journalReference = FirebaseDatabase.getInstance().getReference();
+
+        String journalName = etTitle.getText().toString().trim();
+        String companyName = etCompany.getText().toString().trim();
+        String userID = null;
+        if (firebaseUser != null) {
+            userID = firebaseUser.getUid();
+        }
+        String journalID = journalReference.push().getKey();
+
+        //validation
+        if (TextUtils.isEmpty(journalName)){
+            etTitle.setError("Journal name must not be empty");
+        } else if (TextUtils.isEmpty(companyName)){
+            etCompany.setError("Company name must not be empty");
+        } else {
+            //storing data to the database...
+            Journal journal = new Journal(journalID, userID, journalName, companyName, journalColor);
+            journalReference.child(Constants.Users_End_Point)
+                    .child(userID)
+                    .child(Constants.Journals_End_Point)
+                    .child(journalID).setValue(journal);
+        }
+    }
+
 }
