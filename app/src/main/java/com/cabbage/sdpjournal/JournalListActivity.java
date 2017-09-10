@@ -58,7 +58,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
-
+        
         init();
     }
 
