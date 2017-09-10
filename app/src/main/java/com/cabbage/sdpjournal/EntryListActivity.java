@@ -1,4 +1,3 @@
-
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
@@ -33,18 +32,16 @@ import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryListActivity extends AppCompatActivity implements View.OnClickListener {
-
-    Toolbar toolbar;
-    FloatingActionButton fab;
-
+public class EntryListActivity extends AppCompatActivity implements View.OnClickListener{
 
     private SwipeListView entriesListView;
     private ArrayList<Entry> entriesList;
-    private ListAdapter listAdapter;
+    private EntryListActivity.ListAdapter listAdapter;
 
     private FirebaseAuth firebaseAuth;
+
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FloatingActionButton fab;
 
     class ViewHolder {
         public TextView title;
@@ -58,16 +55,17 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry_list);
-
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        //toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //floating button
-        fab = (FloatingActionButton) findViewById(R.id.fabAddAction);
-        fab.setOnClickListener(this);
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        firebaseAuth = FirebaseAuth.getInstance();
+        init();
+    }
+
+    private void init() {
         entriesListView = (SwipeListView) findViewById(R.id.listView);
 
         entriesList = new ArrayList<>();
@@ -236,7 +234,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         //in the database instead.
                     }
                 }
-                listAdapter = new ListAdapter(entriesList);
+                listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
             }
 
@@ -332,7 +330,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder = new ViewHolder();
+            EntryListActivity.ViewHolder viewHolder = new EntryListActivity.ViewHolder();
 
             if (convertView == null) {
                 convertView = View.inflate(getBaseContext(), R.layout.style_list, null);
@@ -342,7 +340,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
                 convertView.setTag(viewHolder);
             } else {
-                viewHolder = (ViewHolder) convertView.getTag();
+                viewHolder = (EntryListActivity.ViewHolder) convertView.getTag();
             }
 
             viewHolder.title.setText(listData.get(position).getEntryName());
@@ -351,5 +349,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
 
     }
+
 
 }

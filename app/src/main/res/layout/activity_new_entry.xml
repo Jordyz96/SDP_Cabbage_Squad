@@ -1,88 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.cabbage.sdpjournal.NewEntryActivity">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/tool_bar"
-     />
-
-    <EditText
-        android:id="@+id/etEntryName"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:ems="10"
-        android:layout_below="@id/toolbar"
-        android:hint="EntryName"
-        android:inputType="textPersonName"
-   />
-
-    <EditText
-        android:id="@+id/etResponsibilities"
-        android:layout_width="match_parent"
-        android:layout_height="85dp"
-        android:layout_below="@id/etEntryName"
-        android:ems="10"
-        android:hint="Responsibilities"
-        android:inputType="textMultiLine"
-        android:selectAllOnFocus="true"
-        android:singleLine="false"
-        />
-
-    <EditText
-        android:id="@+id/etDecision"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Decisions"
-        android:inputType="textMultiLine"
-        android:layout_below="@id/etResponsibilities"/>
-
-    <EditText
-        android:id="@+id/etOutcome"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Outcome"
-        android:inputType="textMultiLine"
-        android:layout_below="@id/etDecision"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
-
-    <EditText
-        android:id="@+id/etComment"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Comment"
-        android:inputType="textMultiLine"
-        android:layout_below="@id/etOutcome"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
-
-    <Button
-        android:id="@+id/saveButton"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:text="save"
-        android:layout_below="@id/etComment"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-</RelativeLayout>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/content_new_entry"
+        android:id="@+id/include" />
+
+</android.support.design.widget.CoordinatorLayout>

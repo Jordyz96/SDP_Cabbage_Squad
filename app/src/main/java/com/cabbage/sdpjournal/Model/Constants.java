@@ -21,6 +21,7 @@ public class Constants {
     public static final String journalID = "journalID";
     public static final String Default_Color = "defualt";
     public static final String Select_Color = "Select your cover color";
+    public static final String New_Journal = "New Journal";
 
     //entry status
     public static final String Entry_Status_Normal = "normal";

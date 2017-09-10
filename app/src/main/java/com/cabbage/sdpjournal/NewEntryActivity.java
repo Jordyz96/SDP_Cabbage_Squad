@@ -1,4 +1,3 @@
-
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
@@ -26,7 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import static android.content.ContentValues.TAG;
 
-public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener {
+public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button saveButton;
     private EditText etEntryName;
@@ -34,7 +33,6 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     private DatabaseReference db;
     Calendar calendar;
     SimpleDateFormat simpleDateFormat;
-    Toolbar toolbar;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -42,12 +40,16 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_entry);
-
-        myFirebaseAuth = FirebaseAuth.getInstance();
-        //toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        myFirebaseAuth = FirebaseAuth.getInstance();
+
+        init();
+    }
+
+    private void init() {
         db = FirebaseDatabase.getInstance().getReference();
 
         saveButton = (Button) findViewById(R.id.saveButton);
@@ -130,21 +132,21 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (v == saveButton) {
-            saveNoteToDatabase();
+            saveEntryToDatabase();
             backToEntryViewWithExtra();
             finish();
         }
     }
 
     private void backToEntryViewWithExtra() {
-        //Must !!! put back the journalID to EntryView
+        //Must !!! put back the journalID to EntryList
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         Intent intent = new Intent(this, EntryListActivity.class);
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
     }
 
-    private void saveNoteToDatabase() {
+    private void saveEntryToDatabase() {
         //setting up data.
         String entryName = etEntryName.getText().toString().trim();
         String entryResponsibilities = etResponsibilities.getText().toString().trim();
