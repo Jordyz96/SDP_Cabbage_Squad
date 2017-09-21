@@ -317,6 +317,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 View myView = getLayoutInflater().inflate(R.layout.dialog_entry_list_filter, null);
 
                 final RadioButton rbActive = (RadioButton) myView.findViewById(R.id.radioBtnActive);
+                final RadioButton rbHidden = (RadioButton) myView.findViewById(R.id.radioBtnHidden);
+                final RadioButton rbDeleted = (RadioButton) myView.findViewById(R.id.radioBtnDeleted);
                 final RadioButton rbAll = (RadioButton) myView.findViewById(R.id.radioBtnAll);
                 Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
                 Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
@@ -329,7 +331,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onClick(View view) {
                         //if click ok
-                        if (!rbActive.isChecked() && !rbAll.isChecked()){
+                        if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked()){
                             Toast.makeText(EntryListActivity.this, "Please choose one", Toast.LENGTH_SHORT).show();
                         }
 
@@ -337,6 +339,18 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing active entries
                             Toast.makeText(EntryListActivity.this, "Test...Active", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                        if (rbHidden.isChecked()){
+                            //Filter... Only shows active entries
+                            //put your logical stuff here for showing hidden entries
+                            Toast.makeText(EntryListActivity.this, "Test...hidden", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                        if (rbDeleted.isChecked()){
+                            //Filter... Only shows active entries
+                            //put your logical stuff here for showing deleted entries
+                            Toast.makeText(EntryListActivity.this, "Test...deleted", Toast.LENGTH_SHORT).show();
                             dialog.cancel();
                         }
                         if (rbAll.isChecked()){
