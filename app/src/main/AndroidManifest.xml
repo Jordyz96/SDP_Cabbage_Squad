@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.cabbage.sdpjournal">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -9,15 +12,57 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"/>
-        <activity android:name="com.cabbage.sdpjournal.LoginActivity">
+        <activity
+            android:name=".JournalListActivity"
+            android:label="@string/title_activity_journal_list"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.cabbage.sdpjournal.RegisterActivity"/>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity
+            android:name=".EntryListActivity"
+            android:label="@string/title_activity_entry_list"
+            android:launchMode="singleTop"
+            android:parentActivityName=".JournalListActivity"
+            android:theme="@style/AppTheme"
+            tools:ignore="DuplicateActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cabbage.sdpjournal.JournalListActivity" />
+        </activity>
+        <activity
+            android:name=".EntryViewActivity"
+            android:label="@string/title_activity_entry_view"
+            android:parentActivityName=".EntryListActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cabbage.sdpjournal.EntryListActivity" />
+        </activity>
+        <activity
+            android:name=".NewEntryActivity"
+            android:label="@string/title_activity_new_entry"
+            android:parentActivityName=".EntryListActivity"
+            android:theme="@style/AppTheme"
+            tools:ignore="DuplicateActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cabbage.sdpjournal.EntryListActivity" />
+        </activity>
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:label="@string/title_activity_reset_password"
+            android:parentActivityName=".JournalListActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cabbage.sdpjournal.JournalListActivity" />
+        </activity>
     </application>
 
 </manifest>

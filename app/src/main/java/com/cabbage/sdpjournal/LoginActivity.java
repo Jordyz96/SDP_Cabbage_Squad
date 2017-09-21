@@ -3,6 +3,7 @@ package com.cabbage.sdpjournal;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,8 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cabbage.sdpjournal.Model.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -23,11 +26,12 @@ import static android.content.ContentValues.TAG;
 /**
  * Gets the email and password of a user and matches it with the database, signs the user in and
  * moves to the main activity if successful. Offers access to the register activity from new users
+ *
  * @author Sean Carmichael
  * @version 1.0
  * @since 22.08.2017
  */
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     //Constants
     private static final String LOGGING_IN_MESSAGE = "Logging in...";
     private static final String EXIT_KEY = "EXIT";
@@ -45,11 +49,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //Layout elements
     private Button loginBtn;
     private Button registerBtn;
+    private TextView tvForgotPassword;
     private EditText emailEt;
     private EditText passwordEt;
 
     /**
      * What happens on the creation of the activity.
+     *
      * @param savedInstanceState
      */
     @Override
@@ -72,12 +78,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //Initialises the layout elements
         loginBtn = (Button) findViewById(R.id.loginBtn);
         registerBtn = (Button) findViewById(R.id.registerBtn);
+        tvForgotPassword = (TextView) findViewById(R.id.tvForgotPassword);
         emailEt = (EditText) findViewById(R.id.emailEt);
         passwordEt = (EditText) findViewById(R.id.passwordEt);
 
         //Sets listeners that trigger when the login button is pressed and another for the register button
         loginBtn.setOnClickListener(this);
         registerBtn.setOnClickListener(this);
+        tvForgotPassword.setOnClickListener(this);
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -116,17 +124,63 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     /**
      * OnClick method for when either of the listeners are triggered
+     *
      * @param v The view of the button clicked
      */
     @Override
     public void onClick(View v) {
         //Determine which button was pressed
-        if(v == loginBtn){
+        if (v == loginBtn) {
             //Calls loginUser function
             loginUser();
-        } else {
+        }
+        if (v == registerBtn) {
             //If register moves to register activity
             LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        }
+        if (v == tvForgotPassword) {
+
+            //if a user forgot his password and click "forgotPassword", popup dialog will show up and ask for an email address
+            //and send a reset email to the given email address
+
+            AlertDialog.Builder ab = new AlertDialog.Builder(LoginActivity.this);
+            View myview = getLayoutInflater().inflate(R.layout.dialog_reset_password, null);
+
+            TextView tvLabel = (TextView) myview.findViewById(R.id.tvResetRequestLabel);
+            final EditText etemailAddress = (EditText) myview.findViewById(R.id.etEmAddress);
+            Button resetBtn = (Button) myview.findViewById(R.id.resetPasswordBtn);
+
+            tvLabel.setText(Constants.Reset_Password);
+            ab.setView(myview);
+            final AlertDialog dialog = ab.create();
+            dialog.show();
+
+            resetBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (!TextUtils.isEmpty(etemailAddress.getText().toString())) {
+                        progressDialog.setMessage("Sending reset email...");
+                        progressDialog.show();
+
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(etemailAddress.getText().toString())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        progressDialog.dismiss();
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(LoginActivity.this, "Reset email has been sent, please check your email.", Toast.LENGTH_SHORT).show();
+                                            dialog.cancel();
+                                        } else {
+                                            Toast.makeText(LoginActivity.this, "Try again", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Email address must not be empty.", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
         }
     }
 
@@ -157,9 +211,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             passwordEt.setError(getString(R.string.error_no_password));
             focusView = passwordEt;
             cancel = true;
-        } else{
+        } else {
             //otherwise check if the password is too long or short
-            switch (isPasswordValid(password)){
+            switch (isPasswordValid(password)) {
                 case 0:
                     //If too short tell user
                     passwordEt.setError(getString(R.string.error_invalid_short_password));
@@ -188,7 +242,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     //If they match the database move to main activity
                     if (task.isSuccessful()) {
-                        LoginActivity.this.startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        LoginActivity.this.startActivity(new Intent(LoginActivity.this, JournalListActivity.class));
                     } else {
                         //Else inform user that login was unsuccessful
                         Toast.makeText(LoginActivity.this, FAILED_LOGIN, Toast.LENGTH_SHORT).show();
@@ -202,14 +256,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     /**
      * Function checking if the password too long or short
+     *
      * @param password password entered in the password field
      * @return too short, too long or correct
      */
-    private int isPasswordValid(String password){
+    private int isPasswordValid(String password) {
         int output = 0;
-        if(password.length()< 6){
+        if (password.length() < 6) {
             output = 0;
-        } else if(password.length() > 16){
+        } else if (password.length() > 16) {
             output = 1;
         } else {
             output = 2;
