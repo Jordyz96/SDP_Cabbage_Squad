@@ -13,7 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cabbage.sdpjournal.Adpter.EntryListAdapter;
 import com.cabbage.sdpjournal.Model.Constants;
@@ -73,6 +76,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         entriesListView.setListener(new OnSwipeListItemClickListener() {
             @Override
             public void OnClick(View view, int index) {
+                //Click the entry, jump to entry view...
+                //Grab data that entry view needs
                 String entryName = entriesList.get(index).getEntryName();
                 String responsibilities = entriesList.get(index).getEntryResponsibilities();
                 String decision = entriesList.get(index).getEntryDecision();
@@ -81,6 +86,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String entryDateTime = entriesList.get(index).getDateTimeCreated();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
+                //put all data into entry view
                 Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
                 intent.putExtra("entryName", entryName);
                 intent.putExtra("responsibilities", responsibilities);
@@ -89,12 +95,14 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("entryComment", entryComment);
                 intent.putExtra("dateTime", entryDateTime);
                 intent.putExtra(Constants.journalID, journalID);
+
+                //transitioning
                 startActivity(intent);
             }
 
             @Override
             public boolean OnLongClick(View view, int index) {
-                //long click entries -- popup dialog
+                //long click entries -- popup dialog showing entry details
                 String entryName = entriesList.get(index).getEntryName();
                 String comment = entriesList.get(index).getEntryComment();
 
@@ -147,6 +155,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         yesBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                //change the status to deleted.
                                 changeStatus(index, Constants.Entry_Status_Deleted);
                                 dialog.cancel();
                             }
@@ -276,7 +285,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_entry_list, menu);
         return true;
     }
 
@@ -301,8 +310,53 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, ResetPasswordActivity.class));
                 return true;
 
-        }
+            case R.id.action_filter:
+                //pop up dialog to ask the user "normal" or "all (normal + hidden + deleted)"
 
+                AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
+                View myView = getLayoutInflater().inflate(R.layout.dialog_entry_list_filter, null);
+
+                final RadioButton rbActive = (RadioButton) myView.findViewById(R.id.radioBtnActive);
+                final RadioButton rbAll = (RadioButton) myView.findViewById(R.id.radioBtnAll);
+                Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
+                Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
+
+                ab.setView(myView);
+                final AlertDialog dialog = ab.create();
+                dialog.show();
+
+                okBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //if click ok
+                        if (!rbActive.isChecked() && !rbAll.isChecked()){
+                            Toast.makeText(EntryListActivity.this, "Please choose one", Toast.LENGTH_SHORT).show();
+                        }
+
+                        if (rbActive.isChecked()){
+                            //Filter... Only shows active entries
+                            //put your logical stuff here for showing active entries
+                            Toast.makeText(EntryListActivity.this, "Test...Active", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                        if (rbAll.isChecked()){
+                            //Showing all entries including hidden... deleted...
+                            //put your logical stuff here for showing all entries
+                            Toast.makeText(EntryListActivity.this, "Test...All", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                    }
+                });
+
+                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //click cancel
+                        dialog.cancel();
+                    }
+                });
+
+        }
         return super.onOptionsItemSelected(item);
     }
 

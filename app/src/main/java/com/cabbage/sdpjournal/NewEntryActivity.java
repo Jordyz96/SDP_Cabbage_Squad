@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Entry;
@@ -132,13 +133,11 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (v == saveButton) {
-            saveEntryToDatabase();
-            backToEntryViewWithExtra();
-            finish();
+            saveEntryAndGoBackToEntryList();
         }
     }
 
-    private void backToEntryViewWithExtra() {
+    private void backToEntryListWithExtra() {
         //Must !!! put back the journalID to EntryList
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         Intent intent = new Intent(this, EntryListActivity.class);
@@ -146,7 +145,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         startActivity(intent);
     }
 
-    private void saveEntryToDatabase() {
+    private void saveEntryAndGoBackToEntryList() {
         //setting up data.
         String entryName = etEntryName.getText().toString().trim();
         String entryResponsibilities = etResponsibilities.getText().toString().trim();
@@ -164,37 +163,52 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
             dataTimeCreated = simpleDateFormat.format(calendar.getTime());
         }
 
-        //validation...
-        if (TextUtils.isEmpty(entryName)) {
-            etEntryName.setError("Entry name must not be empty");
-        }
-        if (TextUtils.isEmpty(entryResponsibilities)) {
-            etResponsibilities.setError("Responsibilities must not be empty");
-        }
-        if (TextUtils.isEmpty(entryDecision)) {
-            etDecisions.setError("Decision must not be empty");
-        }
-        if (TextUtils.isEmpty(entryOutcome)) {
-            etOutcome.setError("Outcome must not be empty");
-        }
-
         //if validates, store a new entry to database
-        Entry entry = new Entry(entryID, entryName
-                , entryResponsibilities, entryDecision, entryOutcome, entryComment
-                , dataTimeCreated, status, journalID, predecessorEntryID);
+        if (validationPassed(entryName, entryResponsibilities, entryDecision, entryOutcome)) {
+            Entry entry = new Entry(entryID, entryName
+                    , entryResponsibilities, entryDecision, entryOutcome, entryComment
+                    , dataTimeCreated, status, journalID, predecessorEntryID);
 
-        if (TextUtils.isEmpty(entryComment)) {
-            entry.setEntryComment("You did not leave any comment on it");
+            if (TextUtils.isEmpty(entryComment)) {
+                entry.setEntryComment("You did not leave any comment on it");
+            }
+
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            db = FirebaseDatabase.getInstance().getReference();
+            String userID = firebaseUser.getUid();
+
+            DatabaseReference noteReference = db.child(Constants.Users_End_Point).child(userID)
+                    .child(Constants.Journals_End_Point)
+                    .child(journalID).child(Constants.Entries_End_Point).child(entryID);
+            noteReference.setValue(entry);
+
+            //entry has been successfully added to the database, now go back to the entry list
+            backToEntryListWithExtra();
+            finish();
+        }
+    }
+
+    private boolean validationPassed(String name, String res, String decision, String outCome){
+        boolean isValid = true;
+
+        if (TextUtils.isEmpty(name)) {
+            etEntryName.setError("Entry name must not be empty");
+            isValid=false;
+        }
+        if (TextUtils.isEmpty(res)){
+            etResponsibilities.setError("Responsibilities must not be empty");
+            isValid=false;
+        }
+        if (TextUtils.isEmpty(decision)){
+            etDecisions.setError("Decision must not be empty");
+            isValid=false;
+        }
+        if (TextUtils.isEmpty(outCome)){
+            etOutcome.setError("Outcome must not be empty");
+            isValid=false;
         }
 
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        db = FirebaseDatabase.getInstance().getReference();
-        String userID = firebaseUser.getUid();
-
-        DatabaseReference noteReference = db.child(Constants.Users_End_Point).child(userID)
-                .child(Constants.Journals_End_Point)
-                .child(journalID).child(Constants.Entries_End_Point).child(entryID);
-        noteReference.setValue(entry);
+        return isValid;
     }
 }

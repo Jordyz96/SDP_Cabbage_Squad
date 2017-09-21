@@ -58,4 +58,6 @@
     <string name="title_activity_entry_view">Entry</string>
     <string name="title_activity_new_entry">New Entry</string>
     <string name="title_activity_reset_password">Reset Password</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 </resources>
