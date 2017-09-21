@@ -28,7 +28,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static android.content.ContentValues.TAG;
 
@@ -350,5 +354,82 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     }
 
+    public void filterEntries (String filterSelected) {
+        ArrayList<Entry> entriesMatchingFilter = new ArrayList<Entry>();
+        for (Entry e : entriesList) {
+            if (filterSelected.equals("All")) {
+                entriesMatchingFilter.add(e);
+            } else if (e.getStatus().equals(filterSelected)) {
+                entriesMatchingFilter.add(e);
+            }
+        }
+        listAdapter.listData.clear();
+        listAdapter.listData.addAll(entriesMatchingFilter);
+        listAdapter.notifyDataSetChanged();
+    }
+
+    public void searchEntriesOnKeyword (String searchString) {
+        ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
+        for (Entry e : entriesList) {
+            if (e.getEntryName().contains(searchString)) {
+                entriesMatchingSearch.add(e);
+            } else if (e.getEntryResponsibilities().contains(searchString)) {
+                entriesMatchingSearch.add(e);
+            } else if (e.getEntryDecision().contains(searchString)) {
+                entriesMatchingSearch.add(e);
+            } else if (e.getEntryOutcome().contains(searchString)) {
+                entriesMatchingSearch.add(e);
+            } else if (e.getEntryComment().contains(searchString)) {
+                entriesMatchingSearch.add(e);
+            }
+        }
+        listAdapter.listData.clear();
+        listAdapter.listData.addAll(entriesMatchingSearch);
+        listAdapter.notifyDataSetChanged();
+    }
+
+    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
+        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
+        Date entryDate;
+        for (Entry e : entriesList) {
+            String[] stringDate = e.getDateTimeCreated().split(" ");
+            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
+            try {
+                entryDate = formatter.parse(stringDate[0]);
+                System.out.println(entryDate);
+                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
+                    entriesMatchingDates.add(e);
+                }
+            } catch (ParseException exp) {
+                exp.printStackTrace();
+            }
+
+        }
+        listAdapter.listData.clear();
+        listAdapter.listData.addAll(entriesMatchingDates);
+        listAdapter.notifyDataSetChanged();
+    }
+
+    public void searchEntriesOnDate(Date date) {
+        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
+        Date entryDate;
+        for (Entry e : entriesList) {
+            String[] stringDate = e.getDateTimeCreated().split(" ");
+            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
+            try {
+                entryDate = formatter.parse(stringDate[0]);
+                System.out.println(entryDate);
+                if (date.equals(entryDate)) {
+                    entriesMatchingDates.add(e);
+                }
+            } catch (ParseException exp) {
+                exp.printStackTrace();
+            }
+
+        }
+        listAdapter.listData.clear();
+        listAdapter.listData.addAll(entriesMatchingDates);
+        listAdapter.notifyDataSetChanged();
+    }
 
 }
