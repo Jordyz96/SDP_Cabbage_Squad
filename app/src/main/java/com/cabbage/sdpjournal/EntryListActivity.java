@@ -1,17 +1,20 @@
 package com.cabbage.sdpjournal;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -27,6 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
 
@@ -43,6 +47,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FloatingActionButton fab;
 
+    MaterialSearchView searchView;
+
     class ViewHolder {
         public TextView title;
         public TextView dateTimeCreated;
@@ -50,6 +56,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         public Button modify;
         public Button delete;
     }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +71,72 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         fab.setOnClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         firebaseAuth = FirebaseAuth.getInstance();
+
+//        getSupportActionBar().setTitle("Material Search");
+//        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
+
+//         searchView=(MaterialSearchView) findViewById(R.id.search_view);
+//
+//        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, entriesList);
+//
+//        entriesListView = (SwipeListView) findViewById(R.id.listView);
+//
+//
+//
+//        entriesListView.setAdapter(adapter);
+//
+//        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+//            @Override
+//            public void onSearchViewShown() {
+//
+//            }
+//
+//            @Override
+//            public void onSearchViewClosed() {
+//
+//                //If closed search view, listview will return default
+//                ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
+//                entriesListView.setAdapter(adapter);
+//            }
+//        });
+//
+//
+//        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                if(newText != null && !newText.isEmpty()){
+//                    ArrayList lstFound = new ArrayList<>();
+//                    for (Entry item:entriesList){
+//                        lstFound.add(item);
+//                    }
+//
+//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, lstFound);
+//                    entriesListView.setAdapter(adapter);
+//
+//
+//                }
+//                else{
+//                    //if search text is null
+//                    //return default
+//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
+//                    entriesListView.setAdapter(adapter);
+//                }
+//                return true;
+//            }
+//        });
         init();
+
+       // entriesListView = (ListView) findViewById(R.id.listView);
+
     }
+
+
+
 
     private void init() {
         entriesListView = (SwipeListView) findViewById(R.id.listView);
@@ -91,6 +164,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra(Constants.journalID, journalID);
                 startActivity(intent);
             }
+
 
             @Override
             public boolean OnLongClick(View view, int index) {
@@ -276,7 +350,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflates the menu menu_other which includes logout and quit functions.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_item,menu);
         return true;
     }
 
@@ -300,6 +374,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             case R.id.action_reset_password:
                 EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, ResetPasswordActivity.class));
                 return true;
+
+            case R.id.action_search:
+//                searchView.setMenuItem(item);
 
         }
 
