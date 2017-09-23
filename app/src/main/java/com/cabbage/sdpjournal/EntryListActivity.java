@@ -343,24 +343,28 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing active entries
                             Toast.makeText(EntryListActivity.this, "Test...Active", Toast.LENGTH_SHORT).show();
+                            filterEntries("normal");
                             dialog.cancel();
                         }
                         if (rbHidden.isChecked()){
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing hidden entries
                             Toast.makeText(EntryListActivity.this, "Test...hidden", Toast.LENGTH_SHORT).show();
+                            filterEntries("hidden");
                             dialog.cancel();
                         }
                         if (rbDeleted.isChecked()){
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing deleted entries
                             Toast.makeText(EntryListActivity.this, "Test...deleted", Toast.LENGTH_SHORT).show();
+                            filterEntries("deleted");
                             dialog.cancel();
                         }
                         if (rbAll.isChecked()){
                             //Showing all entries including hidden... deleted...
                             //put your logical stuff here for showing all entries
                             Toast.makeText(EntryListActivity.this, "Test...All", Toast.LENGTH_SHORT).show();
+                            filterEntries("All");
                             dialog.cancel();
                         }
                     }
@@ -424,11 +428,13 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     public void filterEntries (String filterSelected) {
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<Entry>();
-        for (Entry e : entriesList) {
-            if (filterSelected.equals("All")) {
-                entriesMatchingFilter.add(e);
-            } else if (e.getStatus().equals(filterSelected)) {
-                entriesMatchingFilter.add(e);
+        if (filterSelected.equals("All")){
+            entriesMatchingFilter.addAll(entriesList);
+        } else {
+            for (Entry e : listAdapter.listData) {
+                if (e.getStatus().equals(filterSelected)) {
+                    entriesMatchingFilter.add(e);
+                }
             }
         }
         listAdapter.listData.clear();
