@@ -451,6 +451,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         dialog.cancel();
                     }
                 });
+                return true;
 
             case R.id.action_search:
                 //pop up a dialog ask the author to enter a key word.
