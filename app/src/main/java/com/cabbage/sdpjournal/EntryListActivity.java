@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -48,7 +49,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private SwipeListView entriesListView;
     private ArrayList<Entry> entriesList;
     private EntryListActivity.ListAdapter listAdapter;
-
+    private EditText searchText;
     private FirebaseAuth firebaseAuth;
 
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -443,12 +444,45 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         }
                     }
                 });
-
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         //click cancel
                         dialog.cancel();
+                    }
+                });
+
+            case R.id.action_search:
+                //pop up a dialog ask the author to enter a key word.
+
+                AlertDialog.Builder sb = new AlertDialog.Builder(EntryListActivity.this);
+                View sView = getLayoutInflater().inflate(R.layout.dialog_entry_list_search, null);
+
+                searchText = (EditText) sView.findViewById(R.id.searchText);
+                Button cancel2Btn = (Button) sView.findViewById(R.id.searchCancelBtn);
+                Button searchBtn = (Button) sView.findViewById(R.id.searchBtn);
+                sb.setView(sView);
+                final AlertDialog dialog2 = sb.create();
+                dialog2.show();
+
+                searchBtn.setOnClickListener(new View.OnClickListener() {
+
+
+                    @Override
+                    public void onClick(View v) {
+                      //if click searchBtn
+                       searchEntriesOnKeyword(searchText.getText().toString());
+                        dialog2.cancel();
+                    }
+
+                });
+
+
+                cancel2Btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //click cancel
+                        dialog2.cancel();
                     }
                 });
 
@@ -519,15 +553,15 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     public void searchEntriesOnKeyword (String searchString) {
         ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
         for (Entry e : entriesList) {
-            if (e.getEntryName().contains(searchString)) {
+            if (e.getEntryName().toLowerCase().contains(searchString.toLowerCase())) {
                 entriesMatchingSearch.add(e);
-            } else if (e.getEntryResponsibilities().contains(searchString)) {
+            } else if (e.getEntryResponsibilities().toLowerCase().contains(searchString.toLowerCase())) {
                 entriesMatchingSearch.add(e);
-            } else if (e.getEntryDecision().contains(searchString)) {
+            } else if (e.getEntryDecision().toLowerCase().contains(searchString.toLowerCase())) {
                 entriesMatchingSearch.add(e);
-            } else if (e.getEntryOutcome().contains(searchString)) {
+            } else if (e.getEntryOutcome().toLowerCase().contains(searchString.toLowerCase())) {
                 entriesMatchingSearch.add(e);
-            } else if (e.getEntryComment().contains(searchString)) {
+            } else if (e.getEntryComment().toLowerCase().contains(searchString.toLowerCase())) {
                 entriesMatchingSearch.add(e);
             }
         }
