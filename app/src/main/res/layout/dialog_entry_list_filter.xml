@@ -67,6 +67,7 @@
         android:layout_marginTop="50dp"
         android:hint="From Date"
         android:textSize="30sp" />
+
     <TextView
         android:id="@+id/toDate"
         android:layout_width="wrap_content"

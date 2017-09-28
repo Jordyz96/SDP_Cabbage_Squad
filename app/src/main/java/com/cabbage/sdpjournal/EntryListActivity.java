@@ -63,7 +63,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private TextView mDisplayDate;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
-    MaterialSearchView searchView;
+    private String s = null;
 
     class ViewHolder {
         public TextView title;
@@ -410,7 +410,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
                 Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
 
-                //eric coming lol****************************************
+                //eric coming lol**************************************** seaerch on a day
                 final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
 
                 mDisplayDate.setOnClickListener(new View.OnClickListener() {
@@ -446,6 +446,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
                 ///eric endhere*********************************
 
+
                 ab.setView(myView);
                 final AlertDialog dialog = ab.create();
                 dialog.show();
@@ -454,7 +455,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onClick(View view) {
                         //if click ok
-                        if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked() && mDisplayDate.equals(null)){
+                        if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked() && mDisplayDate.getText().equals("")){
                             Toast.makeText(EntryListActivity.this, "Please choose one", Toast.LENGTH_SHORT).show();
                         }
 
@@ -487,13 +488,15 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             dialog.cancel();
                         }
 
-                        Calendar cal = Calendar.getInstance();
-                        String s = null;
-                        if (mDisplayDate.isTextSelectable())
+                      //  Calendar cal = Calendar.getInstance();
+                       // String s = null;
+
+                        if (!mDisplayDate.getText().equals("")) {
                             //showing all entries on a day
                             s = mDisplayDate.getText().toString();
                             filterEntriesOnDate(mDisplayDate.getText().toString());
                             dialog.cancel();
+                        }
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
