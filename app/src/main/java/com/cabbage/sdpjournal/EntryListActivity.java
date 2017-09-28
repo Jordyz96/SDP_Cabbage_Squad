@@ -318,20 +318,14 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 //loop through the reference given to search entries that match the reference
                 for (DataSnapshot entryDS : dataSnapshot.getChildren()) {
                     //test log
-                    Log.d("Journal ", " ==>" + entryDS.toString());
-
+                    Log.d("Journal Entry", " ==>" + entryDS.toString());
                     Entry entry = entryDS.getValue(Entry.class);
-                    //Only add entry on the database that are not hidden and deleted to the list
-                    if (entry.getStatus().equals(Constants.Entry_Status_Normal)) {
-                        //if status is not hidden or deleted
-                        entriesList.add(entry);
-                    } else {
-                        //entry is deleted or hidden, which shouldn't be added to the list, just leave them
-                        //in the database instead.
-                    }
+                    //if status is not hidden or deleted
+                    entriesList.add(entry);
                 }
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
+                filterEntries("normal");
             }
 
             @Override
@@ -598,7 +592,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         if (filterSelected.equals("All")){
             entriesMatchingFilter.addAll(entriesList);
         } else {
-            for (Entry e : listAdapter.listData) {
+            for (Entry e : entriesList) {
                 if (e.getStatus().equals(filterSelected)) {
                     entriesMatchingFilter.add(e);
                 }
