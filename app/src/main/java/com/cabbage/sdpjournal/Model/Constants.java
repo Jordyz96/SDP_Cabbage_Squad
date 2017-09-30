@@ -27,6 +27,7 @@ public class Constants {
     public static final String Entry_Status_Normal = "normal";
     public static final String Entry_Status_Hidden = "hidden";
     public static final String Entry_Status_Deleted = "deleted";
+    public static final String Entry_Status_Modified = "modified";
 
 
 }

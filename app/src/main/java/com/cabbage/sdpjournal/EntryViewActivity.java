@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,10 +19,15 @@ import com.google.firebase.auth.FirebaseUser;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryViewActivity extends AppCompatActivity {
+public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener{
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+
+    String entryName, responsibilities, decision, outcome, comment,
+            preID, dateTime, journalID, entryID;
+
+    Button historyBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +35,10 @@ public class EntryViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_entry_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        historyBtn = (Button) findViewById(R.id.historyBtn);
+        historyBtn.setOnClickListener(this);
 
         firebaseAuth = FirebaseAuth.getInstance();
         init();
@@ -37,7 +46,7 @@ public class EntryViewActivity extends AppCompatActivity {
 
     private void init() {
         //setting var
-        String entryName, responsibilities, decision, outcome, comment, dateTime;
+
 
         //setting items
         TextView tvEntryName = (TextView) findViewById(R.id.tvEntryName);
@@ -53,7 +62,10 @@ public class EntryViewActivity extends AppCompatActivity {
         decision = getIntent().getExtras().getString("decision");
         outcome = getIntent().getExtras().getString("outcome");
         comment = getIntent().getExtras().getString("entryComment");
+        entryID = getIntent().getExtras().getString("entryID");
         dateTime = getIntent().getExtras().getString("dateTime");
+        preID = getIntent().getExtras().getString("preID");
+        journalID = getIntent().getExtras().getString(Constants.journalID);
 
         //put extras into items
         tvEntryName.setText(entryName);
@@ -113,9 +125,25 @@ public class EntryViewActivity extends AppCompatActivity {
                 EntryViewActivity.this.startActivity(new Intent(EntryViewActivity.this, ResetPasswordActivity.class));
                 return true;
             case R.id.action_edit:
-                Toast.makeText(this, "u are gonna edit this entry", Toast.LENGTH_SHORT).show();
+                transitionToEditEntry();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void transitionToEditEntry(){
+        //put extra
+        Intent intent = new Intent(this, EditEntryActivity.class);
+        intent.putExtra("entryName", entryName);
+        intent.putExtra("responsibilities", responsibilities);
+        intent.putExtra("decision", decision);
+        intent.putExtra("outcome", outcome);
+        intent.putExtra("entryComment", comment);
+        intent.putExtra("entryID", entryID);
+        intent.putExtra("dateTime", dateTime);
+        intent.putExtra("preID", preID);
+        intent.putExtra(Constants.journalID, journalID);
+        startActivity(intent);
     }
 
     @Override
@@ -132,6 +160,17 @@ public class EntryViewActivity extends AppCompatActivity {
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
             
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == historyBtn){
+            Intent intent = new Intent(this, HistoryViewActivity.class);
+            intent.putExtra("preID", preID);
+            intent.putExtra(Constants.journalID, journalID);
+            startActivity(intent);
+            finish();
         }
     }
 }

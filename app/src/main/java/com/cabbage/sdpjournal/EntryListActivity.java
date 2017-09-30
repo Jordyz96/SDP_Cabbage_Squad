@@ -7,12 +7,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -88,6 +90,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String outcome = entriesList.get(index).getEntryOutcome();
                 String entryComment = entriesList.get(index).getEntryComment();
                 String entryDateTime = entriesList.get(index).getDateTimeCreated();
+                String entryID = entriesList.get(index).getEntryID();
+                String preID = entriesList.get(index).getPredecessorEntryID();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 //put all data into entry view
@@ -98,6 +102,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("outcome", outcome);
                 intent.putExtra("entryComment", entryComment);
                 intent.putExtra("dateTime", entryDateTime);
+                intent.putExtra("entryID", entryID);
+                intent.putExtra("preID", preID);
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
@@ -200,7 +206,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         String entryID = entriesList.get(index).getEntryID();
-        //setting path
+        //setting pathentryID
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
         DatabaseReference entryStatusRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
                 .child(journalID).child(Constants.Entries_End_Point).child(entryID).child("status");
@@ -314,6 +320,37 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, ResetPasswordActivity.class));
                 return true;
 
+            case R.id.action_search:
+                AlertDialog.Builder searchAB = new AlertDialog.Builder(EntryListActivity.this);
+                View searchView = getLayoutInflater().inflate(R.layout.dialog_search_entries, null);
+                final EditText etKeyword = (EditText) searchView.findViewById(R.id.etKeyword);
+                Button seachCancelBtn = (Button) searchView.findViewById(R.id.searchCancelBtn);
+                Button searchOKBtn = (Button) searchView.findViewById(R.id.searchOkBtn);
+
+                searchAB.setView(searchView);
+                final AlertDialog searchDialog = searchAB.create();
+                searchDialog.show();
+
+                searchOKBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String keyword = etKeyword.getText().toString().trim();
+                        if(!TextUtils.isEmpty(keyword)){
+                            searchEntriesOnKeyword(keyword);
+                            searchDialog.cancel();
+                        }else {
+                            etKeyword.setError("Keyword must not be empty");
+                        }
+                    }
+                });
+
+                seachCancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        searchDialog.cancel();
+                    }
+                });
+                return true;
             case R.id.action_filter:
                 //pop up dialog to ask the user "normal" or "all (normal + hidden + deleted)"
 
@@ -343,24 +380,28 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing active entries
                             Toast.makeText(EntryListActivity.this, "Test...Active", Toast.LENGTH_SHORT).show();
+                            filterEntries("normal");
                             dialog.cancel();
                         }
                         if (rbHidden.isChecked()){
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing hidden entries
                             Toast.makeText(EntryListActivity.this, "Test...hidden", Toast.LENGTH_SHORT).show();
+                            filterEntries("hidden");
                             dialog.cancel();
                         }
                         if (rbDeleted.isChecked()){
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing deleted entries
                             Toast.makeText(EntryListActivity.this, "Test...deleted", Toast.LENGTH_SHORT).show();
+                            filterEntries("deleted");
                             dialog.cancel();
                         }
                         if (rbAll.isChecked()){
                             //Showing all entries including hidden... deleted...
                             //put your logical stuff here for showing all entries
                             Toast.makeText(EntryListActivity.this, "Test...All", Toast.LENGTH_SHORT).show();
+                            filterEntries("All");
                             dialog.cancel();
                         }
                     }

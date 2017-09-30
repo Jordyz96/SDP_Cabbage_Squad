@@ -6,6 +6,12 @@
         app:showAsAction="ifRoom"
         android:id="@+id/action_filter"
         android:title="filter"
+        android:orderInCategory="97"/>
+
+    <item android:icon="@drawable/ic_action_action_search"
+        app:showAsAction="ifRoom"
+        android:title="seachBtn"
+        android:id="@+id/action_search"
         android:orderInCategory="98"/>
 
     <item android:title="@string/logout"
