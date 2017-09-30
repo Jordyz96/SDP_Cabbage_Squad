@@ -465,11 +465,13 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     public void filterEntries (String filterSelected) {
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<Entry>();
-        for (Entry e : entriesList) {
-            if (filterSelected.equals("All")) {
-                entriesMatchingFilter.add(e);
-            } else if (e.getStatus().equals(filterSelected)) {
-                entriesMatchingFilter.add(e);
+        if (filterSelected.equals("All")){
+            entriesMatchingFilter.addAll(entriesList);
+        } else {
+            for (Entry e : listAdapter.listData) {
+                if (e.getStatus().equals(filterSelected)) {
+                    entriesMatchingFilter.add(e);
+                }
             }
         }
         listAdapter.listData.clear();
