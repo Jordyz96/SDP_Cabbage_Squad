@@ -62,4 +62,5 @@
     <string name="ok">OK</string>
     <string name="title_activity_edit_entry">EditEntryActivity</string>
     <string name="title_activity_history_view">HistoryViewActivity</string>
+    <string name="title_activity_attachment_view">AttachmentViewActivity</string>
 </resources>

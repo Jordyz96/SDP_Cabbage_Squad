@@ -104,4 +104,14 @@
         android:id="@+id/historyBtn"
         android:layout_marginLeft="8dp"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDateTime"
+        android:text="Attachment"
+        android:id="@+id/attachmentBtn"
+        android:layout_marginRight="8dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="8dp"/>
+
 </RelativeLayout>

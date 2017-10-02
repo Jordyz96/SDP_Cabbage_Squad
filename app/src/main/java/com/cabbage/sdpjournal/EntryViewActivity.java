@@ -27,7 +27,10 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
     String entryName, responsibilities, decision, outcome, comment,
             preID, dateTime, journalID, entryID;
 
+    int count;
+
     Button historyBtn;
+    Button attBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,8 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
 
         historyBtn = (Button) findViewById(R.id.historyBtn);
         historyBtn.setOnClickListener(this);
+        attBtn = (Button) findViewById(R.id.attachmentBtn);
+        attBtn.setOnClickListener(this);
 
         firebaseAuth = FirebaseAuth.getInstance();
         init();
@@ -66,7 +71,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         dateTime = getIntent().getExtras().getString("dateTime");
         preID = getIntent().getExtras().getString("preID");
         journalID = getIntent().getExtras().getString(Constants.journalID);
-
+        count = getIntent().getExtras().getInt("count");
         //put extras into items
         tvEntryName.setText(entryName);
         tvRes.setText(responsibilities);
@@ -142,6 +147,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         intent.putExtra("entryID", entryID);
         intent.putExtra("dateTime", dateTime);
         intent.putExtra("preID", preID);
+        intent.putExtra("count", count);
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
     }
@@ -168,6 +174,13 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         if (view == historyBtn){
             Intent intent = new Intent(this, HistoryViewActivity.class);
             intent.putExtra("preID", preID);
+            intent.putExtra(Constants.journalID, journalID);
+            startActivity(intent);
+            finish();
+        }
+        if (view == attBtn){
+            Intent intent = new Intent(this, AttachmentViewActivity.class);
+            intent.putExtra("entryID", entryID);
             intent.putExtra(Constants.journalID, journalID);
             startActivity(intent);
             finish();

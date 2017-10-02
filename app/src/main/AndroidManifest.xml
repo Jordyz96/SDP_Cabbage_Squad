@@ -4,6 +4,8 @@
     package="com.cabbage.sdpjournal">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -76,6 +78,15 @@
         <activity
             android:name=".HistoryViewActivity"
             android:label="@string/title_activity_history_view"
+            android:parentActivityName=".EntryViewActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cabbage.sdpjournal.EntryViewActivity" />
+        </activity>
+        <activity
+            android:name=".AttachmentViewActivity"
+            android:label="@string/title_activity_attachment_view"
             android:parentActivityName=".EntryViewActivity"
             android:theme="@style/AppTheme">
             <meta-data

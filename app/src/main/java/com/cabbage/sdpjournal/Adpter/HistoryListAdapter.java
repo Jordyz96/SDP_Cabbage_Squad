@@ -1,5 +1,6 @@
 package com.cabbage.sdpjournal.Adpter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.cabbage.sdpjournal.Model.Attachment;
 import com.cabbage.sdpjournal.Model.Entry;
 import com.cabbage.sdpjournal.R;
 
@@ -41,6 +43,7 @@ public class HistoryListAdapter extends BaseAdapter {
         return i;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         if (view == null){
@@ -48,13 +51,18 @@ public class HistoryListAdapter extends BaseAdapter {
         }
         TextView tvDateTime = (TextView) view.findViewById(R.id.tvDateTimeLabel);
         TextView tvContent = (TextView) view.findViewById(R.id.tvContent);
+        TextView tvCount = (TextView) view.findViewById(R.id.tvCountLabel);
 
         String content = "Responsibilities: " + entries.get(i).getEntryResponsibilities()
                 + "\nDecision: " + entries.get(i).getEntryDecision() + "\nOutcome: "
                 + entries.get(i).getEntryOutcome();
 
+        int count = entries.get(i).getCount();
+
         tvDateTime.setText(entries.get(i).getDateTimeCreated());
         tvContent.setText(content);
+        tvCount.setText("Attachments: " + count);
+
 
         return view;
     }

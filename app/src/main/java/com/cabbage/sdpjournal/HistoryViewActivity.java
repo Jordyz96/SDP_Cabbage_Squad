@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.cabbage.sdpjournal.Adpter.HistoryListAdapter;
+import com.cabbage.sdpjournal.Model.Attachment;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Entry;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +39,7 @@ public class HistoryViewActivity extends AppCompatActivity {
     FirebaseUser firebaseUser;
     DatabaseReference databaseReference;
     DatabaseReference entryRef;
+    DatabaseReference attachmentRef;
     FirebaseAuth.AuthStateListener mAuthListener;
     String preID;
 
@@ -60,13 +62,13 @@ public class HistoryViewActivity extends AppCompatActivity {
         firebaseUser = firebaseAuth.getCurrentUser();
         String journalID = getIntent().getExtras().getString(Constants.journalID);
         preID = getIntent().getExtras().getString("preID");
-
         String userID = "";
         if (firebaseUser != null) {
             userID = firebaseUser.getUid();
         }
 
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
         entryRef = databaseReference.child(Constants.Users_End_Point)
                 .child(userID).child(Constants.Journals_End_Point).child(journalID)
                 .child(Constants.Entries_End_Point);
@@ -135,7 +137,7 @@ public class HistoryViewActivity extends AppCompatActivity {
                 entriesList.clear();
                 for (DataSnapshot ds : dataSnapshot.getChildren()){
                     Entry entry = ds.getValue(Entry.class);
-                    if (entry.getPredecessorEntryID().equals(preID) || entry.getEntryID().equals(preID)){
+                    if (!entry.getPredecessorEntryID().equals("") && entry.getPredecessorEntryID().equals(preID) || entry.getEntryID().equals(preID)){
                         entriesList.add(entry);
                     }
                     listAdapter = new HistoryListAdapter(HistoryViewActivity.this, entriesList);

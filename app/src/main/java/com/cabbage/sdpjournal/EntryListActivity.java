@@ -92,6 +92,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String entryDateTime = entriesList.get(index).getDateTimeCreated();
                 String entryID = entriesList.get(index).getEntryID();
                 String preID = entriesList.get(index).getPredecessorEntryID();
+                int count = entriesList.get(index).getCount();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 //put all data into entry view
@@ -104,6 +105,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("dateTime", entryDateTime);
                 intent.putExtra("entryID", entryID);
                 intent.putExtra("preID", preID);
+                intent.putExtra("count", count);
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
