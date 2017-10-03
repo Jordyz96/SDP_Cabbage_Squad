@@ -60,9 +60,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FloatingActionButton fab;
-    private TextView mDisplayDate;
+//    private TextView mDisplayDate;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
+    private DatePickerDialog.OnDateSetListener mFromDateSetListener;
+    private DatePickerDialog.OnDateSetListener mToDateSetListener;
     private String s = null;
 
     class ViewHolder {
@@ -404,6 +406,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
                 Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
 
+                ab.setView(myView);
+                final AlertDialog dialog = ab.create();
+                dialog.show();
+
                 //eric coming lol**************************************** seaerch on a day
                 final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
 
@@ -432,7 +438,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
                         Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth + "-" + String.format("%02d", month) + "-" + year);
 
-                        String date = dayOfMonth + "-" + String.format("%02d", month) + "-" + year;
+                        String date = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", month) + "-" + year;
                         mDisplayDate.setText(date);
                     }
 
@@ -441,15 +447,84 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 ///eric endhere*********************************
 
 
-                ab.setView(myView);
-                final AlertDialog dialog = ab.create();
-                dialog.show();
+                //////// between two date start
+                final TextView mDisplayFromDate = (TextView) myView.findViewById(R.id.fromDate);
+                mDisplayFromDate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Calendar cal1 = Calendar.getInstance();
+                        int year1 = cal1.get(Calendar.YEAR);
+                        int month1 = cal1.get(Calendar.MONTH);
+                        int day1 = cal1.get(Calendar.DAY_OF_MONTH);
+
+                        DatePickerDialog dialog1 = new DatePickerDialog(
+                                EntryListActivity.this,
+                                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                                mFromDateSetListener,
+                                year1,month1,day1);
+                        dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        dialog1.show();
+                    }
+                });
+                mFromDateSetListener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year1, int month1, int dayOfMonth1) {
+                        month1 = month1 + 1;
+
+                        Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth1 + "-" + String.format("%02d", month1) + "-" + year1);
+
+                        String date1 = String.format("%02d", dayOfMonth1) + "-" + String.format("%02d", month1) + "-" + year1;
+                        mDisplayFromDate.setText(date1);
+                    }
+
+                };
+                    ////////end1
+                final TextView mDisplayToDate = (TextView) myView.findViewById(R.id.toDate);
+                mDisplayToDate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Calendar cal2 = Calendar.getInstance();
+                        int year1 = cal2.get(Calendar.YEAR);
+                        int month1 = cal2.get(Calendar.MONTH);
+                        int day1 = cal2.get(Calendar.DAY_OF_MONTH);
+
+                        DatePickerDialog dialog2 = new DatePickerDialog(
+                                EntryListActivity.this,
+                                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                                mToDateSetListener,
+                                year1,month1,day1);
+                        dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        dialog2.show();
+                    }
+                });
+                mToDateSetListener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year2, int month2, int dayOfMonth2) {
+                        month2 = month2 + 1;
+
+                        Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth2 + "-" + String.format("%02d", month2) + "-" + year2);
+
+                        String date2 = String.format("%02d", dayOfMonth2) + "-" + String.format("%02d", month2) + "-" + year2;
+                        mDisplayToDate.setText(date2);
+
+                    }
+
+                };
+
+
+
+
+
+                    ////////between two date end
+
+
 
                 okBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         //if click ok
-                        if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked() && mDisplayDate.getText().equals("")){
+                        if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked() && mDisplayDate.getText().equals("")
+                                && mDisplayFromDate.getText().equals("") && mDisplayToDate.getText().equals("")){
                             Toast.makeText(EntryListActivity.this, "Please choose one", Toast.LENGTH_SHORT).show();
                         }
 
@@ -491,6 +566,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             filterEntriesOnDate(mDisplayDate.getText().toString());
                             dialog.cancel();
                         }
+                        if (!mDisplayFromDate.getText().equals("") && !mDisplayToDate.getText().equals(""))
+
+                            searchEntriesBetweenDates(convert(mDisplayFromDate.getText().toString()), convert(mDisplayToDate.getText().toString()));
+                        dialog.cancel();
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -623,27 +702,42 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter.notifyDataSetChanged();
     }
 
-    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
+    public void  searchEntriesBetweenDates(Date startDate, Date endDate){
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-        Date entryDate;
         for (Entry e : entriesList) {
             String[] stringDate = e.getDateTimeCreated().split(" ");
-            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
-            try {
-                entryDate = formatter.parse(stringDate[0]);
-                System.out.println(entryDate);
-                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
-                    entriesMatchingDates.add(e);
-                }
-            } catch (ParseException exp) {
-                exp.printStackTrace();
+            String entryDateString = stringDate[0];
+            Date entryDate = convert(e.getDateTimeCreated());
+            if ((startDate.before(entryDate) && endDate.after(entryDate))|| startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
+                entriesMatchingDates.add(e);
             }
-
         }
         listAdapter.listData.clear();
         listAdapter.listData.addAll(entriesMatchingDates);
         listAdapter.notifyDataSetChanged();
-    }
+        }
+
+//    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
+//        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
+//        Date entryDate;
+//        for (Entry e : entriesList) {
+//            String[] stringDate = e.getDateTimeCreated().split(" ");
+//            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
+//            try {
+//                entryDate = formatter.parse(stringDate[0]);
+//                System.out.println(entryDate);
+//                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
+//                    entriesMatchingDates.add(e);
+//                }
+//            } catch (ParseException exp) {
+//                exp.printStackTrace();
+//            }
+//
+//        }
+//        listAdapter.listData.clear();
+//        listAdapter.listData.addAll(entriesMatchingDates);
+//        listAdapter.notifyDataSetChanged();
+//    }
 
     public void filterEntriesOnDate(String s2) {
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
@@ -662,26 +756,31 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             listAdapter.notifyDataSetChanged();
 
     }
-//    public void searchEntriesOnDate(Date date) {
-//        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        for (Entry e : entriesList) {
-//            String[] stringDate = e.getDateTimeCreated().split(" ");
-//            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
-//            try {
-//                entryDate = formatter.parse(stringDate[0]);
-//                System.out.println(entryDate);
-//                if (date.equals(entryDate)) {
-//                    entriesMatchingDates.add(e);
-//                }
-//            } catch (ParseException exp) {
-//                exp.printStackTrace();
-//            }
-//
+//    public Date convert(String s){
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+//        Date convertedDate = new Date();
+//        try {
+//            convertedDate = dateFormat.parse(s);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
 //        }
-//        listAdapter.listData.clear();
-//        listAdapter.listData.addAll(entriesMatchingDates);
-//        listAdapter.notifyDataSetChanged();
+//        return convertedDate;
 //    }
-    }
 
+
+
+
+
+public Date convert(String s){
+    DateFormat formatter ;
+    Date date = null;
+    formatter = new SimpleDateFormat("dd-MM-yyyy");
+    try {
+        date = (Date)formatter.parse(s);
+    } catch (ParseException e) {
+        e.printStackTrace();
+    }
+    //System.out.println("Today is " +date.getTime());
+    return date;
+}
+}
