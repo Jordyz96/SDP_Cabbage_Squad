@@ -172,6 +172,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String outcome = entriesList.get(index).getEntryOutcome();
                 String entryComment = entriesList.get(index).getEntryComment();
                 String entryDateTime = entriesList.get(index).getDateTimeCreated();
+                String entryID = entriesList.get(index).getEntryID();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 //put all data into entry view
@@ -182,6 +183,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("outcome", outcome);
                 intent.putExtra("entryComment", entryComment);
                 intent.putExtra("dateTime", entryDateTime);
+                intent.putExtra("entryID", entryID);
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
@@ -566,10 +568,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             filterEntriesOnDate(mDisplayDate.getText().toString());
                             dialog.cancel();
                         }
-                        if (!mDisplayFromDate.getText().equals("") && !mDisplayToDate.getText().equals(""))
+                        if (!mDisplayFromDate.getText().equals("") && !mDisplayToDate.getText().equals("")) {
 
                             searchEntriesBetweenDates(convert(mDisplayFromDate.getText().toString()), convert(mDisplayToDate.getText().toString()));
-                        dialog.cancel();
+                            dialog.cancel();
+                        }
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
