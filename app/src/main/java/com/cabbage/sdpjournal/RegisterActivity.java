@@ -2,9 +2,9 @@ package com.cabbage.sdpjournal;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.cabbage.sdpjournal.UserInfo.UserInformation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -25,6 +26,7 @@ import static android.content.ContentValues.TAG;
 /**
  * Activity class that allows a user to register to the database and sends them to the main activity
  * if register is successful
+ *
  * @author Sean Carmichael
  * @version 1.0
  * @since 22.08.2017
@@ -61,6 +63,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * What happens on the creation of the activity.
+     *
      * @param savedInstanceState
      */
     @Override
@@ -125,12 +128,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * Function called when any on click listener is triggered
+     *
      * @param v view of the button clicked
      */
     @Override
     public void onClick(View v) {
         //If button pressed is the register button run registerUser
-        if(v == registerBtn){
+        if (v == registerBtn) {
             registerUser();
         } else {
             //If back button go back to login activity
@@ -160,7 +164,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             //Set a flag to make sure the process does not continue with invalid information
             cancel = true;
             //Call isEmailValid function to check email validity
-        } else if(!isEmailValid(email)){
+        } else if (!isEmailValid(email)) {
             emailEt.setError(getString(R.string.error_invalid_email));
             focusView = emailEt;
             cancel = true;
@@ -171,9 +175,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             passwordEt.setError(getString(R.string.error_no_password));
             focusView = passwordEt;
             cancel = true;
-        } else{
+        } else {
             //If not empty call isEnteredValid function to check if the password is too short or long
-            switch (isEnteredValid(password)){
+            switch (isEnteredValid(password)) {
                 case 0:
                     passwordEt.setError(getString(R.string.error_invalid_short_password));
                     focusView = passwordEt;
@@ -186,13 +190,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
 
         //If the username field is empty
-        if(TextUtils.isEmpty(username)){
+        if (TextUtils.isEmpty(username)) {
             usernameEt.setError(getString(R.string.error_no_username));
             focusView = usernameEt;
             cancel = true;
             //If not empty then check if it is too long or short
-        } else{
-            switch (isEnteredValid(username)){
+        } else {
+            switch (isEnteredValid(username)) {
                 case 0:
                     usernameEt.setError(getString(R.string.error_invalid_short_username));
                     focusView = usernameEt;
@@ -214,7 +218,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             progressDialog.show();
 
             //Create a user with the email and password enter
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     //If successful show a toast telling the user and call the loginUser to log them in
@@ -234,17 +239,18 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * Signs the new user in and set's thier username in the database
-     * @param email Email entered of new user
+     *
+     * @param email    Email entered of new user
      * @param password Password entered of new user
      * @param username Username entered of new user
      */
-    private void loginUser(final String email, String password, final String username){
+    private void loginUser(final String email, String password, final String username) {
         //Calling the sign-in with the email and password
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 //If successful
-                        if (task.isSuccessful()) {
+                if (task.isSuccessful()) {
                     //Get the current userID
                     FirebaseUser user = mAuth.getCurrentUser();
                     String userID = user.getUid();
@@ -255,7 +261,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     //Creates a toast to inform the user everything is set up
                     Toast.makeText(RegisterActivity.this, LOGIN_SUCCESS, Toast.LENGTH_SHORT).show();
                     //Moves the new user to the main activity
-                    RegisterActivity.this.startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                    RegisterActivity.this.startActivity(new Intent(RegisterActivity.this, JournalListActivity.class));
                     //If unsuccessful create a toast informing the user
                 } else {
                     Toast.makeText(RegisterActivity.this, LOGIN_FAILED, Toast.LENGTH_SHORT).show();
@@ -268,26 +274,28 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * Checks if the passed email is valid
+     *
      * @param email the email that was submitted for validation
      * @return
      */
-    private boolean isEmailValid(String email){
+    private boolean isEmailValid(String email) {
         return email.contains(AT) && email.endsWith(DOT_COM);
     }
 
     /**
      * Checks if the passed string is too long or short
+     *
      * @param string The string entered for validation
      * @return if its too short to long or neither
      */
-    private int isEnteredValid(String string){
+    private int isEnteredValid(String string) {
         //Initialises the output
         int output = 0;
         //If the string is 6 or less print 0 (too short)
-        if(string.length()< 6){
+        if (string.length() < 6) {
             output = 0;
             //If the string is more than 16 print 1 (too long)
-        } else if(string.length() > 16){
+        } else if (string.length() > 16) {
             output = 1;
             //if neither than it is correct
         } else {

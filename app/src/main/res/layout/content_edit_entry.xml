@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.cabbage.sdpjournal.EditEntryActivity"
+    tools:showIn="@layout/activity_edit_entry">
+    <EditText
+        android:id="@+id/etEntryName"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:ems="10"
+        android:layout_below="@id/toolbar"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="5dp"
+        android:hint="EntryName"
+        android:inputType="textPersonName"
+        />
+
+    <EditText
+        android:id="@+id/etResponsibilities"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:layout_below="@id/etEntryName"
+        android:ems="10"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="5dp"
+        android:hint="Responsibilities"
+        android:inputType="textMultiLine"
+        android:selectAllOnFocus="true"
+        android:singleLine="false"
+        />
+
+    <EditText
+        android:id="@+id/etDecision"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:hint="Decisions"
+        android:inputType="textMultiLine"
+        android:layout_below="@id/etResponsibilities"/>
+
+    <EditText
+        android:id="@+id/etOutcome"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:hint="Outcome"
+        android:inputType="textMultiLine"
+        android:layout_below="@id/etDecision"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <EditText
+        android:id="@+id/etComment"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:hint="Comment"
+        android:inputType="textMultiLine"
+        android:layout_below="@id/etOutcome"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="confirm"
+        android:layout_below="@id/etComment"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+</RelativeLayout>

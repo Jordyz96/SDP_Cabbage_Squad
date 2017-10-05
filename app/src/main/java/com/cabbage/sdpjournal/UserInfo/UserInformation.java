@@ -1,4 +1,4 @@
-package com.cabbage.sdpjournal;
+package com.cabbage.sdpjournal.UserInfo;
 
 /**
  * Class to store account details while they are moved to the database
@@ -6,7 +6,7 @@ package com.cabbage.sdpjournal;
  * @version 1.0
  * @since 22.08.2017
  */
-class UserInformation {
+public class UserInformation {
 
     private String mEmail;
     private String mUsername;
@@ -16,7 +16,7 @@ class UserInformation {
      * @param email email of the user
      * @param username username of the user
      */
-    UserInformation(String email, String username){
+    public UserInformation(String email, String username){
         mEmail = email;
         mUsername = username;
     }
