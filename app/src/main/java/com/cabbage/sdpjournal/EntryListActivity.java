@@ -9,19 +9,16 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,16 +34,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static android.content.ContentValues.TAG;
 
@@ -60,7 +53,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FloatingActionButton fab;
-//    private TextView mDisplayDate;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
     private DatePickerDialog.OnDateSetListener mFromDateSetListener;
@@ -90,67 +82,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         firebaseAuth = FirebaseAuth.getInstance();
 
-//        getSupportActionBar().setTitle("Material Search");
-//        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-
-//         searchView=(MaterialSearchView) findViewById(R.id.search_view);
-//
-//        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, entriesList);
-//
-//        entriesListView = (SwipeListView) findViewById(R.id.listView);
-//
-//
-//
-//        entriesListView.setAdapter(adapter);
-//
-//        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
-//            @Override
-//            public void onSearchViewShown() {
-//
-//            }
-//
-//            @Override
-//            public void onSearchViewClosed() {
-//
-//                //If closed search view, listview will return default
-//                ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
-//                entriesListView.setAdapter(adapter);
-//            }
-//        });
-//
-//
-//        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                if(newText != null && !newText.isEmpty()){
-//                    ArrayList lstFound = new ArrayList<>();
-//                    for (Entry item:entriesList){
-//                        lstFound.add(item);
-//                    }
-//
-//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, lstFound);
-//                    entriesListView.setAdapter(adapter);
-//
-//
-//                }
-//                else{
-//                    //if search text is null
-//                    //return default
-//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
-//                    entriesListView.setAdapter(adapter);
-//                }
-//                return true;
-//            }
-//        });
         init();
-
-       // entriesListView = (ListView) findViewById(R.id.listView);
-
     }
 
 
@@ -706,29 +638,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter.listData.addAll(entriesMatchingDates);
         listAdapter.notifyDataSetChanged();
         }
-
-//    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
-//        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        for (Entry e : entriesList) {
-//            String[] stringDate = e.getDateTimeCreated().split(" ");
-//            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
-//            try {
-//                entryDate = formatter.parse(stringDate[0]);
-//                System.out.println(entryDate);
-//                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
-//                    entriesMatchingDates.add(e);
-//                }
-//            } catch (ParseException exp) {
-//                exp.printStackTrace();
-//            }
-//
-//        }
-//        listAdapter.listData.clear();
-//        listAdapter.listData.addAll(entriesMatchingDates);
-//        listAdapter.notifyDataSetChanged();
-//    }
-
     public void filterEntriesOnDate(String s2) {
         ///search entries on a certain day
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
@@ -744,20 +653,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             listAdapter.notifyDataSetChanged();
 
     }
-//    public Date convert(String s){
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-//        Date convertedDate = new Date();
-//        try {
-//            convertedDate = dateFormat.parse(s);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return convertedDate;
-//    }
-
-
-
-
 
 public Date convert(String s){
     ////convert a string to a date
