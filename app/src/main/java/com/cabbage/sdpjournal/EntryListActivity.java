@@ -400,7 +400,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 EntryListActivity.this.startActivity(new Intent(EntryListActivity.this, ResetPasswordActivity.class));
                 return true;
 
-            case R.id.action_search:
+            case R.id.action_search_menu:
                 AlertDialog.Builder searchAB = new AlertDialog.Builder(EntryListActivity.this);
                 View searchView = getLayoutInflater().inflate(R.layout.dialog_search_entries, null);
                 final EditText etKeyword = (EditText) searchView.findViewById(R.id.etKeyword);
@@ -448,7 +448,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 final AlertDialog dialog = ab.create();
                 dialog.show();
 
-                //eric coming lol**************************************** seaerch on a day
+                //eric coming lol**************************************** search on a day
                 final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
 
                 mDisplayDate.setOnClickListener(new View.OnClickListener() {
