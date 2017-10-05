@@ -58,4 +58,9 @@
     <string name="title_activity_entry_view">Entry</string>
     <string name="title_activity_new_entry">New Entry</string>
     <string name="title_activity_reset_password">Reset Password</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="title_activity_edit_entry">EditEntryActivity</string>
+    <string name="title_activity_history_view">HistoryViewActivity</string>
+    <string name="title_activity_attachment_view">AttachmentViewActivity</string>
 </resources>

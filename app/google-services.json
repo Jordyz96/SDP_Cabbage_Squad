@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "245684723412-n4jnqimvoat0k53mbt04hd81nq0li0rv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cabbage.sdpjournal",
+            "certificate_hash": "1fb8f725dce620d0c78ed43c9de2525272d16dbd"
+          }
+        },
+        {
           "client_id": "245684723412-vc9m8p0dqel41kp8ebold3kvontenp9s.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
