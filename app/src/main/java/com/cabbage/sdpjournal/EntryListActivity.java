@@ -412,9 +412,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 final AlertDialog dialog = ab.create();
                 dialog.show();
 
-                //eric coming lol**************************************** seaerch on a day
-                final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
 
+                final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
+                //filter enties on a certain day
                 mDisplayDate.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -446,10 +446,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
                 };
 
-                ///eric endhere*********************************
-
-
                 //////// between two date start
+                ///////day 1 begin
                 final TextView mDisplayFromDate = (TextView) myView.findViewById(R.id.fromDate);
                 mDisplayFromDate.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -480,7 +478,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
 
                 };
-                    ////////end1
+                    //////// Day 2 begin
                 final TextView mDisplayToDate = (TextView) myView.findViewById(R.id.toDate);
                 mDisplayToDate.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -512,14 +510,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
 
                 };
-
-
-
-
-
-                    ////////between two date end
-
-
 
                 okBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -559,17 +549,14 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             dialog.cancel();
                         }
 
-                      //  Calendar cal = Calendar.getInstance();
-                       // String s = null;
-
                         if (!mDisplayDate.getText().equals("")) {
-                            //showing all entries on a day
+                            //showing all entries on a certain day
                             s = mDisplayDate.getText().toString();
                             filterEntriesOnDate(mDisplayDate.getText().toString());
                             dialog.cancel();
                         }
                         if (!mDisplayFromDate.getText().equals("") && !mDisplayToDate.getText().equals("")) {
-
+                            //filter all the entries between two days
                             searchEntriesBetweenDates(convert(mDisplayFromDate.getText().toString()), convert(mDisplayToDate.getText().toString()));
                             dialog.cancel();
                         }
@@ -670,6 +657,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void filterEntries (String filterSelected) {
+        //filter entires by the status
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<Entry>();
         if (filterSelected.equals("All")){
             entriesMatchingFilter.addAll(entriesList);
@@ -706,10 +694,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void  searchEntriesBetweenDates(Date startDate, Date endDate){
+        //search all the entries between two day
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
         for (Entry e : entriesList) {
-            String[] stringDate = e.getDateTimeCreated().split(" ");
-            String entryDateString = stringDate[0];
             Date entryDate = convert(e.getDateTimeCreated());
             if ((startDate.before(entryDate) && endDate.after(entryDate))|| startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
                 entriesMatchingDates.add(e);
@@ -743,10 +730,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 //    }
 
     public void filterEntriesOnDate(String s2) {
+        ///search entries on a certain day
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-//        String s2 = formatter.format(date2);
         for (Entry e : entriesList) {
             String[] stringDate = e.getDateTimeCreated().split(" ");
             String s1 = stringDate[0];
@@ -775,6 +760,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
 
 public Date convert(String s){
+    ////convert a string to a date
     DateFormat formatter ;
     Date date = null;
     formatter = new SimpleDateFormat("dd-MM-yyyy");
@@ -783,7 +769,6 @@ public Date convert(String s){
     } catch (ParseException e) {
         e.printStackTrace();
     }
-    //System.out.println("Today is " +date.getTime());
     return date;
 }
 }
