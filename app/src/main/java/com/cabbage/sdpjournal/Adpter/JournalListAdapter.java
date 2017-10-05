@@ -70,6 +70,9 @@ public class JournalListAdapter extends BaseAdapter {
         if (journals.get(i).getJournalColor().equals("Yellow")){
             journalImage.setImageResource(R.drawable.yellow_journal);
         }
+        if (journals.get(i).getJournalColor().equals("Grey")){
+            journalImage.setImageResource(R.drawable.grey_journal);
+        }
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override

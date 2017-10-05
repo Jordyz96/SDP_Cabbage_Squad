@@ -71,6 +71,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         if (myFireBaseUser == null) {
             startActivity(new Intent(JournalListActivity.this, LoginActivity.class));
             finish();
+            return;
         } else {
             //User is logged in;
             userID = myFireBaseUser.getUid();
