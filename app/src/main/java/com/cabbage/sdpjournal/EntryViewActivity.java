@@ -95,6 +95,8 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
                 // ...
             }
         };
+
+        setTitle(getTitle() + " - " + entryName);
     }
 
     /**

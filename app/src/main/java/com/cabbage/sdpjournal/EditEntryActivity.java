@@ -127,13 +127,15 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         etOutcome = (EditText) findViewById(R.id.etOutcome);
         etComment = (EditText) findViewById(R.id.etComment);
         //set text...
-        etEntryName.setText(getIntent().getExtras().getString("entryName"));
+        String entryName = getIntent().getExtras().getString("entryName");
+        etEntryName.setText(entryName);
         etResponsibilities.setText(getIntent().getExtras().getString("responsibilities"));
         etDecisions.setText(getIntent().getExtras().getString("decision"));
         etOutcome.setText(getIntent().getExtras().getString("outcome"));
         etComment.setText(getIntent().getExtras().getString("entryComment"));
         //set clicking listener
         confirmBtn.setOnClickListener(this);
+        setTitle(getTitle() + " - " + entryName);
     }
 
     @Override
