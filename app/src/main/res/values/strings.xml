@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Journal</string>
+    <string name="app_name">ProPal</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
@@ -63,4 +63,7 @@
     <string name="title_activity_edit_entry">Edit</string>
     <string name="title_activity_history_view">Journal Entry History</string>
     <string name="title_activity_attachment_view">Attachments</string>
+    <string name="already_have_account">Already have an account? Click here</string>
+    <string name="create">CREATE</string>
+    <string name="reset">RESET</string>
 </resources>

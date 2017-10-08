@@ -22,22 +22,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp">
 
             <TextView
                 android:id="@+id/tvJournalName"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:text="TextView"
-                android:textSize="25dp"
-                android:textStyle="bold" />
+                android:textSize="24dp"
+                android:textColor="@color/colorBlack" />
 
             <TextView
                 android:id="@+id/tvCompanyName"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:text="TextView"
-                android:textSize="15dp" />
+                android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
