@@ -462,7 +462,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             viewHolder.dateTimeCreated.setText(listData.get(position).getDateTimeCreated());
             return super.bindView(position, convertView);
         }
-
     }
 
     public void filterEntries (String filterSelected) {

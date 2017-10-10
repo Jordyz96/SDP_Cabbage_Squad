@@ -56,6 +56,7 @@ public class AttachmentViewActivity extends AppCompatActivity {
     String fileName;
     private MediaPlayer mPlayer = null;
     boolean mStartPlaying;
+    boolean isStopped;
 
 
 
@@ -72,6 +73,7 @@ public class AttachmentViewActivity extends AppCompatActivity {
 
         gv = (GridView) findViewById(R.id.gvImageView);
         lv = (ListView) findViewById(R.id.lvAudioListView);
+        mStartPlaying = true;
 
     }
 
@@ -224,8 +226,10 @@ public class AttachmentViewActivity extends AppCompatActivity {
     private void stopPlaying() {
         mPlayer.release();
         mPlayer = null;
+        isStopped = true;
     }
 
+    //adapter for audio list
     public class AttachmentAudioListAdapter extends BaseAdapter {
         private Context c;
         private ArrayList<Attachment> attachments;
@@ -271,14 +275,20 @@ public class AttachmentViewActivity extends AppCompatActivity {
             playBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mStartPlaying = true;
-                    onPlay(mStartPlaying);
                     if (mStartPlaying) {
                         playBtn.setBackground(stop);
+                        onPlay(mStartPlaying);
                     } else {
                         playBtn.setBackground(start);
+                        stopPlaying();
+                        mStartPlaying = true;
                     }
                     mStartPlaying = !mStartPlaying;
+
+                    if (isStopped){
+                        playBtn.setBackground(start);
+                        mStartPlaying = true;
+                    }
                 }
             });
             return view;

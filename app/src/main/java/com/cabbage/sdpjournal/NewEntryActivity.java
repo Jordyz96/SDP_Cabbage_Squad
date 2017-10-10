@@ -178,6 +178,8 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                 chooseImage();
                 return true;
             case R.id.action_audio:
+                //ask user to turn on permissions of audio and storage.
+                //if truned on ...
                 recordAudioDialog();
                 return true;
             case R.id.action_video:
