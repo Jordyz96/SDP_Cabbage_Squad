@@ -167,15 +167,16 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             public void OnClick(View view, int index) {
                 //Click the entry, jump to entry view...
                 //Grab data that entry view needs
-                String entryName = entriesList.get(index).getEntryName();
-                String responsibilities = entriesList.get(index).getEntryResponsibilities();
-                String decision = entriesList.get(index).getEntryDecision();
-                String outcome = entriesList.get(index).getEntryOutcome();
-                String entryComment = entriesList.get(index).getEntryComment();
-                String entryDateTime = entriesList.get(index).getDateTimeCreated();
-                String entryID = entriesList.get(index).getEntryID();
-                String preID = entriesList.get(index).getPredecessorEntryID();
-                int count = entriesList.get(index).getCount();
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+                String entryName = e.getEntryName();
+                String responsibilities = e.getEntryResponsibilities();
+                String decision = e.getEntryDecision();
+                String outcome = e.getEntryOutcome();
+                String entryComment = e.getEntryComment();
+                String entryDateTime = e.getDateTimeCreated();
+                String entryID = e.getEntryID();
+                String preID = e.getPredecessorEntryID();
+                int count = e.getCount();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 //put all data into entry view
