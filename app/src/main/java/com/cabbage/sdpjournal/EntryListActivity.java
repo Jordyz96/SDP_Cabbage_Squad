@@ -329,7 +329,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             userID = firebaseUser.getUid();
         }
         String journalID = getIntent().getExtras().getString(Constants.journalID);
-        String entryID = entriesList.get(index).getEntryID();
+        String entryID = (String) ((Entry) entriesListView.getAdapter().getItem(index)).getEntryID();
         //setting pathentryID
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
         DatabaseReference entryStatusRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
