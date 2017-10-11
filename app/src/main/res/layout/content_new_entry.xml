@@ -7,117 +7,131 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.cabbage.sdpjournal.NewEntryActivity"
-    tools:showIn="@layout/activity_new_entry"
-    android:layout_marginLeft="30dp"
-    android:layout_marginTop="20dp"
-    android:layout_marginBottom="30dp"
-    android:layout_marginRight="30dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/colorBlack"
-        android:layout_marginTop="5dp"
-        android:text="Entry Name"/>
+    tools:showIn="@layout/activity_new_entry">
 
-    <EditText
-        android:id="@+id/etEntryName"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/customborder"
-        android:ems="10"
-        android:inputType="text|textCapWords|textAutoComplete|textShortMessage"
-        android:padding="5dp"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:textSize="16sp"
-        android:textColor="@color/colorBlack"
-        android:text="Responsibility"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/etResponsibilities"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/customborder"
-        android:ems="10"
-        android:gravity="top|left"
-        android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-        android:selectAllOnFocus="true"
-        android:singleLine="false"
-        android:padding="5dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Entry Name"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/colorBlack"
-        android:layout_marginTop="5dp"
-        android:text="Decisions"/>
+            <EditText
+                android:id="@+id/etEntryName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/customborder"
+                android:ems="10"
+                android:inputType="text|textCapWords|textAutoComplete|textShortMessage"
+                android:padding="5dp" />
 
-    <EditText
-        android:id="@+id/etDecision"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_marginTop="5dp"
-        android:ems="10"
-        android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-        android:background="@drawable/customborder"
-        android:gravity="top|left"
-        android:padding="5dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Responsibility"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etResponsibilities"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/customborder"
+                android:ems="10"
+                android:gravity="top|left"
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp"
+                android:selectAllOnFocus="true"
+                android:singleLine="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Decisions"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etDecision"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/customborder"
+                android:ems="10"
+                android:gravity="top|left"
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/colorBlack"
-        android:layout_marginTop="5dp"
-        android:text="Outcomes"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Outcomes"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
-    <EditText
-        android:id="@+id/etOutcome"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_marginTop="5dp"
-        android:ems="10"
-        android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-        android:background="@drawable/customborder"
-        android:gravity="top|left"
-        android:padding="5dp"/>
+            <EditText
+                android:id="@+id/etOutcome"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/customborder"
+                android:ems="10"
+                android:gravity="top|left"
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/colorBlack"
-        android:layout_marginTop="5dp"
-        android:text="Comments"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Comments"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
-    <EditText
-        android:id="@+id/etComment"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_marginTop="5dp"
-        android:ems="10"
-        android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-        android:background="@drawable/customborder"
-        android:gravity="top|left"
-        android:padding="5dp"/>
+            <EditText
+                android:id="@+id/etComment"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/customborder"
+                android:ems="10"
+                android:gravity="top|left"
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp" />
 
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="SAVE"
-        android:layout_marginTop="15dp"
-        android:textColor="@color/colorWhite"
-        android:background="@color/colorPrimary"/>
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="50dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/colorPrimary"
+                android:text="SAVE"
+                android:textColor="@color/colorWhite" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

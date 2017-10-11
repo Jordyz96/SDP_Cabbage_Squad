@@ -171,14 +171,24 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 //Click the entry, jump to entry view...
                 //Grab data that entry view needs
                 int test = index;
-                String entryName = entriesList.get(index).getEntryName();
-                String responsibilities = entriesList.get(index).getEntryResponsibilities();
-                String decision = entriesList.get(index).getEntryDecision();
-                String outcome = entriesList.get(index).getEntryOutcome();
-                String entryComment = entriesList.get(index).getEntryComment();
-                String entryDateTime = entriesList.get(index).getDateTimeCreated();
-                String entryID = entriesList.get(index).getEntryID();
-                String preID = entriesList.get(index).getPredecessorEntryID();
+//                String entryName = entriesList.get(index).getEntryName();
+//                String responsibilities = entriesList.get(index).getEntryResponsibilities();
+//                String decision = entriesList.get(index).getEntryDecision();
+//                String outcome = entriesList.get(index).getEntryOutcome();
+//                String entryComment = entriesList.get(index).getEntryComment();
+//                String entryDateTime = entriesList.get(index).getDateTimeCreated();
+//                String entryID = entriesList.get(index).getEntryID();
+//                String preID = entriesList.get(index).getPredecessorEntryID();
+
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+                String entryName = e.getEntryName();
+                String responsibilities = e.getEntryResponsibilities();
+                String decision = e.getEntryDecision();
+                String outcome = e.getEntryOutcome();
+                String entryComment = e.getEntryComment();
+                String entryDateTime = e.getDateTimeCreated();
+                String entryID = e.getEntryID();
+                String preID = e.getPredecessorEntryID();
                 int count = entriesList.get(index).getCountAttachment();
                 int countVersion = entriesList.get(index).getCountVersion();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
@@ -205,9 +215,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public boolean OnLongClick(View view, int index) {
                 //long click entries -- popup dialog showing entry details
-                String entryName = entriesList.get(index).getEntryName();
-                int countAttachment = entriesList.get(index).getCountAttachment();
-                int countVersion = entriesList.get(index).getCountVersion();
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+
+                String entryName = e.getEntryName();
+                int countAttachment = e.getCountAttachment();
+                int countVersion = e.getCountVersion();
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
                 View myView = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
@@ -244,6 +256,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void OnControlClick(int rid, View view, final int index) {
                 AlertDialog.Builder ab;
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+                String status = e.getStatus();
                 switch (rid) {
                     //if click delete
                     case R.id.delete:
@@ -277,7 +291,15 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     //if click hide
                     case R.id.hide:
                         //if user hides an entry, change the entry status.
-                        changeStatus(index, Constants.Entry_Status_Hidden);
+                        if (status.equals(Constants.Entry_Status_Hidden)) {
+                            changeStatus(index, Constants.Entry_Status_Normal);
+                        }
+                        if (status.equals(Constants.Entry_Status_Normal)){
+                            changeStatus(index, Constants.Entry_Status_Hidden);
+                        }
+                        if (status.equals(Constants.Entry_Status_Deleted)){
+                            Toast.makeText(EntryListActivity.this, "This entry has been deleted", Toast.LENGTH_SHORT).show();
+                        }
                 }
             }
         }, new int[]{R.id.delete, R.id.hide});
@@ -717,6 +739,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 viewHolder.dateTimeCreated = (TextView) convertView.findViewById(R.id.tvEntryDateTimeInStyle_list);
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
+                String status = listData.get(position).getStatus();
+                if (status.equals(Constants.Entry_Status_Hidden)){
+                    viewHolder.hide.setText("Unhide");
+                }
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (EntryListActivity.ViewHolder) convertView.getTag();
