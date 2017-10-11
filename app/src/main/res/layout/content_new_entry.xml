@@ -7,11 +7,7 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.cabbage.sdpjournal.NewEntryActivity"
-    tools:showIn="@layout/activity_new_entry"
-    android:layout_marginLeft="30dp"
-    android:layout_marginTop="20dp"
-    android:layout_marginBottom="30dp"
-    android:layout_marginRight="30dp">
+    tools:showIn="@layout/activity_new_entry">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,15 +16,19 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/colorBlack"
                 android:layout_marginTop="5dp"
-                android:text="Entry Name"/>
+                android:text="Entry Name"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etEntryName"
@@ -38,15 +38,15 @@
                 android:background="@drawable/customborder"
                 android:ems="10"
                 android:inputType="text|textCapWords|textAutoComplete|textShortMessage"
-                android:padding="5dp"/>
+                android:padding="5dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:textSize="16sp"
+                android:text="Responsibility"
                 android:textColor="@color/colorBlack"
-                android:text="Responsibility"/>
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etResponsibilities"
@@ -57,77 +57,78 @@
                 android:ems="10"
                 android:gravity="top|left"
                 android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp"
                 android:selectAllOnFocus="true"
-                android:singleLine="false"
-                android:padding="5dp"/>
+                android:singleLine="false" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/colorBlack"
                 android:layout_marginTop="5dp"
-                android:text="Decisions"/>
+                android:text="Decisions"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etDecision"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="5dp"
-                android:ems="10"
-                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
                 android:background="@drawable/customborder"
+                android:ems="10"
                 android:gravity="top|left"
-                android:padding="5dp"/>
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp" />
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/colorBlack"
                 android:layout_marginTop="5dp"
-                android:text="Outcomes"/>
+                android:text="Outcomes"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etOutcome"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="5dp"
-                android:ems="10"
-                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
                 android:background="@drawable/customborder"
+                android:ems="10"
                 android:gravity="top|left"
-                android:padding="5dp"/>
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp" />
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/colorBlack"
                 android:layout_marginTop="5dp"
-                android:text="Comments"/>
+                android:text="Comments"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etComment"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="5dp"
-                android:ems="10"
-                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
                 android:background="@drawable/customborder"
+                android:ems="10"
                 android:gravity="top|left"
-                android:padding="5dp"/>
+                android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
+                android:padding="5dp" />
 
             <Button
                 android:id="@+id/saveButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SAVE"
+                android:layout_marginBottom="50dp"
                 android:layout_marginTop="20dp"
-                android:textColor="@color/colorWhite"
-                android:background="@color/colorPrimary"/>
+                android:background="@color/colorPrimary"
+                android:text="SAVE"
+                android:textColor="@color/colorWhite" />
 
         </LinearLayout>
     </ScrollView>
