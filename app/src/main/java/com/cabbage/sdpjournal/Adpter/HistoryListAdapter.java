@@ -57,7 +57,7 @@ public class HistoryListAdapter extends BaseAdapter {
                 + "\nDecision: " + entries.get(i).getEntryDecision() + "\nOutcome: "
                 + entries.get(i).getEntryOutcome();
 
-        int count = entries.get(i).getCount();
+        int count = entries.get(i).getCountAttachment();
 
         tvDateTime.setText(entries.get(i).getDateTimeCreated());
         tvContent.setText(content);

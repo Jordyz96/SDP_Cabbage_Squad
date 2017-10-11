@@ -13,7 +13,6 @@
         android:text="alert text"
         android:textSize="25dp"
         android:gravity="center_horizontal"
-        android:textColor="@color/colorWhite"
         android:textStyle="bold"/>
 
     <LinearLayout

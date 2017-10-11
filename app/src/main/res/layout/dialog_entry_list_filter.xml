@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:padding="10dp"
     android:weightSum="1"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
     android:baselineAligned="false">
 
@@ -31,10 +32,11 @@
             android:id="@+id/radioBtnActive"/>
 
         <RadioButton
+            android:id="@+id/radioBtnHidden"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:id="@+id/radioBtnHidden"
             android:text="Hidden Only" />
         <RadioButton
             android:layout_width="match_parent"

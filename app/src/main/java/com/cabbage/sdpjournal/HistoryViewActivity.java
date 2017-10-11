@@ -137,7 +137,7 @@ public class HistoryViewActivity extends AppCompatActivity {
                 entriesList.clear();
                 for (DataSnapshot ds : dataSnapshot.getChildren()){
                     Entry entry = ds.getValue(Entry.class);
-                    if (!entry.getPredecessorEntryID().equals("") && entry.getPredecessorEntryID().equals(preID) || entry.getEntryID().equals(preID)){
+                    if (entry.getStatus().equals("replacedByModified") && entry.getPredecessorEntryID().equals(preID) || entry.getEntryID().equals(preID)){
                         entriesList.add(entry);
                     }
                     listAdapter = new HistoryListAdapter(HistoryViewActivity.this, entriesList);

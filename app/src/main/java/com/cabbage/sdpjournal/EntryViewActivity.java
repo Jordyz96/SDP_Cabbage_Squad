@@ -27,7 +27,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
     String entryName, responsibilities, decision, outcome, comment,
             preID, dateTime, journalID, entryID;
 
-    int count;
+    int count, countVersion;
 
     Button historyBtn;
     Button attBtn;
@@ -72,6 +72,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         preID = getIntent().getExtras().getString("preID");
         journalID = getIntent().getExtras().getString(Constants.journalID);
         count = getIntent().getExtras().getInt("count");
+        countVersion = getIntent().getExtras().getInt("countVersion");
         //put extras into items
         tvEntryName.setText(entryName);
         tvRes.setText(responsibilities);
@@ -150,6 +151,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         intent.putExtra("dateTime", dateTime);
         intent.putExtra("preID", preID);
         intent.putExtra("count", count);
+        intent.putExtra("countVersion", countVersion);
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
     }

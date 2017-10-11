@@ -8,7 +8,7 @@ public class Entry {
     private String entryID, entryName, entryResponsibilities, entryDecision;
     private String entryOutcome, entryComment, dateTimeCreated, status, journalID, predecessorEntryID;
 
-    private int count;
+    private int countAttachment, countVersion;
     //long dateCreated, long timeCreated, String imagePath, String videoPath, String audioPath
 
 
@@ -17,7 +17,7 @@ public class Entry {
     }
 
     public Entry(String entryID, String entryName, String entryResponsibilities, String entryDecision, String entryOutcome, String entryComment,
-                 String dateTimeCreated, String status, String journalID, String predecessorEntryID, int count) {
+                 String dateTimeCreated, String status, String journalID, String predecessorEntryID, int countAttachment, int countVersion) {
         this.entryID = entryID;
         this.entryName = entryName;
         this.entryResponsibilities = entryResponsibilities;
@@ -28,15 +28,24 @@ public class Entry {
         this.status = status;
         this.journalID = journalID;
         this.predecessorEntryID = predecessorEntryID;
-        this.count = count;
+        this.countAttachment = countAttachment;
+        this.countVersion = countVersion;
     }
 
-    public int getCount() {
-        return count;
+    public int getCountAttachment() {
+        return countAttachment;
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public void setCountAttachment(int countAttachment) {
+        this.countAttachment = countAttachment;
+    }
+
+    public int getCountVersion() {
+        return countVersion;
+    }
+
+    public void setCountVersion(int countVersion) {
+        this.countVersion = countVersion;
     }
 
     public String getEntryID() {

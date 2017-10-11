@@ -42,7 +42,7 @@
     <EditText
         android:id="@+id/etResponsibilities"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="75dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/customborder"
         android:ems="10"
@@ -63,7 +63,7 @@
     <EditText
         android:id="@+id/etDecision"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="75dp"
         android:layout_marginTop="5dp"
         android:ems="10"
         android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
@@ -83,7 +83,7 @@
     <EditText
         android:id="@+id/etOutcome"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="75dp"
         android:layout_marginTop="5dp"
         android:ems="10"
         android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
@@ -103,7 +103,7 @@
     <EditText
         android:id="@+id/etComment"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="75dp"
         android:layout_marginTop="5dp"
         android:ems="10"
         android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
@@ -116,7 +116,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="SAVE"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:textColor="@color/colorWhite"
         android:background="@color/colorPrimary"/>
 

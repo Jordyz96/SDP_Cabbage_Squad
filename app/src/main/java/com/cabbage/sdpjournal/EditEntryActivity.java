@@ -64,7 +64,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
     ArrayList<Long> audioDurationList;
     ArrayList<Uri> audioUriList;
 
-    int newCount;
+    int newCount, countVersion;
     MediaRecorder mediaRecorder;
     long duration;
     long lastDown;
@@ -187,8 +187,6 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
                 return true;
             case R.id.action_audio:
                 recordAudioDialog();
-                return true;
-            case R.id.action_video:
                 return true;
         }
 
@@ -353,9 +351,11 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
                     .child(Constants.Journals_End_Point)
                     .child(journalID).child(Constants.Entries_End_Point).child(originalEntryID);
 
+            countVersion = getIntent().getExtras().getInt("countVersion");
+            countVersion++;
             Entry entry = new Entry(newEntryID, entryName
                     , entryResponsibilities, entryDecision, entryOutcome, entryComment
-                    , dataTimeCreated, status, journalID, predecessorEntryID, newCount);
+                    , dataTimeCreated, status, journalID, predecessorEntryID, newCount, countVersion);
 
             final String name = getIntent().getExtras().getString("entryName");
             String responsibilities = getIntent().getExtras().getString("responsibilities");
@@ -365,27 +365,18 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
             int oldCount = getIntent().getExtras().getInt("count");
             originalEntryID = getIntent().getExtras().getString("entryID");
             String dateTime = getIntent().getExtras().getString("dateTime");
-            int count = getIntent().getExtras().getInt("count");
             String oldStatus = "replacedByModified";
-            predecessorEntryID = "original";
 
-            if (!(preID == null)) {
                 Entry originalEntry = new Entry(originalEntryID, name
                         , responsibilities, decision, outcome, comment
-                        , dateTime, oldStatus, journalID, preID, oldCount);
+                        , dateTime, oldStatus, journalID, preID, oldCount, countVersion);
 
                 originalNoteReference.setValue(originalEntry);
-            }else{
-                Entry originalEntry = new Entry(originalEntryID, name
-                        , responsibilities, decision, outcome, comment
-                        , dateTime, oldStatus, journalID, predecessorEntryID, oldCount);
-
-                originalNoteReference.setValue(originalEntry);
-            }
 
             if (TextUtils.isEmpty(entryComment)) {
                 entry.setEntryComment("You did not leave any comment on it");
             }
+
             noteReference.setValue(entry);
 
             //deal with media stuff

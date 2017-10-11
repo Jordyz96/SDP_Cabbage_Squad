@@ -16,12 +16,6 @@
         android:title="audio"
         android:orderInCategory="97"/>
 
-    <item android:icon="@drawable/ic_action_video"
-        app:showAsAction="always"
-        android:id="@+id/action_video"
-        android:title="video"
-        android:orderInCategory="98"/>
-
     <item android:title="@string/logout"
         android:id="@+id/action_logout"
         app:showAsAction="never"

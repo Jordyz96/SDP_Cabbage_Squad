@@ -182,8 +182,6 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                 //if truned on ...
                 recordAudioDialog();
                 return true;
-            case R.id.action_video:
-                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -324,7 +322,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         if (validationPassed(entryName, entryResponsibilities, entryDecision, entryOutcome)) {
             Entry entry = new Entry(entryID, entryName
                     , entryResponsibilities, entryDecision, entryOutcome, entryComment
-                    , dataTimeCreated, status, journalID, predecessorEntryID, count);
+                    , dataTimeCreated, status, journalID, predecessorEntryID, count, 0);
 
             if (TextUtils.isEmpty(entryComment)) {
                 entry.setEntryComment("You did not leave any comment on it");
