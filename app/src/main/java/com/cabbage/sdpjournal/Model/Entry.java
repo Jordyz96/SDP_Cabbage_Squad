@@ -9,8 +9,6 @@ public class Entry {
     private String entryOutcome, entryComment, dateTimeCreated, status, journalID, predecessorEntryID;
 
     private int countAttachment, countVersion;
-    //long dateCreated, long timeCreated, String imagePath, String videoPath, String audioPath
-
 
 
     public Entry() {

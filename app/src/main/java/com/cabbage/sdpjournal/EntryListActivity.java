@@ -58,17 +58,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     private SwipeListView entriesListView;
     private ArrayList<Entry> entriesList, hiddenList, deletedList, allEntryList;
-    private int countVersion;
-    private ArrayList<Integer> countVersionList;
     private EntryListActivity.ListAdapter listAdapter;
     private EditText searchText;
     private FirebaseAuth firebaseAuth;
 
-    int resultCode;
-
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FloatingActionButton fab;
-    //    private TextView mDisplayDate;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
     private DatePickerDialog.OnDateSetListener mFromDateSetListener;
@@ -116,6 +111,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             public void OnClick(View view, int index) {
                 //Click the entry, jump to entry view...
 
+                //setting up all data needed for transitioning
                 Entry e = (Entry) entriesListView.getAdapter().getItem(index);
                 String entryName = e.getEntryName();
                 String responsibilities = e.getEntryResponsibilities();
@@ -126,14 +122,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String entryID = e.getEntryID();
                 String preID = e.getPredecessorEntryID();
                 int count = entriesList.get(index).getCountAttachment();
-                int countVersion = entriesList.get(index).getCountVersion();
+                int countVersion = e.getCountVersion();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
-
-                String statusForResult = e.getStatus();
-                resultCode = 0;
-                if (statusForResult.equals(Constants.Entry_Status_Hidden)) {
-                    resultCode = 1;
-                }
 
                 //put all data into entry view
                 Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
@@ -150,7 +140,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
-                startActivityForResult(intent, resultCode);
+                startActivity(intent);
             }
 
 
@@ -209,6 +199,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         TextView alertLabel = (TextView) myView.findViewById(R.id.tvAlertLabel);
                         Button noBtn = (Button) myView.findViewById(R.id.alertBtnNo);
                         Button yesBtn = (Button) myView.findViewById(R.id.alertBtnYes);
+
+                        if (status.equals(Constants.Entry_Status_Deleted)){
+                            Toast.makeText(EntryListActivity.this, "This entry has already been deleted", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
                         alertLabel.setText("Are you sure?");
                         ab.setView(myView);
@@ -313,13 +308,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 }
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
-                //if filteron
-//                if (!filterOn.equals("normal")){
-//                    //do not set do active
-//                    filterEntries(filterOn);
-//                }else {
-//                    filterEntries("normal");
-//                }
                 filterEntries(filterOn);
             }
 
@@ -328,15 +316,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
             }
         });
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == 1) {
-            filterEntries("hidden");
-        }
-        super.onActivityResult(requestCode, resultCode, data);
 
     }
 
@@ -427,7 +406,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 });
                 return true;
             case R.id.action_filter:
-                //pop up dialog to ask the user "normal" or "all (normal + hidden + deleted)"
+                //pop up dialog to ask the user what type of entry he wants to filter.
+                //or user can search by date, or search between dates.
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
                 View myView = getLayoutInflater().inflate(R.layout.dialog_entry_list_filter, null);
@@ -443,7 +423,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 final AlertDialog dialog = ab.create();
                 dialog.show();
 
-                //eric coming lol**************************************** search on a day
                 final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
 
                 mDisplayDate.setOnClickListener(new View.OnClickListener() {
@@ -477,9 +456,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
                 };
 
-                ///eric endhere*********************************
-
-
                 //////// between two date start
                 final TextView mDisplayFromDate = (TextView) myView.findViewById(R.id.fromDate);
                 mDisplayFromDate.setOnClickListener(new View.OnClickListener() {
@@ -511,7 +487,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
 
                 };
-                ////////end1
+
                 final TextView mDisplayToDate = (TextView) myView.findViewById(R.id.toDate);
                 mDisplayToDate.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -558,35 +534,28 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
                         if (rbActive.isChecked()) {
                             //Filter... Only shows active entries
-                            //put your logical stuff here for showing active entries
                             Toast.makeText(EntryListActivity.this, "Active Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("normal");
                             dialog.cancel();
                         }
                         if (rbHidden.isChecked()) {
-                            //Filter... Only shows active entries
-                            //put your logical stuff here for showing hidden entries
+                            //Filter... Only shows hidden entries
                             Toast.makeText(EntryListActivity.this, "Hidden Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("hidden");
                             dialog.cancel();
                         }
                         if (rbDeleted.isChecked()) {
-                            //Filter... Only shows active entries
-                            //put your logical stuff here for showing deleted entries
+                            //Filter... Only shows deleted entries
                             Toast.makeText(EntryListActivity.this, "Deleted Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("deleted");
                             dialog.cancel();
                         }
                         if (rbAll.isChecked()) {
                             //Showing all entries including hidden... deleted...
-                            //put your logical stuff here for showing all entries
                             Toast.makeText(EntryListActivity.this, "All Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("All");
                             dialog.cancel();
                         }
-
-                        //  Calendar cal = Calendar.getInstance();
-                        // String s = null;
 
                         if (!mDisplayDate.getText().equals("")) {
                             //showing all entries on a day
@@ -610,8 +579,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 return true;
 
             case R.id.action_search:
-                //pop up a dialog ask the author to enter a key word.
-
+                //pop up a dialog ask the author to enter a keyword.
                 AlertDialog.Builder sb = new AlertDialog.Builder(EntryListActivity.this);
                 View sView = getLayoutInflater().inflate(R.layout.dialog_entry_list_search, null);
 
@@ -697,7 +665,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void filterEntries(String filterSelected) {
-        Log.e("look at me", filterSelected);
         filterOn = filterSelected;
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
@@ -753,33 +720,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter.notifyDataSetChanged();
     }
 
-//    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
-//        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        for (Entry e : entriesList) {
-//            String[] stringDate = e.getDateTimeCreated().split(" ");
-//            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
-//            try {
-//                entryDate = formatter.parse(stringDate[0]);
-//                System.out.println(entryDate);
-//                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
-//                    entriesMatchingDates.add(e);
-//                }
-//            } catch (ParseException exp) {
-//                exp.printStackTrace();
-//            }
-//
-//        }
-//        listAdapter.listData.clear();
-//        listAdapter.listData.addAll(entriesMatchingDates);
-//        listAdapter.notifyDataSetChanged();
-//    }
-
     public void filterEntriesOnDate(String s2) {
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-//        String s2 = formatter.format(date2);
         for (Entry e : entriesList) {
             String[] stringDate = e.getDateTimeCreated().split(" ");
             String s1 = stringDate[0];
@@ -802,7 +744,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        //System.out.println("Today is " +date.getTime());
         return date;
     }
 }
