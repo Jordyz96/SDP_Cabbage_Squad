@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -63,6 +64,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private EditText searchText;
     private FirebaseAuth firebaseAuth;
 
+    int resultCode;
+
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FloatingActionButton fab;
     //    private TextView mDisplayDate;
@@ -71,6 +74,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private DatePickerDialog.OnDateSetListener mFromDateSetListener;
     private DatePickerDialog.OnDateSetListener mToDateSetListener;
     private String s = null;
+
+    private boolean searchOn = false;
+    private String filterOn = "normal";
 
     class ViewHolder {
         public TextView title;
@@ -93,67 +99,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         firebaseAuth = FirebaseAuth.getInstance();
 
-//        getSupportActionBar().setTitle("Material Search");
-//        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-
-//         searchView=(MaterialSearchView) findViewById(R.id.search_view);
-//
-//        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, entriesList);
-//
-//        entriesListView = (SwipeListView) findViewById(R.id.listView);
-//
-//
-//
-//        entriesListView.setAdapter(adapter);
-//
-//        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
-//            @Override
-//            public void onSearchViewShown() {
-//
-//            }
-//
-//            @Override
-//            public void onSearchViewClosed() {
-//
-//                //If closed search view, listview will return default
-//                ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
-//                entriesListView.setAdapter(adapter);
-//            }
-//        });
-//
-//
-//        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                if(newText != null && !newText.isEmpty()){
-//                    ArrayList lstFound = new ArrayList<>();
-//                    for (Entry item:entriesList){
-//                        lstFound.add(item);
-//                    }
-//
-//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, lstFound);
-//                    entriesListView.setAdapter(adapter);
-//
-//
-//                }
-//                else{
-//                    //if search text is null
-//                    //return default
-//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
-//                    entriesListView.setAdapter(adapter);
-//                }
-//                return true;
-//            }
-//        });
         init();
-
-        // entriesListView = (ListView) findViewById(R.id.listView);
-
     }
 
 
@@ -169,16 +115,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void OnClick(View view, int index) {
                 //Click the entry, jump to entry view...
-                //Grab data that entry view needs
-                int test = index;
-//                String entryName = entriesList.get(index).getEntryName();
-//                String responsibilities = entriesList.get(index).getEntryResponsibilities();
-//                String decision = entriesList.get(index).getEntryDecision();
-//                String outcome = entriesList.get(index).getEntryOutcome();
-//                String entryComment = entriesList.get(index).getEntryComment();
-//                String entryDateTime = entriesList.get(index).getDateTimeCreated();
-//                String entryID = entriesList.get(index).getEntryID();
-//                String preID = entriesList.get(index).getPredecessorEntryID();
 
                 Entry e = (Entry) entriesListView.getAdapter().getItem(index);
                 String entryName = e.getEntryName();
@@ -192,6 +128,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 int count = entriesList.get(index).getCountAttachment();
                 int countVersion = entriesList.get(index).getCountVersion();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
+
+                String statusForResult = e.getStatus();
+                resultCode = 0;
+                if (statusForResult.equals(Constants.Entry_Status_Hidden)) {
+                    resultCode = 1;
+                }
 
                 //put all data into entry view
                 Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
@@ -208,7 +150,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
-                startActivity(intent);
+                startActivityForResult(intent, resultCode);
             }
 
 
@@ -232,9 +174,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
                 detailTitle.setText(entryName);
 
-                if (countVersion == 0){
+                if (countVersion == 0) {
                     tvNumOfVersions.setText("This is an original entry");
-                }else {
+                } else {
                     tvNumOfVersions.setText("This entry has " + countVersion + " Previous versions");
                 }
 
@@ -294,10 +236,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         if (status.equals(Constants.Entry_Status_Hidden)) {
                             changeStatus(index, Constants.Entry_Status_Normal);
                         }
-                        if (status.equals(Constants.Entry_Status_Normal)){
+                        if (status.equals(Constants.Entry_Status_Normal)) {
                             changeStatus(index, Constants.Entry_Status_Hidden);
                         }
-                        if (status.equals(Constants.Entry_Status_Deleted)){
+                        if (status.equals(Constants.Entry_Status_Deleted)) {
                             Toast.makeText(EntryListActivity.this, "This entry has been deleted", Toast.LENGTH_SHORT).show();
                         }
                 }
@@ -361,33 +303,24 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 entriesList.clear();
-                hiddenList.clear();
-                deletedList.clear();
-                allEntryList.clear();
                 //loop through the reference given to search entries that match the reference
                 for (DataSnapshot entryDS : dataSnapshot.getChildren()) {
                     //test log
                     Log.d("Journal Entry", " ==>" + entryDS.toString());
                     Entry entry = entryDS.getValue(Entry.class);
                     //if status is not hidden or deleted
-                    if (entry.getStatus().equals(Constants.Entry_Status_Normal)) {
-                        //normal list
-                        entriesList.add(entry);
-                        allEntryList.add(entry);
-                    }
-                    if (entry.getStatus().equals(Constants.Entry_Status_Hidden)){
-                        //hidden list
-                        hiddenList.add(entry);
-                        allEntryList.add(entry);
-                    }
-                    if (entry.getStatus().equals(Constants.Entry_Status_Deleted)){
-                        //deleted list
-                        deletedList.add(entry);
-                        allEntryList.add(entry);
-                    }
+                    entriesList.add(entry);
                 }
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
+                //if filteron
+//                if (!filterOn.equals("normal")){
+//                    //do not set do active
+//                    filterEntries(filterOn);
+//                }else {
+//                    filterEntries("normal");
+//                }
+                filterEntries(filterOn);
             }
 
             @Override
@@ -395,6 +328,15 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
             }
         });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == 1) {
+            filterEntries("hidden");
+        }
+        super.onActivityResult(requestCode, resultCode, data);
 
     }
 
@@ -617,28 +559,28 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         if (rbActive.isChecked()) {
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing active entries
-                            Toast.makeText(EntryListActivity.this, "Test...Active", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EntryListActivity.this, "Active Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("normal");
                             dialog.cancel();
                         }
                         if (rbHidden.isChecked()) {
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing hidden entries
-                            Toast.makeText(EntryListActivity.this, "Test...hidden", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EntryListActivity.this, "Hidden Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("hidden");
                             dialog.cancel();
                         }
                         if (rbDeleted.isChecked()) {
                             //Filter... Only shows active entries
                             //put your logical stuff here for showing deleted entries
-                            Toast.makeText(EntryListActivity.this, "Test...deleted", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EntryListActivity.this, "Deleted Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("deleted");
                             dialog.cancel();
                         }
                         if (rbAll.isChecked()) {
                             //Showing all entries including hidden... deleted...
                             //put your logical stuff here for showing all entries
-                            Toast.makeText(EntryListActivity.this, "Test...All", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EntryListActivity.this, "All Entry", Toast.LENGTH_SHORT).show();
                             filterEntries("All");
                             dialog.cancel();
                         }
@@ -740,7 +682,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
                 String status = listData.get(position).getStatus();
-                if (status.equals(Constants.Entry_Status_Hidden)){
+                if (status.equals(Constants.Entry_Status_Hidden)) {
                     viewHolder.hide.setText("Unhide");
                 }
                 convertView.setTag(viewHolder);
@@ -755,24 +697,24 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void filterEntries(String filterSelected) {
-        listAdapter.notifyDataSetChanged();
-        listAdapter.listData.clear();
+        Log.e("look at me", filterSelected);
+        filterOn = filterSelected;
+        ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
-            listAdapter = new EntryListActivity.ListAdapter(allEntryList);
-            entriesListView.setAdapter(listAdapter);
+            for (Entry e : entriesList){
+                if (!e.getStatus().equals("replacedByModified")){
+                    entriesMatchingFilter.add(e);
+                }
+            }
+        } else {
+            for (Entry e : entriesList) {
+                if (e.getStatus().equals(filterSelected)) {
+                    entriesMatchingFilter.add(e);
+                }
+            }
         }
-        if (filterSelected.equals("normal")) {
-            listAdapter = new EntryListActivity.ListAdapter(entriesList);
-            entriesListView.setAdapter(listAdapter);
-        }
-        if (filterSelected.equals("hidden")) {
-            listAdapter = new EntryListActivity.ListAdapter(hiddenList);
-            entriesListView.setAdapter(listAdapter);
-        }
-        if (filterSelected.equals("deleted")) {
-            listAdapter = new EntryListActivity.ListAdapter(deletedList);
-            entriesListView.setAdapter(listAdapter);
-        }
+        listAdapter = new EntryListActivity.ListAdapter(entriesMatchingFilter);
+        entriesListView.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
     }
 
@@ -850,17 +792,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter.notifyDataSetChanged();
 
     }
-//    public Date convert(String s){
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-//        Date convertedDate = new Date();
-//        try {
-//            convertedDate = dateFormat.parse(s);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return convertedDate;
-//    }
-
 
     public Date convert(String s) {
         DateFormat formatter;

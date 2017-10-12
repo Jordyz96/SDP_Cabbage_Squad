@@ -40,6 +40,7 @@
         android:inputType="text|textCapWords|textAutoComplete|textShortMessage"
         android:background="@drawable/customunderline"
         android:padding="1dp"
+        android:cursorVisible="true"
         />
 
     <Spinner

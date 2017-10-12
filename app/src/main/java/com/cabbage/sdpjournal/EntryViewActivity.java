@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener{
+public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -29,9 +29,6 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
 
     int count, countVersion;
 
-    Button historyBtn;
-    Button attBtn;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,11 +36,6 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        historyBtn = (Button) findViewById(R.id.historyBtn);
-        historyBtn.setOnClickListener(this);
-        attBtn = (Button) findViewById(R.id.attachmentBtn);
-        attBtn.setOnClickListener(this);
 
         firebaseAuth = FirebaseAuth.getInstance();
         init();
@@ -135,11 +127,17 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
             case R.id.action_edit:
                 transitionToEditEntry();
                 return true;
+            case R.id.action_history:
+                transitionToHistoryView();
+                return true;
+            case R.id.action_attachment:
+                transitionToAttachmentView();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void transitionToEditEntry(){
+    private void transitionToEditEntry() {
         //put extra
         Intent intent = new Intent(this, EditEntryActivity.class);
         intent.putExtra("entryName", entryName);
@@ -154,6 +152,23 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         intent.putExtra("countVersion", countVersion);
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
+        finish();
+    }
+
+    private void transitionToHistoryView() {
+        Intent intent = new Intent(this, HistoryViewActivity.class);
+        intent.putExtra("preID", preID);
+        intent.putExtra(Constants.journalID, journalID);
+        startActivity(intent);
+        finish();
+    }
+
+    private void transitionToAttachmentView() {
+        Intent intent = new Intent(this, AttachmentViewActivity.class);
+        intent.putExtra("entryID", entryID);
+        intent.putExtra(Constants.journalID, journalID);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -169,25 +184,11 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         //Sets listener to catch when the user is signing out.
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
-            
+
         }
     }
 
     @Override
     public void onClick(View view) {
-        if (view == historyBtn){
-            Intent intent = new Intent(this, HistoryViewActivity.class);
-            intent.putExtra("preID", preID);
-            intent.putExtra(Constants.journalID, journalID);
-            startActivity(intent);
-            finish();
-        }
-        if (view == attBtn){
-            Intent intent = new Intent(this, AttachmentViewActivity.class);
-            intent.putExtra("entryID", entryID);
-            intent.putExtra(Constants.journalID, journalID);
-            startActivity(intent);
-            finish();
-        }
     }
 }
