@@ -121,8 +121,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String entryDateTime = e.getDateTimeCreated();
                 String entryID = e.getEntryID();
                 String preID = e.getPredecessorEntryID();
-                int count = entriesList.get(index).getCountAttachment();
+                int count = e.getCountAttachment();
                 int countVersion = e.getCountVersion();
+                int countAttachment = e.getCountAttachment();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 //put all data into entry view
@@ -137,6 +138,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("preID", preID);
                 intent.putExtra("count", count);
                 intent.putExtra("countVersion", countVersion);
+                intent.putExtra("countAttachment", countAttachment);
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
@@ -170,7 +172,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     tvNumOfVersions.setText("This entry has " + countVersion + " Previous versions");
                 }
 
-                tvNumOfAttachment.setText("This entry has " + countAttachment + " Attachments");
+                if (countAttachment == 0){
+                    tvNumOfAttachment.setText("This entry does not have attachment");
+                } else {
+                    tvNumOfAttachment.setText("This entry has " + countAttachment + " Attachments");
+                }
+
                 ab.setView(myView);
                 final AlertDialog dialog = ab.create();
                 dialog.show();

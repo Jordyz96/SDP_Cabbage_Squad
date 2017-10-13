@@ -43,7 +43,7 @@ import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
-public class EditEntryActivity extends AppCompatActivity implements View.OnClickListener{
+public class EditEntryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -54,23 +54,18 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
     DatabaseReference db;
     Calendar calendar;
     SimpleDateFormat simpleDateFormat;
-
     StorageReference storageReference;
     StorageReference filePath;
-    Uri imageUri, audioUri, attURI;
+    Uri imageUri, audioUri;
     String lastPath, attFileName, audioFileName, newEntryID, originalEntryID;
-    ArrayList<String> lastPathArray, fileNameList;
+    ArrayList<String> lastPathArray;
     ArrayList<Uri> uriList;
-    ArrayList<Long> audioDurationList;
-    ArrayList<Uri> audioUriList;
-
-    int newCount, countVersion;
+    private boolean audioAdded = false;
+    private boolean imageAdded = false;
+    int newCount, countVersion, protectCount;
     MediaRecorder mediaRecorder;
-    long duration;
-    long lastDown;
-    long audioDuration;
-    int k;
-    int fileNameCount;
+    long duration, lastDown;
+    String entryName, res, decision, outcome, comment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,21 +99,12 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         storageReference = FirebaseStorage.getInstance().getReference();
 
         uriList = new ArrayList<>();
-        audioUriList = new ArrayList<>();
         lastPathArray = new ArrayList<>();
-        audioDurationList = new ArrayList<>();
-        fileNameList = new ArrayList<>();
-
-        audioDurationList.clear();
-        audioUriList.clear();
-        fileNameList.clear();
-        k = 0;
         newCount = 0;
-        fileNameCount = 0;
 
     }
 
-    private void init(){
+    private void init() {
         //init
         confirmBtn = (Button) findViewById(R.id.confirmButton);
         etEntryName = (EditText) findViewById(R.id.etEntryName);
@@ -127,12 +113,21 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         etOutcome = (EditText) findViewById(R.id.etOutcome);
         etComment = (EditText) findViewById(R.id.etComment);
         //set text...
-        String entryName = getIntent().getExtras().getString("entryName");
+        entryName = getIntent().getExtras().getString("entryName");
         etEntryName.setText(entryName);
-        etResponsibilities.setText(getIntent().getExtras().getString("responsibilities"));
-        etDecisions.setText(getIntent().getExtras().getString("decision"));
-        etOutcome.setText(getIntent().getExtras().getString("outcome"));
-        etComment.setText(getIntent().getExtras().getString("entryComment"));
+
+        res = getIntent().getExtras().getString("responsibilities");
+        etResponsibilities.setText(res);
+
+        decision = getIntent().getExtras().getString("decision");
+        etDecisions.setText(decision);
+
+        outcome = getIntent().getExtras().getString("outcome");
+        etOutcome.setText(outcome);
+
+        comment = getIntent().getExtras().getString("entryComment");
+        etComment.setText(comment);
+
         //set clicking listener
         confirmBtn.setOnClickListener(this);
         setTitle(getTitle() + " - " + entryName);
@@ -141,13 +136,15 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constants.Gallery_Request && resultCode == RESULT_OK){
+        //if successful, add URIs to the array list, count++, imageAdded = true
+        if (requestCode == Constants.Gallery_Request && resultCode == RESULT_OK) {
             imageUri = data.getData();
             lastPath = imageUri.getLastPathSegment();
             uriList.add(imageUri);
             lastPathArray.add(lastPath);
             Toast.makeText(this, "Photo Added", Toast.LENGTH_SHORT).show();
             newCount++;
+            imageAdded = true;
         }
     }
 
@@ -193,13 +190,13 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         return super.onOptionsItemSelected(item);
     }
 
-    private void chooseImage(){
+    private void chooseImage() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, Constants.Gallery_Request);
     }
 
-    private void recordAudioDialog(){
+    private void recordAudioDialog() {
         AlertDialog.Builder ab = new AlertDialog.Builder(EditEntryActivity.this);
         View myView = getLayoutInflater().inflate(R.layout.dialog_record_audio, null);
 
@@ -215,26 +212,27 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     label.setText("Recording...");
                     lastDown = System.currentTimeMillis();
                     audioFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-                    audioFileName += "/audio" + fileNameCount + ".3gp";
+                    audioFileName += "/audio.3gp";
                     startRecording();
-                }else if (motionEvent.getAction() == MotionEvent.ACTION_UP){
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     label.setText("Recorded");
                     duration = System.currentTimeMillis() - lastDown;
                     stopRecording();
-                    if (duration >= 1000){
-                        Uri uri = Uri.fromFile(new File(audioFileName));
-                        fileNameCount++;
-                        audioUriList.add(uri);
+                    if (duration >= 1000) {
+                        audioUri = Uri.fromFile(new File(audioFileName));
                         attFileName = audioFileName;
-                        fileNameList.add(attFileName);
-                        audioDurationList.add(duration);
+                        audioAdded = true;
                         Toast.makeText(EditEntryActivity.this, "Audio recorded", Toast.LENGTH_SHORT).show();
-                        newCount++;
-                    }else {
+                        //Users can only create one audio, each new audio will overwrite the previous one.
+                        if (protectCount == 0) {
+                            newCount++;
+                        }
+                        protectCount++;
+                    } else {
                         Toast.makeText(EditEntryActivity.this, "Message too short", Toast.LENGTH_SHORT).show();
                     }
 
@@ -251,7 +249,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         });
     }
 
-    private void startRecording(){
+    private void startRecording() {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -260,14 +258,14 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
 
         try {
             mediaRecorder.prepare();
-        }catch (IOException e){
+        } catch (IOException e) {
             Log.e(TAG, "prepare() failed");
         }
 
         mediaRecorder.start();
     }
 
-    private void stopRecording(){
+    private void stopRecording() {
         mediaRecorder.stop();
         mediaRecorder.release();
         mediaRecorder = null;
@@ -291,7 +289,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View view) {
-        if (view == confirmBtn){
+        if (view == confirmBtn) {
             editEntry();
         }
     }
@@ -328,7 +326,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
         String entryComment = etComment.getText().toString().trim();
         String status = Constants.Entry_Status_Normal;
         String predecessorEntryID = originalEntryID;
-        if (!preID.equals("")){
+        if (!preID.equals("")) {
             predecessorEntryID = preID;
         }
         String dataTimeCreated = null;
@@ -340,7 +338,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
 
         //..
 
-        if (validationPassed(entryName, entryResponsibilities, entryDecision, entryOutcome)) {
+        if (validationPassed(entryName, entryResponsibilities, entryDecision, entryOutcome, entryComment)) {
 
             //new path
             DatabaseReference noteReference = db.child(Constants.Users_End_Point).child(userID)
@@ -367,11 +365,11 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
             String dateTime = getIntent().getExtras().getString("dateTime");
             String oldStatus = "replacedByModified";
 
-                Entry originalEntry = new Entry(originalEntryID, name
-                        , responsibilities, decision, outcome, comment
-                        , dateTime, oldStatus, journalID, preID, oldCount, countVersion);
+            Entry originalEntry = new Entry(originalEntryID, name
+                    , responsibilities, decision, outcome, comment
+                    , dateTime, oldStatus, journalID, preID, oldCount, countVersion);
 
-                originalNoteReference.setValue(originalEntry);
+            originalNoteReference.setValue(originalEntry);
 
             if (TextUtils.isEmpty(entryComment)) {
                 entry.setEntryComment("You did not leave any comment on it");
@@ -380,6 +378,10 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
             noteReference.setValue(entry);
 
             //deal with media stuff
+            //images
+            //if the array list storing image URIs is not empty, loop through to get all URIs and
+            //then add to the firebase storage.
+
             if (uriList.size() != 0) {
                 for (int i = 0; i < uriList.size(); i++) {
                     lastPath = lastPathArray.get(i);
@@ -407,60 +409,69 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
                         }
                     });
                 }
+            }
 
+            //because users can only upload one audio,
+            // so we check if audio is added,
+            // if added, save to firebase storage.
+
+            if (audioAdded) {
+                filePath = storageReference.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
+                        .child(journalID).child(Constants.Entries_End_Point).child(newEntryID)
+                        .child("Attachment").child("new_audio.3gp");
+                filePath.putFile(audioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        String format = "audio";
+                        Uri attachmentPath = taskSnapshot.getDownloadUrl();
+                        String attachmentID = db.push().getKey();
+                        Attachment attachment = new Attachment(attachmentPath.toString(), format, attachmentID,
+                                newEntryID, duration, attFileName);
+                        DatabaseReference attachRef = db.child(Constants.Users_End_Point).child(userID)
+                                .child(Constants.Journals_End_Point)
+                                .child(journalID).child(Constants.Entries_End_Point).child(newEntryID)
+                                .child(Constants.Attachments_End_Point).child(attachmentID);
+                        attachRef.setValue(attachment);
+                    }
+                });
             }
-            //audio
-            if (audioUriList.size() != 0){
-                for (int i = 0; i < audioUriList.size(); i++){
-                    audioUri = audioUriList.get(i);
-                    filePath = storageReference.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
-                            .child(journalID).child(Constants.Entries_End_Point).child(newEntryID)
-                            .child("Attachment").child("new_audio_" + i + ".3gp");
-                    filePath.putFile(audioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            String format = "audio";
-                            Uri attachmentPath = taskSnapshot.getDownloadUrl();
-                            String attachmentID = db.push().getKey();
-                            audioDuration = audioDurationList.get(k);
-                            attURI = audioUriList.get(k);
-                            attFileName = fileNameList.get(k);
-                            k++;
-                            Attachment attachment = new Attachment(attachmentPath.toString(), format, attachmentID,
-                                    newEntryID, audioDuration, attFileName);
-                            DatabaseReference attachRef = db.child(Constants.Users_End_Point).child(userID)
-                                    .child(Constants.Journals_End_Point)
-                                    .child(journalID).child(Constants.Entries_End_Point).child(newEntryID)
-                                    .child(Constants.Attachments_End_Point).child(attachmentID);
-                            attachRef.setValue(attachment);
-                        }
-                    });
-                }
-            }
+
             //entry has been successfully added to the database, now go back to the entry list
             backToEntryListWithExtra();
             finish();
         }
     }
 
-    private boolean validationPassed(String name, String res, String decision, String outCome){
+    //to check if there is any text field empty, or if the user makes changes.
+    private boolean validationPassed(String name, String resi, String vDecision, String outCome, String com) {
         boolean isValid = true;
-
+        //if entry name empty
         if (TextUtils.isEmpty(name)) {
             etEntryName.setError("Entry name must not be empty");
-            isValid=false;
+            isValid = false;
         }
-        if (TextUtils.isEmpty(res)){
+        //if res area empty
+        if (TextUtils.isEmpty(res)) {
             etResponsibilities.setError("Responsibilities must not be empty");
-            isValid=false;
+            isValid = false;
         }
-        if (TextUtils.isEmpty(decision)){
+        //if decision area empty
+        if (TextUtils.isEmpty(decision)) {
             etDecisions.setError("Decision must not be empty");
-            isValid=false;
+            isValid = false;
         }
-        if (TextUtils.isEmpty(outCome)){
+        //if outCome area empty
+        if (TextUtils.isEmpty(outCome)) {
             etOutcome.setError("Outcome must not be empty");
-            isValid=false;
+            isValid = false;
+        }
+
+        //if not make any changes
+        if (name.equals(entryName) && resi.equals(res) && vDecision.equals(decision)
+                && outCome.equals(outcome) && com.equals(comment) && !audioAdded & !imageAdded){
+            confirmBtn.setError("You did not make any changes");
+            Toast.makeText(this, "You did not make any changes", Toast.LENGTH_SHORT).show();
+            isValid = false;
         }
 
         return isValid;
