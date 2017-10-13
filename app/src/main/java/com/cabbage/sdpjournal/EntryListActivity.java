@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -70,8 +71,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     private DatePickerDialog.OnDateSetListener mToDateSetListener;
     private String s = null;
 
-    private boolean searchOn = false;
-    private String filterOn = "normal";
+    private String searchActive = "";
+    private String filterActive = "normal";
 
     class ViewHolder {
         public TextView title;
@@ -125,6 +126,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 int countVersion = e.getCountVersion();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
+                //set up data for return search and filter
+                String searchOnReturn = searchActive;
+                String filterOnReturn = filterActive;
+
                 //put all data into entry view
                 Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
                 intent.putExtra("entryName", entryName);
@@ -137,10 +142,15 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("preID", preID);
                 intent.putExtra("count", count);
                 intent.putExtra("countVersion", countVersion);
+
+                Log.e("searchOn", searchOnReturn);
+                intent.putExtra("search", searchOnReturn);
+                intent.putExtra("filter", filterOnReturn);
+
                 intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
 
 
@@ -308,7 +318,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 }
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
-                filterEntries(filterOn);
+                if (!searchActive.equals("")) {
+                    searchEntriesOnKeyword(searchActive);
+                } else {
+                    filterEntries(filterActive);
+                }
             }
 
             @Override
@@ -591,15 +605,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 dialog2.show();
 
                 searchBtn.setOnClickListener(new View.OnClickListener() {
-
-
                     @Override
                     public void onClick(View v) {
                         //if click searchBtn
                         searchEntriesOnKeyword(searchText.getText().toString());
                         dialog2.cancel();
                     }
-
                 });
 
 
@@ -611,8 +622,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
                 return true;
-
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -664,8 +673,47 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) { // Return method from make availability and from view booking
+        if (requestCode == 1) { // if returning from the view entry screen
+            String filter = data.getStringExtra("filter");
+            String search = data.getStringExtra("search");
+            filterActive = filter;
+            searchActive = search;
+        }
+    }
+
+    public void clearSearch() {
+        resetSearch();
+        filterEntries(filterActive);
+    }
+
+    public void resetSearch() {
+        searchActive = "";
+    }
+
+    public void resetFilter() {
+        filterActive = "Active";
+    }
+
+    public void placeholderMessageOnOff(boolean empty, String method, String param){
+        TextView tv = (TextView) findViewById(R.id.tvEmpty);
+        if (empty) {
+            tv.setVisibility(View.VISIBLE);
+            String emptyText;
+            if (method.equals("searching")) {
+                emptyText = " when " + method +  " for entries containing " + param;
+            } else {
+                emptyText = " when " + method + " for " + param + " entries";
+            }
+            tv.setText("No results found" + emptyText);
+        } else {
+            tv.setVisibility(View.GONE);
+        }
+    }
+
     public void filterEntries(String filterSelected) {
-        filterOn = filterSelected;
+        filterActive = filterSelected;
+        resetSearch();
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
             for (Entry e : entriesList){
@@ -683,26 +731,32 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter = new EntryListActivity.ListAdapter(entriesMatchingFilter);
         entriesListView.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
+        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filtering", filterActive);
     }
 
     public void searchEntriesOnKeyword(String searchString) {
-        ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
-        for (Entry e : entriesList) {
-            if (e.getEntryName().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryResponsibilities().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryDecision().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryOutcome().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryComment().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
+        if (!searchString.equals("")) {
+            searchActive = searchString;
+            resetFilter();
+            ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
+            for (Entry e : entriesList) {
+                if (e.getEntryName().toLowerCase().contains(searchString.toLowerCase())) {
+                    entriesMatchingSearch.add(e);
+                } else if (e.getEntryResponsibilities().toLowerCase().contains(searchString.toLowerCase())) {
+                    entriesMatchingSearch.add(e);
+                } else if (e.getEntryDecision().toLowerCase().contains(searchString.toLowerCase())) {
+                    entriesMatchingSearch.add(e);
+                } else if (e.getEntryOutcome().toLowerCase().contains(searchString.toLowerCase())) {
+                    entriesMatchingSearch.add(e);
+                } else if (e.getEntryComment().toLowerCase().contains(searchString.toLowerCase())) {
+                    entriesMatchingSearch.add(e);
+                }
             }
+            listAdapter.listData.clear();
+            listAdapter.listData.addAll(entriesMatchingSearch);
+            listAdapter.notifyDataSetChanged();
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive);
         }
-        listAdapter.listData.clear();
-        listAdapter.listData.addAll(entriesMatchingSearch);
-        listAdapter.notifyDataSetChanged();
     }
 
     public void searchEntriesBetweenDates(Date startDate, Date endDate) {

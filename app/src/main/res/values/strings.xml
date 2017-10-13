@@ -60,6 +60,7 @@
     <string name="title_activity_reset_password">Reset Password</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="emptyResults">No results found</string>
     <string name="title_activity_edit_entry">Edit</string>
     <string name="title_activity_history_view">Journal Entry History</string>
     <string name="title_activity_attachment_view">Attachments</string>
