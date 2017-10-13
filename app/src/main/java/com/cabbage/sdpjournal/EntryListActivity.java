@@ -122,8 +122,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String entryDateTime = e.getDateTimeCreated();
                 String entryID = e.getEntryID();
                 String preID = e.getPredecessorEntryID();
-                int count = entriesList.get(index).getCountAttachment();
+                int count = e.getCountAttachment();
                 int countVersion = e.getCountVersion();
+                int countAttachment = e.getCountAttachment();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
 
                 //set up data for return search and filter
@@ -142,12 +143,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("preID", preID);
                 intent.putExtra("count", count);
                 intent.putExtra("countVersion", countVersion);
+                intent.putExtra("countAttachment", countAttachment);
+                intent.putExtra(Constants.journalID, journalID);
 
-                Log.e("searchOn", searchOnReturn);
+                // put search/filter data into entry view for returning to the list
                 intent.putExtra("search", searchOnReturn);
                 intent.putExtra("filter", filterOnReturn);
-
-                intent.putExtra(Constants.journalID, journalID);
 
                 //transitioning
                 startActivityForResult(intent, 1);
@@ -180,7 +181,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     tvNumOfVersions.setText("This entry has " + countVersion + " Previous versions");
                 }
 
-                tvNumOfAttachment.setText("This entry has " + countAttachment + " Attachments");
+                if (countAttachment == 0){
+                    tvNumOfAttachment.setText("This entry does not have attachment");
+                } else {
+                    tvNumOfAttachment.setText("This entry has " + countAttachment + " Attachments");
+                }
+
                 ab.setView(myView);
                 final AlertDialog dialog = ab.create();
                 dialog.show();

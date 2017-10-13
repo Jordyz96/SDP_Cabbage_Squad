@@ -24,7 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener {
+public class EntryViewActivity extends AppCompatActivity implements View.OnClickListener{
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -32,7 +32,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
     String entryName, responsibilities, decision, outcome, comment,
             preID, dateTime, journalID, entryID;
 
-    int count, countVersion;
+    int count, countVersion, countAttachment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +71,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         journalID = getIntent().getExtras().getString(Constants.journalID);
         count = getIntent().getExtras().getInt("count");
         countVersion = getIntent().getExtras().getInt("countVersion");
+        countAttachment = getIntent().getExtras().getInt("countAttachment");
         //put extras into items
         tvEntryName.setText(entryName);
         tvRes.setText(responsibilities);
@@ -134,10 +135,18 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
                 transitionToEditEntry();
                 return true;
             case R.id.action_history:
-                transitionToHistoryView();
+                if (countVersion==0){
+                    Toast.makeText(EntryViewActivity.this, "This entry is an original entry", Toast.LENGTH_SHORT).show();
+                }else {
+                    transitionToHistoryView();
+                }
                 return true;
             case R.id.action_attachment:
-                transitionToAttachmentView();
+                if (countAttachment == 0){
+                    Toast.makeText(EntryViewActivity.this, "This entry has no attachment", Toast.LENGTH_SHORT).show();
+                }else {
+                    transitionToAttachmentView();
+                }
                 return true;
             case android.R.id.home:
                 returnToList();
@@ -146,7 +155,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         return super.onOptionsItemSelected(item);
     }
 
-    private void transitionToEditEntry() {
+    private void transitionToEditEntry(){
         //put extra
         Intent intent = new Intent(this, EditEntryActivity.class);
         intent.putExtra("entryName", entryName);
@@ -164,7 +173,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         finish();
     }
 
-    private void transitionToHistoryView() {
+    private void transitionToHistoryView(){
         Intent intent = new Intent(this, HistoryViewActivity.class);
         intent.putExtra("preID", preID);
         intent.putExtra(Constants.journalID, journalID);
@@ -172,7 +181,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         finish();
     }
 
-    private void transitionToAttachmentView() {
+    private void transitionToAttachmentView(){
         Intent intent = new Intent(this, AttachmentViewActivity.class);
         intent.putExtra("entryID", entryID);
         intent.putExtra(Constants.journalID, journalID);
@@ -254,5 +263,4 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         returnToList();
         finish();
     }
-
 }

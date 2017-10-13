@@ -1,5 +1,6 @@
 package com.cabbage.sdpjournal;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -9,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cabbage.sdpjournal.Adpter.AttachmentImageListAdapter;
@@ -38,6 +41,8 @@ import static android.content.ContentValues.TAG;
 
 public class AttachmentViewActivity extends AppCompatActivity {
 
+    Drawable stop, start;
+
     private static final String LOG_TAG = "AudioRecordTest";
 
     FirebaseAuth firebaseAuth;
@@ -52,12 +57,13 @@ public class AttachmentViewActivity extends AppCompatActivity {
     AttachmentAudioListAdapter audioListAdapter;
     ListView lv;
     GridView gv;
+    TextView imageLabel, audioLabel, durationLabel;
+    RelativeLayout.LayoutParams params;
 
     String fileName;
     private MediaPlayer mPlayer = null;
     boolean mStartPlaying;
     boolean isStopped;
-
 
 
     @Override
@@ -73,6 +79,17 @@ public class AttachmentViewActivity extends AppCompatActivity {
 
         gv = (GridView) findViewById(R.id.gvImageView);
         lv = (ListView) findViewById(R.id.lvAudioListView);
+
+        imageLabel = (TextView) findViewById(R.id.tvImageAttachmentLabel);
+        audioLabel = (TextView) findViewById(R.id.tvAudioAttachmentLabel);
+
+        imageLabel.setText("");
+        audioLabel.setText("");
+
+        //setting below tool bar params
+        params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.BELOW, R.id.toolbar);
+        params.setMargins(300, 50, 0, 0);
         mStartPlaying = true;
 
     }
@@ -158,6 +175,7 @@ public class AttachmentViewActivity extends AppCompatActivity {
         final ArrayList<Attachment> imageList = new ArrayList<>();
         final ArrayList<Attachment> audioList = new ArrayList<>();
         attachmentRef.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 imageList.clear();
@@ -169,10 +187,26 @@ public class AttachmentViewActivity extends AppCompatActivity {
                         Log.d("Image ", " ==>" + ds.toString());
                         imageList.add(attachment);
                     }
+
                     //loading audio
-                    if (attachment.getFormat().equals("audio")){
+                    if (attachment.getFormat().equals("audio")) {
                         Log.d("Audio ", " ==>" + ds.toString());
                         audioList.add(attachment);
+                    }
+
+                    if (audioList.size() != 0){
+                        //have audio
+                        audioLabel.setText("Audio Attachment");
+                    }
+
+                    //image there is no image loaded, change the view.
+                    if (imageList.size()==0){
+                        //no image
+                        imageLabel.setText("");
+                        audioLabel.setLayoutParams(params);
+                    }else {
+                        //have image
+                        imageLabel.setText("Image Attachment");
                     }
 
                     listAdapter = new AttachmentImageListAdapter(AttachmentViewActivity.this, imageList);
@@ -204,36 +238,43 @@ public class AttachmentViewActivity extends AppCompatActivity {
         }
     }
 
-    private void onPlay(boolean start) {
+    private void onPlay(boolean start, Button b) {
         if (start) {
-            startPlaying();
+            startPlaying(b);
         } else {
-            stopPlaying();
+            stopPlaying(b);
         }
     }
 
-    private void startPlaying() {
+    private void startPlaying(final Button b) {
         mPlayer = new MediaPlayer();
         try {
             mPlayer.setDataSource(fileName);
             mPlayer.prepare();
             mPlayer.start();
+            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    mStartPlaying = true;
+                    stopPlaying(b);
+                }
+            });
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
     }
 
-    private void stopPlaying() {
+    private void stopPlaying(Button b) {
         mPlayer.release();
         mPlayer = null;
         isStopped = true;
+        b.setCompoundDrawablesWithIntrinsicBounds(start, null, null, null);
     }
 
     //adapter for audio list
     public class AttachmentAudioListAdapter extends BaseAdapter {
         private Context c;
         private ArrayList<Attachment> attachments;
-        Drawable stop, start;
 
         AttachmentAudioListAdapter(Context c, ArrayList<Attachment> attachments) {
             this.c = c;
@@ -266,9 +307,10 @@ public class AttachmentViewActivity extends AppCompatActivity {
             Constants con = new Constants();
             long duration = attachments.get(i).getDuration();
             long dur = con.removeLastNDigits(duration, 3);
-            String durText = dur + "sec";
+            String durText = dur + "''";
             tvDur.setText(durText);
             fileName = attachments.get(i).getFileName();
+
             stop = view.getResources().getDrawable(android.R.drawable.ic_media_pause);
             start = view.getResources().getDrawable(android.R.drawable.ic_media_play);
 
@@ -276,25 +318,19 @@ public class AttachmentViewActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (mStartPlaying) {
-                        playBtn.setBackground(stop);
-                        onPlay(mStartPlaying);
+                        playBtn.setCompoundDrawablesWithIntrinsicBounds(stop, null, null, null);
+                        onPlay(mStartPlaying, playBtn);
+                        mStartPlaying = false;
                     } else {
-                        playBtn.setBackground(start);
-                        stopPlaying();
-                        mStartPlaying = true;
-                    }
-                    mStartPlaying = !mStartPlaying;
-
-                    if (isStopped){
-                        playBtn.setBackground(start);
+                        stopPlaying(playBtn);
                         mStartPlaying = true;
                     }
                 }
             });
             return view;
+
         }
     }
-
 
 
 }
