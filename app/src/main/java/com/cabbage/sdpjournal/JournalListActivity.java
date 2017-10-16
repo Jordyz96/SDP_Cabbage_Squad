@@ -213,8 +213,6 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                     if (journalColor.equals(Constants.Select_Color)){
                         //make it default
                         journalColor = Constants.Default_Color;
-                    }else {
-                        Toast.makeText(JournalListActivity.this, journalColor, Toast.LENGTH_SHORT).show();
                     }
                 }
 

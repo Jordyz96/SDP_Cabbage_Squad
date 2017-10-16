@@ -195,17 +195,17 @@ public class AttachmentViewActivity extends AppCompatActivity {
                     }
 
                     if (audioList.size() != 0){
-                        //have audio
+                        //have audio， set the label
                         audioLabel.setText("Audio Attachment");
                     }
 
                     //image there is no image loaded, change the view.
                     if (imageList.size()==0){
-                        //no image
+                        //no image, reset the position of the audio label
                         imageLabel.setText("");
                         audioLabel.setLayoutParams(params);
                     }else {
-                        //have image
+                        //have image, set label
                         imageLabel.setText("Image Attachment");
                     }
 
@@ -305,6 +305,7 @@ public class AttachmentViewActivity extends AppCompatActivity {
             final Button playBtn = (Button) view.findViewById(R.id.playBtn);
             TextView tvDur = (TextView) view.findViewById(R.id.durationLabel);
             Constants con = new Constants();
+            //setting up during label for the audio.
             long duration = attachments.get(i).getDuration();
             long dur = con.removeLastNDigits(duration, 3);
             String durText = dur + "''";
@@ -318,10 +319,12 @@ public class AttachmentViewActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (mStartPlaying) {
+                        //if not playing, play and set the btn to be 'stop'
                         playBtn.setCompoundDrawablesWithIntrinsicBounds(stop, null, null, null);
                         onPlay(mStartPlaying, playBtn);
                         mStartPlaying = false;
                     } else {
+                        //if playing, stop and set the btn to be 'play'
                         stopPlaying(playBtn);
                         mStartPlaying = true;
                     }

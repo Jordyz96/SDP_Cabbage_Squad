@@ -39,7 +39,6 @@ public class HistoryViewActivity extends AppCompatActivity {
     FirebaseUser firebaseUser;
     DatabaseReference databaseReference;
     DatabaseReference entryRef;
-    DatabaseReference attachmentRef;
     FirebaseAuth.AuthStateListener mAuthListener;
     String preID;
 
@@ -143,7 +142,6 @@ public class HistoryViewActivity extends AppCompatActivity {
                     listAdapter = new HistoryListAdapter(HistoryViewActivity.this, entriesList);
                     lv.setAdapter(listAdapter);
                 }
-
             }
 
             @Override
