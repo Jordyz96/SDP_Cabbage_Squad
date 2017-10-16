@@ -1,6 +1,8 @@
 package com.cabbage.sdpjournal;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.media.MediaRecorder;
@@ -11,6 +13,8 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -183,11 +187,60 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
                 chooseImage();
                 return true;
             case R.id.action_audio:
-                recordAudioDialog();
+                requestPermissions();
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void requestPermissions() {
+        boolean requestAudio = false;
+        boolean requestWriteExternalStorage = false;
+        if (ContextCompat.checkSelfPermission(EditEntryActivity.this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestAudio = true;
+        }
+
+        if (ContextCompat.checkSelfPermission(EditEntryActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestWriteExternalStorage = true;
+        }
+
+        if (!requestAudio && !requestWriteExternalStorage) {
+            recordAudioDialog();
+        } else if (requestAudio && requestWriteExternalStorage) {
+            ActivityCompat.requestPermissions(EditEntryActivity.this, new String[]{android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else if (requestAudio) {
+            ActivityCompat.requestPermissions(EditEntryActivity.this, new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
+        } else if (requestWriteExternalStorage) {
+            ActivityCompat.requestPermissions(EditEntryActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                boolean allowAudio = true;
+                if (grantResults.length == 0) {
+                    // disable the attachment function
+                    allowAudio = false;
+                } else {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            // permission was granted, yay!
+                        } else {
+                            // disable the attachment function
+                            allowAudio = false;
+                            break;
+                        }
+                    }
+                    return;
+                }
+                if (allowAudio) {
+                    recordAudioDialog();
+                }
+            }
+        }
     }
 
     private void chooseImage() {
