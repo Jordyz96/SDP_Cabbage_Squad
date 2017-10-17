@@ -42,19 +42,17 @@ public class ResetPasswordActivity extends AppCompatActivity implements View.OnC
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        myFirebaseAuth = FirebaseAuth.getInstance();
-
-        init();
-    }
-
-    private void init() {
+        //initialise progress bar and btn
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("changing...");
-
-
         reset = (Button) findViewById(R.id.bChange);
         reset.setOnClickListener(this);
 
+        firebaseSetup();
+    }
+
+    private void firebaseSetup() {
+        myFirebaseAuth = FirebaseAuth.getInstance();
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override

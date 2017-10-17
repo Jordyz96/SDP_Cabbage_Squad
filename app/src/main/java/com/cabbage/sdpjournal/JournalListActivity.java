@@ -59,11 +59,11 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         fab.setOnClickListener(this);
         
         init();
+
     }
 
     //initialize stuff...
     private void init() {
-        //just prevent being required to login everytime...
         myFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser myFireBaseUser = myFirebaseAuth.getCurrentUser();
         String userID = "";
@@ -91,8 +91,6 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                 // ...
             }
         };
-
-        //setting up things
         listView = (ListView) findViewById(R.id.gvJournalViewTest);
 
         //setting adapter

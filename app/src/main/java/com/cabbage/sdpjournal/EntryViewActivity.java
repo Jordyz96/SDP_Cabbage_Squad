@@ -168,6 +168,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         intent.putExtra("count", count);
         intent.putExtra("countVersion", countVersion);
         intent.putExtra(Constants.journalID, journalID);
+
         startActivity(intent);
         finish();
     }

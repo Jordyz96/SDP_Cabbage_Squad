@@ -180,8 +180,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 } else {
                     tvNumOfVersions.setText("This entry has " + countVersion + " Previous versions");
                 }
-
-                if (countAttachment == 0){
+                if (countAttachment == 0) {
                     tvNumOfAttachment.setText("This entry does not have attachment");
                 } else {
                     tvNumOfAttachment.setText("This entry has " + countAttachment + " Attachments");
@@ -216,7 +215,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         Button noBtn = (Button) myView.findViewById(R.id.alertBtnNo);
                         Button yesBtn = (Button) myView.findViewById(R.id.alertBtnYes);
 
-                        if (status.equals(Constants.Entry_Status_Deleted)){
+                        if (status.equals(Constants.Entry_Status_Deleted)) {
+                            //if current entry is deleted, it can not be deleted again
                             Toast.makeText(EntryListActivity.this, "This entry has already been deleted", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -245,12 +245,17 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     case R.id.hide:
                         //if user hides an entry, change the entry status.
                         if (status.equals(Constants.Entry_Status_Hidden)) {
+                            //if the current entry is hidden, it means the user's gonna unhide this entry,
+                            //change back to normal
                             changeStatus(index, Constants.Entry_Status_Normal);
                         }
                         if (status.equals(Constants.Entry_Status_Normal)) {
+                            //if current entry is a normal entry, user's gonna hide this entry
+                            //change to hidden
                             changeStatus(index, Constants.Entry_Status_Hidden);
                         }
                         if (status.equals(Constants.Entry_Status_Deleted)) {
+                            //if current entry is deleted, no actions are allowed on it
                             Toast.makeText(EntryListActivity.this, "This entry has been deleted", Toast.LENGTH_SHORT).show();
                         }
                 }
@@ -701,13 +706,13 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         filterActive = "Active";
     }
 
-    public void placeholderMessageOnOff(boolean empty, String method, String param){
+    public void placeholderMessageOnOff(boolean empty, String method, String param) {
         TextView tv = (TextView) findViewById(R.id.tvEmpty);
         if (empty) {
             tv.setVisibility(View.VISIBLE);
             String emptyText;
             if (method.equals("searching")) {
-                emptyText = " when " + method +  " for entries containing " + param;
+                emptyText = " when " + method + " for entries containing " + param;
             } else {
                 emptyText = " when " + method + " for " + param + " entries";
             }
@@ -722,8 +727,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         resetSearch();
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
-            for (Entry e : entriesList){
-                if (!e.getStatus().equals("replacedByModified")){
+            for (Entry e : entriesList) {
+                if (!e.getStatus().equals("replacedByModified")) {
                     entriesMatchingFilter.add(e);
                 }
             }

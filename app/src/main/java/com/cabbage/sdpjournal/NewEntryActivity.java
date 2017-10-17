@@ -73,27 +73,25 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        myFirebaseAuth = FirebaseAuth.getInstance();
-
-        storageReference = FirebaseStorage.getInstance().getReference();
-
-        uriList = new ArrayList<>();
-        lastPathArray = new ArrayList<>();
-
-        init();
-    }
-
-    private void init() {
-        db = FirebaseDatabase.getInstance().getReference();
-
+        //setting up view elements
         saveButton = (Button) findViewById(R.id.saveButton);
         etEntryName = (EditText) findViewById(R.id.etEntryName);
         etResponsibilities = (EditText) findViewById(R.id.etResponsibilities);
         etDecisions = (EditText) findViewById(R.id.etDecision);
         etOutcome = (EditText) findViewById(R.id.etOutcome);
         etComment = (EditText) findViewById(R.id.etComment);
-
         saveButton.setOnClickListener(this);
+
+        uriList = new ArrayList<>();
+        lastPathArray = new ArrayList<>();
+
+        firebaseSetup();
+    }
+
+    private void firebaseSetup() {
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
+        db = FirebaseDatabase.getInstance().getReference();
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {

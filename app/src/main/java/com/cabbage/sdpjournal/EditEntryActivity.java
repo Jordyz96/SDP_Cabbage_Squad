@@ -521,7 +521,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
 
         //if not make any changes
         if (name.equals(entryName) && resi.equals(res) && vDecision.equals(decision)
-                && outCome.equals(outcome) && com.equals(comment) && !audioAdded & !imageAdded){
+                && outCome.equals(outcome) && com.equals(comment) && !audioAdded & !imageAdded) {
             confirmBtn.setError("You did not make any changes");
             Toast.makeText(this, "You did not make any changes", Toast.LENGTH_SHORT).show();
             isValid = false;
