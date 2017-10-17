@@ -9,10 +9,10 @@
     android:baselineAligned="false">
 
     <TextView
-        android:id="@+id/tvFilter"
+        android:id="@+id/tvFilterByStatusLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Filter"
+        android:text="Filter By Status"
         android:textStyle="bold"
         android:gravity="center_horizontal"
         android:textSize="30dp"
@@ -23,7 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/radioGroup"
-        android:buttonTint="@color/colorPrimaryDark">
+        android:buttonTint="@color/colorPrimaryDark"
+        android:layout_marginTop="20dp">
 
         <RadioButton
             android:layout_width="match_parent"
@@ -31,7 +32,7 @@
             android:layout_gravity="center_horizontal"
             android:text="Active Only"
             android:buttonTint="@color/colorPrimaryDark"
-            android:id="@+id/radioBtnActive"/>
+            android:id="@+id/radioBtnActive" />
 
         <RadioButton
             android:id="@+id/radioBtnHidden"
@@ -40,67 +41,39 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:buttonTint="@color/colorPrimaryDark"
-            android:text="Hidden Only" />
+            android:text="Hidden Only"
+            android:layout_marginTop="5dp"/>
         <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:buttonTint="@color/colorPrimaryDark"
             android:id="@+id/radioBtnDeleted"
-            android:text="Deleted Only" />
+            android:text="Deleted Only"
+            android:layout_marginTop="5dp"/>
         <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:buttonTint="@color/colorPrimaryDark"
             android:id="@+id/radioBtnAll"
-            android:text="All" />
+            android:text="All"
+            android:layout_marginTop="5dp"/>
     </RadioGroup>
-
-    <TextView
-        android:id="@+id/tvDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:hint="Select on Date"
-        android:textSize="30sp"
-        android:textCursorDrawable="@null"/>
-
-    <TextView
-        android:id="@+id/fromDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:hint="From Date"
-        android:textSize="30sp"
-        android:textCursorDrawable="@null"/>
-
-    <TextView
-        android:id="@+id/toDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:hint="To Date"
-        android:textSize="30sp"
-        android:textCursorDrawable="@null"/>
-
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="right"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:padding="10dp">
 
         <Button
             android:id="@+id/filterCancelBtn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="150dp"
+            android:layout_marginLeft="75dp"
             android:text="Cancel"
             android:background="@android:color/transparent"
             />
