@@ -22,13 +22,15 @@
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/radioGroup">
+        android:id="@+id/radioGroup"
+        android:buttonTint="@color/colorPrimaryDark">
 
         <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Active Only"
+            android:buttonTint="@color/colorPrimaryDark"
             android:id="@+id/radioBtnActive"/>
 
         <RadioButton
@@ -37,17 +39,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:buttonTint="@color/colorPrimaryDark"
             android:text="Hidden Only" />
         <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:buttonTint="@color/colorPrimaryDark"
             android:id="@+id/radioBtnDeleted"
             android:text="Deleted Only" />
         <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:buttonTint="@color/colorPrimaryDark"
             android:id="@+id/radioBtnAll"
             android:text="All" />
     </RadioGroup>
@@ -59,7 +64,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:hint="Select on Date"
-        android:textSize="30sp" />
+        android:textSize="30sp"
+        android:textCursorDrawable="@null"/>
 
     <TextView
         android:id="@+id/fromDate"
@@ -68,7 +74,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:hint="From Date"
-        android:textSize="30sp" />
+        android:textSize="30sp"
+        android:textCursorDrawable="@null"/>
 
     <TextView
         android:id="@+id/toDate"
@@ -77,7 +84,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:hint="To Date"
-        android:textSize="30sp" />
+        android:textSize="30sp"
+        android:textCursorDrawable="@null"/>
 
 
     <LinearLayout

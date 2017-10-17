@@ -686,16 +686,13 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { // Return method from make availability and from view booking
         if (requestCode == 1) { // if returning from the view entry screen
-            String filter = data.getStringExtra("filter");
-            String search = data.getStringExtra("search");
-            filterActive = filter;
-            searchActive = search;
+            if (data != null) {
+                String filter = data.getStringExtra("filter");
+                String search = data.getStringExtra("search");
+                filterActive = filter;
+                searchActive = search;
+            }
         }
-    }
-
-    public void clearSearch() {
-        resetSearch();
-        filterEntries(filterActive);
     }
 
     public void resetSearch() {
@@ -712,7 +709,15 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             tv.setVisibility(View.VISIBLE);
             String emptyText;
             if (method.equals("searching")) {
-                emptyText = " when " + method + " for entries containing " + param;
+
+                emptyText = " when " + method +  " for entries containing " + param;
+            } else if (method.equals("filteringDates")){
+                String[] params = param.split("\\|\\|");
+                params[0] = params[0].substring(0,11) + params[0].substring(params[0].length()-4,params[0].length());
+                params[1] = params[1].substring(0,11) + params[1].substring(params[1].length()-4,params[1].length());
+                emptyText = " when filtering for entries created between " + params[0] + " and " + params[1];
+            } else if (method.equals("filteringDate")){
+                emptyText = " when filtering for entries created on " + param;
             } else {
                 emptyText = " when " + method + " for " + param + " entries";
             }
@@ -783,6 +788,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter.listData.clear();
         listAdapter.listData.addAll(entriesMatchingDates);
         listAdapter.notifyDataSetChanged();
+        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filteringDates", startDate.toString() + "||" + endDate.toString());
     }
 
     public void filterEntriesOnDate(String s2) {
@@ -797,7 +803,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter.listData.clear();
         listAdapter.listData.addAll(entriesMatchingDates);
         listAdapter.notifyDataSetChanged();
-
+        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filteringDate", s2);
     }
 
     public Date convert(String s) {
