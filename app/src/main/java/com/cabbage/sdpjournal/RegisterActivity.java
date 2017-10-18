@@ -243,6 +243,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     Toast.makeText(RegisterActivity.this, LOGIN_SUCCESS, Toast.LENGTH_SHORT).show();
                     //Moves the new user to the main activity
                     RegisterActivity.this.startActivity(new Intent(RegisterActivity.this, JournalListActivity.class));
+                    finish();
                     //If unsuccessful create a toast informing the user
                 } else {
                     Toast.makeText(RegisterActivity.this, LOGIN_FAILED, Toast.LENGTH_SHORT).show();
