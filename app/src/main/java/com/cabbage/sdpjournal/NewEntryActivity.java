@@ -320,6 +320,8 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                     .child(journalID).child(Constants.Entries_End_Point).child(entryID);
             noteReference.setValue(entry);
 
+            Log.d("NEW Journal Entry", " ==>" + entryID.toString());
+
             //deal with media stuff
 
             //audio
