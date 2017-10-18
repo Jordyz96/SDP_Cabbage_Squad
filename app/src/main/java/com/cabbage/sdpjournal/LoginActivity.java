@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
 
         //Initialises progress dialog
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
 
         //Initialises the layout elements
         loginBtn = (Button) findViewById(R.id.loginBtn);
