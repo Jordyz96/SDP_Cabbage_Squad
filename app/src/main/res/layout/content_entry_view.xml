@@ -39,9 +39,23 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="28dp"
+                android:ems="10"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="Responsibilities"
+                android:textStyle="bold"
+                android:selectAllOnFocus="true" />
+
+            <TextView
                 android:id="@+id/tvResponsibilities"
                 android:layout_width="369dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
@@ -52,9 +66,23 @@
                 android:selectAllOnFocus="true" />
 
             <TextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="28dp"
+                android:ems="10"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="Decisions"
+                android:textStyle="bold"
+                android:selectAllOnFocus="true" />
+
+            <TextView
                 android:id="@+id/tvDecisions"
                 android:layout_width="369dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/tvResponsibilities"
                 android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
@@ -66,11 +94,25 @@
                 android:selectAllOnFocus="true"
                 app:layout_constraintHorizontal_bias="0.0" />
 
+            <TextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="28dp"
+                android:ems="10"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="Outcomes"
+                android:textStyle="bold"
+                android:selectAllOnFocus="true" />
+
 
             <TextView
                 android:id="@+id/tvOutcome"
                 android:layout_width="369dp"
-                android:layout_height="91dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/tvDecisions"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
@@ -78,23 +120,47 @@
                 android:ems="10"
                 android:hint="Outcome"
                 android:selectAllOnFocus="true"
-                android:singleLine="false"
+                android:singleLine="false" />
 
-                />
+            <TextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="28dp"
+                android:ems="10"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="Comments"
+                android:textStyle="bold"
+                android:selectAllOnFocus="true" />
 
             <TextView
                 android:id="@+id/tvComment"
                 android:layout_width="369dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/tvOutcome"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:ems="10"
                 android:hint="Comment"
-                android:selectAllOnFocus="true"
+                android:selectAllOnFocus="true" />
 
-                />
+            <TextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="38dp"
+                android:ems="10"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="Date Created/Edited"
+                android:textStyle="bold"
+                android:selectAllOnFocus="true" />
 
             <TextView
                 android:id="@+id/tvDateTime"
