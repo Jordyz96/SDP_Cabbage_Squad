@@ -322,8 +322,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 //loop through the reference given to search entries that match the reference
                 for (DataSnapshot entryDS : dataSnapshot.getChildren()) {
                     //test log
-                    Log.d("Journal Entry", " ==>" + entryDS.toString());
+                    //Log.d("Journal Entry", " ==>" + entryDS.toString());
                     Entry entry = entryDS.getValue(Entry.class);
+                    Log.d("Journal Entry", " ==>" + entry.getEntryID());
                     //if status is not hidden or deleted
                     entriesList.add(entry);
                 }
