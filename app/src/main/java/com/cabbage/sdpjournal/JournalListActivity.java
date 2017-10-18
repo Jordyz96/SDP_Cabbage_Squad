@@ -148,6 +148,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                 //Sign out of the authenticator and return to login activity.
                 myFirebaseAuth.signOut();
                 JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password

@@ -179,6 +179,7 @@ public class EditEntryActivity extends AppCompatActivity implements View.OnClick
                 //Sign out of the authenticator and return to login activity.
                 myFirebaseAuth.signOut();
                 EditEntryActivity.this.startActivity(new Intent(EditEntryActivity.this, LoginActivity.class));
+                finish();
                 return true;
             case R.id.action_reset_password:
                 EditEntryActivity.this.startActivity(new Intent(EditEntryActivity.this, ResetPasswordActivity.class));

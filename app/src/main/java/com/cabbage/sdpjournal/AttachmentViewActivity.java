@@ -153,6 +153,7 @@ public class AttachmentViewActivity extends AppCompatActivity {
                 //Sign out of the authenticator and return to login activity.
                 firebaseAuth.signOut();
                 AttachmentViewActivity.this.startActivity(new Intent(AttachmentViewActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password

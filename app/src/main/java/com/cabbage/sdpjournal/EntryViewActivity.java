@@ -125,6 +125,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
                 //Sign out of the authenticator and return to login activity.
                 firebaseAuth.signOut();
                 EntryViewActivity.this.startActivity(new Intent(EntryViewActivity.this, LoginActivity.class));
+                finish();
                 return true;
             //If item is reset password
             case R.id.action_reset_password:

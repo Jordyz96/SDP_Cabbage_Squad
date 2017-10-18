@@ -151,6 +151,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                 //Sign out of the authenticator and return to login activity.
                 myFirebaseAuth.signOut();
                 NewEntryActivity.this.startActivity(new Intent(NewEntryActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password

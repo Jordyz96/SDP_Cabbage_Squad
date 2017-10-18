@@ -113,6 +113,7 @@ public class HistoryViewActivity extends AppCompatActivity {
                 //Sign out of the authenticator and return to login activity.
                 firebaseAuth.signOut();
                 HistoryViewActivity.this.startActivity(new Intent(HistoryViewActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password
