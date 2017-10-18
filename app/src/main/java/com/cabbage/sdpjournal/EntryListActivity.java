@@ -49,6 +49,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -328,6 +330,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     //if status is not hidden or deleted
                     entriesList.add(entry);
                 }
+                sortEntriesReverseChronological();
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
                 if (!searchActive.equals("")) {
@@ -343,6 +346,22 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+    }
+
+    public void sortEntriesReverseChronological() {
+        Collections.sort(entriesList, new Comparator<Entry>() {
+            public int compare(Entry e1, Entry e2) {
+                DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                try {
+                    Date date1 = formatter.parse(e1.getDateTimeCreated());
+                    Date date2 = formatter.parse(e2.getDateTimeCreated());
+                    return date2.compareTo(date1);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
     }
 
     //On stop method
