@@ -180,10 +180,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     passwordEt.setError(getString(R.string.error_invalid_short_password));
                     focusView = passwordEt;
                     cancel = true;
+                    break;
                 case 1:
                     passwordEt.setError(getString(R.string.error_invalid_long_password));
                     focusView = passwordEt;
                     cancel = true;
+                    break;
             }
         }
 
