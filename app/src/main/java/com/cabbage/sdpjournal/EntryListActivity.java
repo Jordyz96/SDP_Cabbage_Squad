@@ -828,8 +828,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             tv.setVisibility(View.VISIBLE);
             String emptyText;
             if (method.equals("searching")) {
-
-                emptyText = " when " + method + " for entries containing " + param;
+                String[] params = param.split("\\|\\|");
+                emptyText = " when " + method + " for entries containing " + params[0] + " that are also " + params[1];
             } else if (method.equals("filteringDates")) {
                 String[] params = param.split("\\|\\|");
                 params[0] = params[0].substring(0, 11) + params[0].substring(params[0].length() - 4, params[0].length());
@@ -847,8 +847,14 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void filterEntries(String filterSelected, ArrayList<Entry> entryList) {
+        boolean noSearch;
+        if (entryList == entriesList) {
+            noSearch = true;
+            resetSearch();
+        } else {
+            noSearch = false;
+        }
         filterActive = filterSelected;
-        resetSearch();
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
             for (Entry e : entryList) {
@@ -866,7 +872,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter = new EntryListActivity.ListAdapter(entriesMatchingFilter);
         entriesListView.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
-        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filtering", filterActive);
+        if (noSearch) {
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "filtering", filterActive);
+        } else {
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive + "||" + filterActive);
+        }
     }
 
     public void searchEntriesOnKeyword(String searchString) {
