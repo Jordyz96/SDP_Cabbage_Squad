@@ -890,9 +890,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 }
             }
             filterByStatusDialog(entriesMatchingSearch);
-            listAdapter.listData.clear();
-            listAdapter.listData.addAll(entriesMatchingSearch);
-            listAdapter.notifyDataSetChanged();
             placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive);
         }
     }
