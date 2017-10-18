@@ -336,7 +336,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 if (!searchActive.equals("")) {
                     searchEntriesOnKeyword(searchActive);
                 } else {
-                    filterEntries(filterActive);
+                    filterEntries(filterActive, entriesList);
                 }
             }
 
@@ -476,7 +476,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(EntryListActivity.this, "Please make your choice", Toast.LENGTH_SHORT).show();
                         }
                         if (rbStatus.isChecked()) {
-                            filterByStatusDialog();
+                            filterByStatusDialog(entriesList);
                             dialog.cancel();
                         }
                         if (rbDate.isChecked()) {
@@ -532,7 +532,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         return super.onOptionsItemSelected(item);
     }
 
-    private void filterByStatusDialog() {
+    private void filterByStatusDialog(final ArrayList<Entry> entryList) {
 
         AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
         View myView = getLayoutInflater().inflate(R.layout.dialog_filter_by_status, null);
@@ -561,25 +561,25 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 if (rbActive.isChecked()) {
                     //Filter... Only shows active entries
                     Toast.makeText(EntryListActivity.this, "Active Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("normal");
+                    filterEntries("normal", entryList);
                     dialog.cancel();
                 }
                 if (rbHidden.isChecked()) {
                     //Filter... Only shows hidden entries
                     Toast.makeText(EntryListActivity.this, "Hidden Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("hidden");
+                    filterEntries("hidden", entryList);
                     dialog.cancel();
                 }
                 if (rbDeleted.isChecked()) {
                     //Filter... Only shows deleted entries
                     Toast.makeText(EntryListActivity.this, "Deleted Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("deleted");
+                    filterEntries("deleted", entryList);
                     dialog.cancel();
                 }
                 if (rbAll.isChecked()) {
                     //Showing all entries including hidden... deleted...
                     Toast.makeText(EntryListActivity.this, "All Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("All");
+                    filterEntries("All", entryList);
                     dialog.cancel();
                 }
             }
@@ -846,18 +846,18 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    public void filterEntries(String filterSelected) {
+    public void filterEntries(String filterSelected, ArrayList<Entry> entryList) {
         filterActive = filterSelected;
         resetSearch();
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
-            for (Entry e : entriesList) {
+            for (Entry e : entryList) {
                 if (!e.getStatus().equals("replacedByModified")) {
                     entriesMatchingFilter.add(e);
                 }
             }
         } else {
-            for (Entry e : entriesList) {
+            for (Entry e : entryList) {
                 if (e.getStatus().equals(filterSelected)) {
                     entriesMatchingFilter.add(e);
                 }
@@ -889,6 +889,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
             }
+            filterByStatusDialog(entriesMatchingSearch);
             listAdapter.listData.clear();
             listAdapter.listData.addAll(entriesMatchingSearch);
             listAdapter.notifyDataSetChanged();
