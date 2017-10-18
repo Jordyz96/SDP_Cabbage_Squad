@@ -829,6 +829,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             String emptyText;
             if (method.equals("searching")) {
                 String[] params = param.split("\\|\\|");
+                if (params[1].equals("normal")) {
+                    params[1] = "active";
+                }
                 emptyText = " when " + method + " for entries containing " + params[0] + " that are also " + params[1];
             } else if (method.equals("filteringDates")) {
                 String[] params = param.split("\\|\\|");
@@ -838,6 +841,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             } else if (method.equals("filteringDate")) {
                 emptyText = " when filtering for entries created on " + param;
             } else {
+                if (param.equals("normal")) {
+                    param = "active";
+                }
                 emptyText = " when " + method + " for " + param + " entries";
             }
             tv.setText("No results found" + emptyText);
@@ -900,7 +906,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 }
             }
             filterByStatusDialog(entriesMatchingSearch);
-            placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive);
         }
     }
 
