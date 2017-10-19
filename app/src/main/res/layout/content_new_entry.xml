@@ -39,7 +39,8 @@
                 android:background="@drawable/customborder"
                 android:ems="10"
                 android:inputType="text|textCapWords|textAutoComplete|textShortMessage"
-                android:padding="5dp" />
+                android:padding="5dp"
+                android:textCursorDrawable="@null"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -60,7 +61,8 @@
                 android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
                 android:padding="5dp"
                 android:selectAllOnFocus="true"
-                android:singleLine="false" />
+                android:singleLine="false"
+                android:textCursorDrawable="@null"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -79,7 +81,8 @@
                 android:ems="10"
                 android:gravity="top|left"
                 android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-                android:padding="5dp" />
+                android:padding="5dp"
+                android:textCursorDrawable="@null"/>
 
 
             <TextView
@@ -99,7 +102,8 @@
                 android:ems="10"
                 android:gravity="top|left"
                 android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-                android:padding="5dp" />
+                android:padding="5dp"
+                android:textCursorDrawable="@null"/>
 
 
             <TextView
@@ -119,7 +123,8 @@
                 android:ems="10"
                 android:gravity="top|left"
                 android:inputType="text|textCapSentences|textMultiLine|textLongMessage"
-                android:padding="5dp" />
+                android:padding="5dp"
+                android:textCursorDrawable="@null"/>
 
             <Button
                 android:id="@+id/saveButton"

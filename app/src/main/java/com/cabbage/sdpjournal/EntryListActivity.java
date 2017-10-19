@@ -49,6 +49,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,6 +75,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     private String searchActive = "";
     private String filterActive = "normal";
+    private boolean returningFromOtherView = false;
 
     class ViewHolder {
         public TextView title;
@@ -328,12 +331,13 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     //if status is not hidden or deleted
                     entriesList.add(entry);
                 }
+                sortEntriesReverseChronological();
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
                 if (!searchActive.equals("")) {
                     searchEntriesOnKeyword(searchActive);
                 } else {
-                    filterEntries(filterActive);
+                    filterEntries(filterActive, entriesList);
                 }
             }
 
@@ -343,6 +347,22 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+    }
+
+    public void sortEntriesReverseChronological() {
+        Collections.sort(entriesList, new Comparator<Entry>() {
+            public int compare(Entry e1, Entry e2) {
+                DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                try {
+                    Date date1 = formatter.parse(e1.getDateTimeCreated());
+                    Date date2 = formatter.parse(e2.getDateTimeCreated());
+                    return date2.compareTo(date1);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
     }
 
     //On stop method
@@ -457,7 +477,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(EntryListActivity.this, "Please make your choice", Toast.LENGTH_SHORT).show();
                         }
                         if (rbStatus.isChecked()) {
-                            filterByStatusDialog();
+                            filterByStatusDialog(entriesList);
                             dialog.cancel();
                         }
                         if (rbDate.isChecked()) {
@@ -513,7 +533,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         return super.onOptionsItemSelected(item);
     }
 
-    private void filterByStatusDialog() {
+    private void filterByStatusDialog(final ArrayList<Entry> entryList) {
 
         AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
         View myView = getLayoutInflater().inflate(R.layout.dialog_filter_by_status, null);
@@ -542,25 +562,25 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 if (rbActive.isChecked()) {
                     //Filter... Only shows active entries
                     Toast.makeText(EntryListActivity.this, "Active Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("normal");
+                    filterEntries("normal", entryList);
                     dialog.cancel();
                 }
                 if (rbHidden.isChecked()) {
                     //Filter... Only shows hidden entries
                     Toast.makeText(EntryListActivity.this, "Hidden Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("hidden");
+                    filterEntries("hidden", entryList);
                     dialog.cancel();
                 }
                 if (rbDeleted.isChecked()) {
                     //Filter... Only shows deleted entries
                     Toast.makeText(EntryListActivity.this, "Deleted Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("deleted");
+                    filterEntries("deleted", entryList);
                     dialog.cancel();
                 }
                 if (rbAll.isChecked()) {
                     //Showing all entries including hidden... deleted...
                     Toast.makeText(EntryListActivity.this, "All Entry", Toast.LENGTH_SHORT).show();
-                    filterEntries("All");
+                    filterEntries("All", entryList);
                     dialog.cancel();
                 }
             }
@@ -791,6 +811,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String search = data.getStringExtra("search");
                 filterActive = filter;
                 searchActive = search;
+                returningFromOtherView = true;
             }
         }
     }
@@ -800,7 +821,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void resetFilter() {
-        filterActive = "Active";
+        filterActive = "normal";
     }
 
     public void placeholderMessageOnOff(boolean empty, String method, String param) {
@@ -809,8 +830,11 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             tv.setVisibility(View.VISIBLE);
             String emptyText;
             if (method.equals("searching")) {
-
-                emptyText = " when " + method + " for entries containing " + param;
+                String[] params = param.split("\\|\\|");
+                if (params[1].equals("normal")) {
+                    params[1] = "active";
+                }
+                emptyText = " when " + method + " for entries containing " + params[0] + " that are also " + params[1];
             } else if (method.equals("filteringDates")) {
                 String[] params = param.split("\\|\\|");
                 params[0] = params[0].substring(0, 11) + params[0].substring(params[0].length() - 4, params[0].length());
@@ -819,6 +843,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             } else if (method.equals("filteringDate")) {
                 emptyText = " when filtering for entries created on " + param;
             } else {
+                if (param.equals("normal")) {
+                    param = "active";
+                }
                 emptyText = " when " + method + " for " + param + " entries";
             }
             tv.setText("No results found" + emptyText);
@@ -827,18 +854,24 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    public void filterEntries(String filterSelected) {
+    public void filterEntries(String filterSelected, ArrayList<Entry> entryList) {
+        boolean noSearch;
+        if (entryList == entriesList) {
+            noSearch = true;
+            resetSearch();
+        } else {
+            noSearch = false;
+        }
         filterActive = filterSelected;
-        resetSearch();
         ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
         if (filterSelected.equals("All")) {
-            for (Entry e : entriesList) {
+            for (Entry e : entryList) {
                 if (!e.getStatus().equals("replacedByModified")) {
                     entriesMatchingFilter.add(e);
                 }
             }
         } else {
-            for (Entry e : entriesList) {
+            for (Entry e : entryList) {
                 if (e.getStatus().equals(filterSelected)) {
                     entriesMatchingFilter.add(e);
                 }
@@ -847,13 +880,19 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         listAdapter = new EntryListActivity.ListAdapter(entriesMatchingFilter);
         entriesListView.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
-        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filtering", filterActive);
+        if (noSearch) {
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "filtering", filterActive);
+        } else {
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive + "||" + filterActive);
+        }
     }
 
     public void searchEntriesOnKeyword(String searchString) {
         if (!searchString.equals("")) {
             searchActive = searchString;
-            resetFilter();
+            if (!returningFromOtherView) {
+                resetFilter();
+            }
             ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
             for (Entry e : entriesList) {
                 if (!e.getStatus().equals("replacedByModified")) {
@@ -870,10 +909,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
             }
-            listAdapter.listData.clear();
-            listAdapter.listData.addAll(entriesMatchingSearch);
-            listAdapter.notifyDataSetChanged();
-            placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive);
+            if (!returningFromOtherView) {
+                filterByStatusDialog(entriesMatchingSearch);
+            } else {
+                filterEntries(filterActive, entriesMatchingSearch);
+                returningFromOtherView = false;
+            }
         }
     }
 
