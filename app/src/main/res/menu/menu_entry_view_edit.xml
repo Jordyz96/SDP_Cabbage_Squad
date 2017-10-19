@@ -2,8 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:icon="@drawable/ic_action_name"
-        app:showAsAction="ifRoom"
+    <item android:icon="@drawable/ic_action_history"
+        app:showAsAction="always"
+        android:id="@+id/action_history"
+        android:title="history"
+        android:orderInCategory="96"/>
+    <item android:icon="@drawable/ic_action_attachment"
+        app:showAsAction="always"
+        android:id="@+id/action_attachment"
+        android:title="attachment"
+        android:orderInCategory="97"/>
+
+    <item android:icon="@drawable/ic_action_edit"
+        app:showAsAction="always"
         android:id="@+id/action_edit"
         android:title="edit"
         android:orderInCategory="98"/>

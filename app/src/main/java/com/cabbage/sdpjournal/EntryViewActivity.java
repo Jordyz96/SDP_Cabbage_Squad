@@ -1,8 +1,13 @@
 package com.cabbage.sdpjournal;
 
+import android.*;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,10 +32,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
     String entryName, responsibilities, decision, outcome, comment,
             preID, dateTime, journalID, entryID;
 
-    int count;
-
-    Button historyBtn;
-    Button attBtn;
+    int count, countVersion, countAttachment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +41,6 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        historyBtn = (Button) findViewById(R.id.historyBtn);
-        historyBtn.setOnClickListener(this);
-        attBtn = (Button) findViewById(R.id.attachmentBtn);
-        attBtn.setOnClickListener(this);
 
         firebaseAuth = FirebaseAuth.getInstance();
         init();
@@ -72,6 +69,8 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         preID = getIntent().getExtras().getString("preID");
         journalID = getIntent().getExtras().getString(Constants.journalID);
         count = getIntent().getExtras().getInt("count");
+        countVersion = getIntent().getExtras().getInt("countVersion");
+        countAttachment = getIntent().getExtras().getInt("countAttachment");
         //put extras into items
         tvEntryName.setText(entryName);
         tvRes.setText(responsibilities);
@@ -126,6 +125,7 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
                 //Sign out of the authenticator and return to login activity.
                 firebaseAuth.signOut();
                 EntryViewActivity.this.startActivity(new Intent(EntryViewActivity.this, LoginActivity.class));
+                finish();
                 return true;
             //If item is reset password
             case R.id.action_reset_password:
@@ -134,6 +134,23 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
             case R.id.action_edit:
                 transitionToEditEntry();
                 return true;
+            case R.id.action_history:
+                if (countVersion==0){
+                    Toast.makeText(EntryViewActivity.this, "This entry is an original entry", Toast.LENGTH_SHORT).show();
+                }else {
+                    transitionToHistoryView();
+                }
+                return true;
+            case R.id.action_attachment:
+                if (countAttachment == 0){
+                    Toast.makeText(EntryViewActivity.this, "This entry has no attachment", Toast.LENGTH_SHORT).show();
+                }else {
+                    transitionToAttachmentView();
+                }
+                return true;
+            case android.R.id.home:
+                returnToList();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -150,8 +167,27 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         intent.putExtra("dateTime", dateTime);
         intent.putExtra("preID", preID);
         intent.putExtra("count", count);
+        intent.putExtra("countVersion", countVersion);
+        intent.putExtra(Constants.journalID, journalID);
+
+        startActivity(intent);
+        finish();
+    }
+
+    private void transitionToHistoryView(){
+        Intent intent = new Intent(this, HistoryViewActivity.class);
+        intent.putExtra("preID", preID);
         intent.putExtra(Constants.journalID, journalID);
         startActivity(intent);
+        finish();
+    }
+
+    private void transitionToAttachmentView(){
+        Intent intent = new Intent(this, AttachmentViewActivity.class);
+        intent.putExtra("entryID", entryID);
+        intent.putExtra(Constants.journalID, journalID);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -167,25 +203,25 @@ public class EntryViewActivity extends AppCompatActivity implements View.OnClick
         //Sets listener to catch when the user is signing out.
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
-            
+
         }
     }
 
     @Override
     public void onClick(View view) {
-        if (view == historyBtn){
-            Intent intent = new Intent(this, HistoryViewActivity.class);
-            intent.putExtra("preID", preID);
-            intent.putExtra(Constants.journalID, journalID);
-            startActivity(intent);
-            finish();
-        }
-        if (view == attBtn){
-            Intent intent = new Intent(this, AttachmentViewActivity.class);
-            intent.putExtra("entryID", entryID);
-            intent.putExtra(Constants.journalID, journalID);
-            startActivity(intent);
-            finish();
-        }
+
+    }
+
+    public void returnToList() {
+        Intent i = new Intent();
+        i.putExtra("filter", getIntent().getStringExtra("filter"));
+        i.putExtra("search", getIntent().getStringExtra("search"));
+        setResult(RESULT_OK, i);
+    }
+
+    @Override
+    public void onBackPressed(){
+        returnToList();
+        finish();
     }
 }

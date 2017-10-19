@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -40,33 +42,40 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import org.w3c.dom.Text;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static android.content.ContentValues.TAG;
 
-public class EntryListActivity extends AppCompatActivity implements View.OnClickListener{
+public class EntryListActivity extends AppCompatActivity implements View.OnClickListener {
 
     private SwipeListView entriesListView;
-    private ArrayList<Entry> entriesList;
+    private ArrayList<Entry> entriesList, hiddenList, deletedList, allEntryList;
     private EntryListActivity.ListAdapter listAdapter;
     private EditText searchText;
     private FirebaseAuth firebaseAuth;
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FloatingActionButton fab;
-//    private TextView mDisplayDate;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
     private DatePickerDialog.OnDateSetListener mFromDateSetListener;
     private DatePickerDialog.OnDateSetListener mToDateSetListener;
     private String s = null;
+
+    private String searchActive = "";
+    private String filterActive = "normal";
+    private boolean returningFromOtherView = false;
 
     class ViewHolder {
         public TextView title;
@@ -75,8 +84,6 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         public Button modify;
         public Button delete;
     }
-
-
 
 
     @Override
@@ -91,92 +98,41 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         firebaseAuth = FirebaseAuth.getInstance();
 
-//        getSupportActionBar().setTitle("Material Search");
-//        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-
-//         searchView=(MaterialSearchView) findViewById(R.id.search_view);
-//
-//        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, entriesList);
-//
-//        entriesListView = (SwipeListView) findViewById(R.id.listView);
-//
-//
-//
-//        entriesListView.setAdapter(adapter);
-//
-//        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
-//            @Override
-//            public void onSearchViewShown() {
-//
-//            }
-//
-//            @Override
-//            public void onSearchViewClosed() {
-//
-//                //If closed search view, listview will return default
-//                ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
-//                entriesListView.setAdapter(adapter);
-//            }
-//        });
-//
-//
-//        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                if(newText != null && !newText.isEmpty()){
-//                    ArrayList lstFound = new ArrayList<>();
-//                    for (Entry item:entriesList){
-//                        lstFound.add(item);
-//                    }
-//
-//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, lstFound);
-//                    entriesListView.setAdapter(adapter);
-//
-//
-//                }
-//                else{
-//                    //if search text is null
-//                    //return default
-//                    ArrayAdapter adapter = new ArrayAdapter(EntryListActivity.this, android.R.layout.simple_list_item_1, entriesList);
-//                    entriesListView.setAdapter(adapter);
-//                }
-//                return true;
-//            }
-//        });
         init();
-
-       // entriesListView = (ListView) findViewById(R.id.listView);
-
     }
-
-
 
 
     private void init() {
         entriesListView = (SwipeListView) findViewById(R.id.listView);
 
         entriesList = new ArrayList<>();
+        hiddenList = new ArrayList<>();
+        deletedList = new ArrayList<>();
+        allEntryList = new ArrayList<>();
 
         entriesListView.setListener(new OnSwipeListItemClickListener() {
             @Override
             public void OnClick(View view, int index) {
                 //Click the entry, jump to entry view...
-                //Grab data that entry view needs
-                String entryName = entriesList.get(index).getEntryName();
-                String responsibilities = entriesList.get(index).getEntryResponsibilities();
-                String decision = entriesList.get(index).getEntryDecision();
-                String outcome = entriesList.get(index).getEntryOutcome();
-                String entryComment = entriesList.get(index).getEntryComment();
-                String entryDateTime = entriesList.get(index).getDateTimeCreated();
-                String entryID = entriesList.get(index).getEntryID();
-                String preID = entriesList.get(index).getPredecessorEntryID();
-                int count = entriesList.get(index).getCount();
+
+                //setting up all data needed for transitioning
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+                String entryName = e.getEntryName();
+                String responsibilities = e.getEntryResponsibilities();
+                String decision = e.getEntryDecision();
+                String outcome = e.getEntryOutcome();
+                String entryComment = e.getEntryComment();
+                String entryDateTime = e.getDateTimeCreated();
+                String entryID = e.getEntryID();
+                String preID = e.getPredecessorEntryID();
+                int count = e.getCountAttachment();
+                int countVersion = e.getCountVersion();
+                int countAttachment = e.getCountAttachment();
                 String journalID = getIntent().getExtras().getString(Constants.journalID);
+
+                //set up data for return search and filter
+                String searchOnReturn = searchActive;
+                String filterOnReturn = filterActive;
 
                 //put all data into entry view
                 Intent intent = new Intent(EntryListActivity.this, EntryViewActivity.class);
@@ -189,28 +145,50 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("entryID", entryID);
                 intent.putExtra("preID", preID);
                 intent.putExtra("count", count);
+                intent.putExtra("countVersion", countVersion);
+                intent.putExtra("countAttachment", countAttachment);
                 intent.putExtra(Constants.journalID, journalID);
 
+                // put search/filter data into entry view for returning to the list
+                intent.putExtra("search", searchOnReturn);
+                intent.putExtra("filter", filterOnReturn);
+
                 //transitioning
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
 
 
             @Override
             public boolean OnLongClick(View view, int index) {
                 //long click entries -- popup dialog showing entry details
-                String entryName = entriesList.get(index).getEntryName();
-                String comment = entriesList.get(index).getEntryComment();
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+
+                String entryName = e.getEntryName();
+                int countAttachment = e.getCountAttachment();
+                int countVersion = e.getCountVersion();
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
                 View myView = getLayoutInflater().inflate(R.layout.dialog_entry_detail, null);
 
                 TextView detailTitle = (TextView) myView.findViewById(R.id.tvEntryDetailsTitle);
-                TextView detailContent = (TextView) myView.findViewById(R.id.tvEntryDetailsContent);
+                TextView tvNumOfVersions = (TextView) myView.findViewById(R.id.tvNumOfVersions);
+                TextView tvNumOfAttachment = (TextView) myView.findViewById(R.id.tvNumOfAttachment);
+
                 Button closeButton = (Button) myView.findViewById(R.id.bCloseEntryDetails);
 
                 detailTitle.setText(entryName);
-                detailContent.setText(comment);
+
+                if (countVersion == 0) {
+                    tvNumOfVersions.setText("This is an original entry");
+                } else {
+                    tvNumOfVersions.setText("This entry has " + countVersion + " Previous versions");
+                }
+                if (countAttachment == 0) {
+                    tvNumOfAttachment.setText("This entry does not have attachment");
+                } else {
+                    tvNumOfAttachment.setText("This entry has " + countAttachment + " Attachments");
+                }
+
                 ab.setView(myView);
                 final AlertDialog dialog = ab.create();
                 dialog.show();
@@ -228,6 +206,8 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void OnControlClick(int rid, View view, final int index) {
                 AlertDialog.Builder ab;
+                Entry e = (Entry) entriesListView.getAdapter().getItem(index);
+                String status = e.getStatus();
                 switch (rid) {
                     //if click delete
                     case R.id.delete:
@@ -237,6 +217,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                         TextView alertLabel = (TextView) myView.findViewById(R.id.tvAlertLabel);
                         Button noBtn = (Button) myView.findViewById(R.id.alertBtnNo);
                         Button yesBtn = (Button) myView.findViewById(R.id.alertBtnYes);
+
+                        if (status.equals(Constants.Entry_Status_Deleted)) {
+                            //if current entry is deleted, it can not be deleted again
+                            Toast.makeText(EntryListActivity.this, "This entry has already been deleted", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
                         alertLabel.setText("Are you sure?");
                         ab.setView(myView);
@@ -261,7 +247,20 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     //if click hide
                     case R.id.hide:
                         //if user hides an entry, change the entry status.
-                        changeStatus(index, Constants.Entry_Status_Hidden);
+                        if (status.equals(Constants.Entry_Status_Hidden)) {
+                            //if the current entry is hidden, it means the user's gonna unhide this entry,
+                            //change back to normal
+                            changeStatus(index, Constants.Entry_Status_Normal);
+                        }
+                        if (status.equals(Constants.Entry_Status_Normal)) {
+                            //if current entry is a normal entry, user's gonna hide this entry
+                            //change to hidden
+                            changeStatus(index, Constants.Entry_Status_Hidden);
+                        }
+                        if (status.equals(Constants.Entry_Status_Deleted)) {
+                            //if current entry is deleted, no actions are allowed on it
+                            Toast.makeText(EntryListActivity.this, "This entry has been deleted", Toast.LENGTH_SHORT).show();
+                        }
                 }
             }
         }, new int[]{R.id.delete, R.id.hide});
@@ -291,7 +290,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             userID = firebaseUser.getUid();
         }
         String journalID = getIntent().getExtras().getString(Constants.journalID);
-        String entryID = entriesList.get(index).getEntryID();
+        String entryID = (String) ((Entry) entriesListView.getAdapter().getItem(index)).getEntryID();
         //setting pathentryID
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
         DatabaseReference entryStatusRef = db.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
@@ -322,19 +321,24 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
         entryRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 entriesList.clear();
                 //loop through the reference given to search entries that match the reference
                 for (DataSnapshot entryDS : dataSnapshot.getChildren()) {
                     //test log
-                    Log.d("Journal Entry", " ==>" + entryDS.toString());
+                    //Log.d("Journal Entry", " ==>" + entryDS.toString());
                     Entry entry = entryDS.getValue(Entry.class);
+                    Log.d("Journal Entry", " ==>" + entry.getEntryID());
                     //if status is not hidden or deleted
                     entriesList.add(entry);
                 }
+                sortEntriesReverseChronological();
                 listAdapter = new EntryListActivity.ListAdapter(entriesList);
                 entriesListView.setAdapter(listAdapter);
-                filterEntries("normal");
+                if (!searchActive.equals("")) {
+                    searchEntriesOnKeyword(searchActive);
+                } else {
+                    filterEntries(filterActive, entriesList);
+                }
             }
 
             @Override
@@ -343,6 +347,22 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+    }
+
+    public void sortEntriesReverseChronological() {
+        Collections.sort(entriesList, new Comparator<Entry>() {
+            public int compare(Entry e1, Entry e2) {
+                DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                try {
+                    Date date1 = formatter.parse(e1.getDateTimeCreated());
+                    Date date2 = formatter.parse(e2.getDateTimeCreated());
+                    return date2.compareTo(date1);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
     }
 
     //On stop method
@@ -358,7 +378,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        if (v == fab){
+        if (v == fab) {
             String journalID = getIntent().getExtras().getString(Constants.journalID);
             Intent intent = new Intent(this, NewEntryActivity.class);
             intent.putExtra(Constants.journalID, journalID);
@@ -415,10 +435,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onClick(View view) {
                         String keyword = etKeyword.getText().toString().trim();
-                        if(!TextUtils.isEmpty(keyword)){
+                        if (!TextUtils.isEmpty(keyword)) {
                             searchEntriesOnKeyword(keyword);
                             searchDialog.cancel();
-                        }else {
+                        } else {
                             etKeyword.setError("Keyword must not be empty");
                         }
                     }
@@ -432,196 +452,55 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 });
                 return true;
             case R.id.action_filter:
-                //pop up dialog to ask the user "normal" or "all (normal + hidden + deleted)"
+                //pop up dialog to ask the user what type of entry he wants to filter.
+                //or user can search by date, or search between dates.
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
-                View myView = getLayoutInflater().inflate(R.layout.dialog_entry_list_filter, null);
+                View myView = getLayoutInflater().inflate(R.layout.dialog_filter_options_pop_up, null);
 
-                final RadioButton rbActive = (RadioButton) myView.findViewById(R.id.radioBtnActive);
-                final RadioButton rbHidden = (RadioButton) myView.findViewById(R.id.radioBtnHidden);
-                final RadioButton rbDeleted = (RadioButton) myView.findViewById(R.id.radioBtnDeleted);
-                final RadioButton rbAll = (RadioButton) myView.findViewById(R.id.radioBtnAll);
-                Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
-                Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
+                final RadioButton rbStatus = (RadioButton) myView.findViewById(R.id.radioBtnStatus);
+                final RadioButton rbDate = (RadioButton) myView.findViewById(R.id.radioBtnDate);
+                final RadioButton rbDateRange = (RadioButton) myView.findViewById(R.id.radioBtnDateRange);
+                Button cancelBtnFO = (Button) myView.findViewById(R.id.filterCancelBtnFilterOption);
+                final Button okBtnFO = (Button) myView.findViewById(R.id.filterOkBtnFilterOption);
 
                 ab.setView(myView);
                 final AlertDialog dialog = ab.create();
                 dialog.show();
 
-                //eric coming lol**************************************** search on a day
-                final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
-
-                mDisplayDate.setOnClickListener(new View.OnClickListener() {
+                okBtnFO.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Calendar cal = Calendar.getInstance();
-                        int year = cal.get(Calendar.YEAR);
-                        int month = cal.get(Calendar.MONTH);
-                        int day = cal.get(Calendar.DAY_OF_MONTH);
-
-                        DatePickerDialog dialog = new DatePickerDialog(
-                                EntryListActivity.this,
-                                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
-                                mDateSetListener,
-                                year,month,day);
-                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog.show();
+                        if (!rbStatus.isChecked() && !rbDate.isChecked() && !rbDateRange.isChecked()) {
+                            //none of options is checked
+                            okBtnFO.setError("Please make your choice");
+                            Toast.makeText(EntryListActivity.this, "Please make your choice", Toast.LENGTH_SHORT).show();
+                        }
+                        if (rbStatus.isChecked()) {
+                            filterByStatusDialog(entriesList);
+                            dialog.cancel();
+                        }
+                        if (rbDate.isChecked()) {
+                            filterByDateDialog();
+                            dialog.cancel();
+                        }
+                        if (rbDateRange.isChecked()) {
+                            filterByDateRangeDialog();
+                            dialog.cancel();
+                        }
                     }
                 });
 
-                mDateSetListener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        month = month + 1;
-
-                        Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth + "-" + String.format("%02d", month) + "-" + year);
-
-                        String date = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", month) + "-" + year;
-                        mDisplayDate.setText(date);
-                    }
-
-                };
-
-                ///eric endhere*********************************
-
-
-                //////// between two date start
-                final TextView mDisplayFromDate = (TextView) myView.findViewById(R.id.fromDate);
-                mDisplayFromDate.setOnClickListener(new View.OnClickListener() {
+                cancelBtnFO.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Calendar cal1 = Calendar.getInstance();
-                        int year1 = cal1.get(Calendar.YEAR);
-                        int month1 = cal1.get(Calendar.MONTH);
-                        int day1 = cal1.get(Calendar.DAY_OF_MONTH);
-
-                        DatePickerDialog dialog1 = new DatePickerDialog(
-                                EntryListActivity.this,
-                                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
-                                mFromDateSetListener,
-                                year1,month1,day1);
-                        dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog1.show();
-                    }
-                });
-                mFromDateSetListener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year1, int month1, int dayOfMonth1) {
-                        month1 = month1 + 1;
-
-                        Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth1 + "-" + String.format("%02d", month1) + "-" + year1);
-
-                        String date1 = String.format("%02d", dayOfMonth1) + "-" + String.format("%02d", month1) + "-" + year1;
-                        mDisplayFromDate.setText(date1);
-                    }
-
-                };
-                    ////////end1
-                final TextView mDisplayToDate = (TextView) myView.findViewById(R.id.toDate);
-                mDisplayToDate.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Calendar cal2 = Calendar.getInstance();
-                        int year1 = cal2.get(Calendar.YEAR);
-                        int month1 = cal2.get(Calendar.MONTH);
-                        int day1 = cal2.get(Calendar.DAY_OF_MONTH);
-
-                        DatePickerDialog dialog2 = new DatePickerDialog(
-                                EntryListActivity.this,
-                                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
-                                mToDateSetListener,
-                                year1,month1,day1);
-                        dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog2.show();
-                    }
-                });
-                mToDateSetListener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year2, int month2, int dayOfMonth2) {
-                        month2 = month2 + 1;
-
-                        Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth2 + "-" + String.format("%02d", month2) + "-" + year2);
-
-                        String date2 = String.format("%02d", dayOfMonth2) + "-" + String.format("%02d", month2) + "-" + year2;
-                        mDisplayToDate.setText(date2);
-
-                    }
-
-                };
-
-
-
-
-
-                    ////////between two date end
-
-
-
-                okBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //if click ok
-                        if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked() && mDisplayDate.getText().equals("")
-                                && mDisplayFromDate.getText().equals("") && mDisplayToDate.getText().equals("")){
-                            Toast.makeText(EntryListActivity.this, "Please choose one", Toast.LENGTH_SHORT).show();
-                        }
-
-                        if (rbActive.isChecked()){
-                            //Filter... Only shows active entries
-                            //put your logical stuff here for showing active entries
-                            Toast.makeText(EntryListActivity.this, "Test...Active", Toast.LENGTH_SHORT).show();
-                            filterEntries("normal");
-                            dialog.cancel();
-                        }
-                        if (rbHidden.isChecked()){
-                            //Filter... Only shows active entries
-                            //put your logical stuff here for showing hidden entries
-                            Toast.makeText(EntryListActivity.this, "Test...hidden", Toast.LENGTH_SHORT).show();
-                            filterEntries("hidden");
-                            dialog.cancel();
-                        }
-                        if (rbDeleted.isChecked()){
-                            //Filter... Only shows active entries
-                            //put your logical stuff here for showing deleted entries
-                            Toast.makeText(EntryListActivity.this, "Test...deleted", Toast.LENGTH_SHORT).show();
-                            filterEntries("deleted");
-                            dialog.cancel();
-                        }
-                        if (rbAll.isChecked()){
-                            //Showing all entries including hidden... deleted...
-                            //put your logical stuff here for showing all entries
-                            Toast.makeText(EntryListActivity.this, "Test...All", Toast.LENGTH_SHORT).show();
-                            filterEntries("All");
-                            dialog.cancel();
-                        }
-
-                      //  Calendar cal = Calendar.getInstance();
-                       // String s = null;
-
-                        if (!mDisplayDate.getText().equals("")) {
-                            //showing all entries on a day
-                            s = mDisplayDate.getText().toString();
-                            filterEntriesOnDate(mDisplayDate.getText().toString());
-                            dialog.cancel();
-                        }
-                        if (!mDisplayFromDate.getText().equals("") && !mDisplayToDate.getText().equals(""))
-
-                            searchEntriesBetweenDates(convert(mDisplayFromDate.getText().toString()), convert(mDisplayToDate.getText().toString()));
-                        dialog.cancel();
-                    }
-                });
-                cancelBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //click cancel
                         dialog.cancel();
                     }
                 });
                 return true;
 
             case R.id.action_search:
-                //pop up a dialog ask the author to enter a key word.
-
+                //pop up a dialog ask the author to enter a keyword.
                 AlertDialog.Builder sb = new AlertDialog.Builder(EntryListActivity.this);
                 View sView = getLayoutInflater().inflate(R.layout.dialog_entry_list_search, null);
 
@@ -633,15 +512,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 dialog2.show();
 
                 searchBtn.setOnClickListener(new View.OnClickListener() {
-
-
                     @Override
                     public void onClick(View v) {
-                      //if click searchBtn
-                       searchEntriesOnKeyword(searchText.getText().toString());
+                        //if click searchBtn
+                        searchEntriesOnKeyword(searchText.getText().toString());
                         dialog2.cancel();
                     }
-
                 });
 
 
@@ -653,11 +529,232 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
                 return true;
-
-
-
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void filterByStatusDialog(final ArrayList<Entry> entryList) {
+
+        AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
+        View myView = getLayoutInflater().inflate(R.layout.dialog_filter_by_status, null);
+
+        final TextView label = (TextView) myView.findViewById(R.id.tvFilterByStatusLabel);
+
+        final RadioButton rbActive = (RadioButton) myView.findViewById(R.id.radioBtnActive);
+        final RadioButton rbHidden = (RadioButton) myView.findViewById(R.id.radioBtnHidden);
+        final RadioButton rbDeleted = (RadioButton) myView.findViewById(R.id.radioBtnDeleted);
+        final RadioButton rbAll = (RadioButton) myView.findViewById(R.id.radioBtnAll);
+
+        Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
+        final Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
+
+        ab.setView(myView);
+        final AlertDialog dialog = ab.create();
+        dialog.show();
+
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!rbActive.isChecked() && !rbAll.isChecked() && !rbHidden.isChecked() && !rbDeleted.isChecked()) {
+                    Toast.makeText(EntryListActivity.this, "Please choose one", Toast.LENGTH_SHORT).show();
+                }
+
+                if (rbActive.isChecked()) {
+                    //Filter... Only shows active entries
+                    Toast.makeText(EntryListActivity.this, "Active Entry", Toast.LENGTH_SHORT).show();
+                    filterEntries("normal", entryList);
+                    dialog.cancel();
+                }
+                if (rbHidden.isChecked()) {
+                    //Filter... Only shows hidden entries
+                    Toast.makeText(EntryListActivity.this, "Hidden Entry", Toast.LENGTH_SHORT).show();
+                    filterEntries("hidden", entryList);
+                    dialog.cancel();
+                }
+                if (rbDeleted.isChecked()) {
+                    //Filter... Only shows deleted entries
+                    Toast.makeText(EntryListActivity.this, "Deleted Entry", Toast.LENGTH_SHORT).show();
+                    filterEntries("deleted", entryList);
+                    dialog.cancel();
+                }
+                if (rbAll.isChecked()) {
+                    //Showing all entries including hidden... deleted...
+                    Toast.makeText(EntryListActivity.this, "All Entry", Toast.LENGTH_SHORT).show();
+                    filterEntries("All", entryList);
+                    dialog.cancel();
+                }
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+
+    }
+
+    private void filterByDateDialog() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
+        View myView = getLayoutInflater().inflate(R.layout.dialog_filter_by_date, null);
+
+        final TextView mDisplayDate = (TextView) myView.findViewById(R.id.tvDate);
+        TextView label = (TextView) myView.findViewById(R.id.searchOnDateLabel);
+        Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
+        final Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
+
+        ab.setView(myView);
+        final AlertDialog dialog = ab.create();
+        dialog.show();
+
+        mDisplayDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal = Calendar.getInstance();
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH);
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog dialog = new DatePickerDialog(
+                        EntryListActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mDateSetListener,
+                        year, month, day);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+            }
+        });
+
+        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                month = month + 1;
+
+                Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth + "-" + String.format("%02d", month) + "-" + year);
+
+                String date = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", month) + "-" + year;
+                mDisplayDate.setText(date);
+            }
+
+        };
+
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!mDisplayDate.getText().equals("")) {
+                    //showing all entries on a day
+                    s = mDisplayDate.getText().toString();
+                    filterEntriesOnDate(mDisplayDate.getText().toString());
+                    dialog.cancel();
+                } else {
+                    //did not choose a date
+                    okBtn.setError("Please choose a date");
+                }
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+    }
+
+    private void filterByDateRangeDialog() {
+
+        AlertDialog.Builder ab = new AlertDialog.Builder(EntryListActivity.this);
+        View myView = getLayoutInflater().inflate(R.layout.dialog_filter_by_date_range, null);
+
+        final TextView mDisplayFromDate = (TextView) myView.findViewById(R.id.fromDate);
+        final TextView mDisplayToDate = (TextView) myView.findViewById(R.id.toDate);
+        TextView label = (TextView) myView.findViewById(R.id.searchOnDateRangeLabel);
+        Button cancelBtn = (Button) myView.findViewById(R.id.filterCancelBtn);
+        final Button okBtn = (Button) myView.findViewById(R.id.filterOkBtn);
+
+        ab.setView(myView);
+        final AlertDialog dialog = ab.create();
+        dialog.show();
+
+        mDisplayFromDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal1 = Calendar.getInstance();
+                int year1 = cal1.get(Calendar.YEAR);
+                int month1 = cal1.get(Calendar.MONTH);
+                int day1 = cal1.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog dialog1 = new DatePickerDialog(
+                        EntryListActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mFromDateSetListener,
+                        year1, month1, day1);
+                dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog1.show();
+            }
+        });
+        mFromDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year1, int month1, int dayOfMonth1) {
+                month1 = month1 + 1;
+
+                Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth1 + "-" + String.format("%02d", month1) + "-" + year1);
+
+                String date1 = String.format("%02d", dayOfMonth1) + "-" + String.format("%02d", month1) + "-" + year1;
+                mDisplayFromDate.setText(date1);
+            }
+
+        };
+
+        mDisplayToDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal2 = Calendar.getInstance();
+                int year1 = cal2.get(Calendar.YEAR);
+                int month1 = cal2.get(Calendar.MONTH);
+                int day1 = cal2.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog dialog2 = new DatePickerDialog(
+                        EntryListActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mToDateSetListener,
+                        year1, month1, day1);
+                dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog2.show();
+            }
+        });
+        mToDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year2, int month2, int dayOfMonth2) {
+                month2 = month2 + 1;
+
+                Log.d(TAG, "onDateSet: dd/mm/yyy: " + dayOfMonth2 + "-" + String.format("%02d", month2) + "-" + year2);
+
+                String date2 = String.format("%02d", dayOfMonth2) + "-" + String.format("%02d", month2) + "-" + year2;
+                mDisplayToDate.setText(date2);
+            }
+
+        };
+
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!mDisplayFromDate.getText().equals("") && !mDisplayToDate.getText().equals("")) {
+                    searchEntriesBetweenDates(convert(mDisplayFromDate.getText().toString()),
+                            convert(mDisplayToDate.getText().toString()));
+
+                    dialog.cancel();
+                }else {okBtn.setError("Please choose two dates");}
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
     }
 
     public class ListAdapter extends EntryListAdapter {
@@ -692,6 +789,10 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 viewHolder.dateTimeCreated = (TextView) convertView.findViewById(R.id.tvEntryDateTimeInStyle_list);
                 viewHolder.hide = (Button) convertView.findViewById(R.id.hide);
                 viewHolder.delete = (Button) convertView.findViewById(R.id.delete);
+                String status = listData.get(position).getStatus();
+                if (status.equals(Constants.Entry_Status_Hidden)) {
+                    viewHolder.hide.setText("Unhide");
+                }
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (EntryListActivity.ViewHolder) convertView.getTag();
@@ -701,124 +802,166 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
             viewHolder.dateTimeCreated.setText(listData.get(position).getDateTimeCreated());
             return super.bindView(position, convertView);
         }
-
     }
 
-    public void filterEntries (String filterSelected) {
-        ArrayList<Entry> entriesMatchingFilter = new ArrayList<Entry>();
-        if (filterSelected.equals("All")){
-            entriesMatchingFilter.addAll(entriesList);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) { // Return method from make availability and from view booking
+        if (requestCode == 1) { // if returning from the view entry screen
+            if (data != null) {
+                String filter = data.getStringExtra("filter");
+                String search = data.getStringExtra("search");
+                filterActive = filter;
+                searchActive = search;
+                returningFromOtherView = true;
+            }
+        }
+    }
+
+    public void resetSearch() {
+        searchActive = "";
+    }
+
+    public void resetFilter() {
+        filterActive = "normal";
+    }
+
+    public void placeholderMessageOnOff(boolean empty, String method, String param) {
+        TextView tv = (TextView) findViewById(R.id.tvEmpty);
+        if (empty) {
+            tv.setVisibility(View.VISIBLE);
+            String emptyText;
+            if (method.equals("searching")) {
+                String[] params = param.split("\\|\\|");
+                if (params[1].equals("normal")) {
+                    params[1] = "active";
+                }
+                emptyText = " when " + method + " for entries containing " + params[0] + " that are also " + params[1];
+            } else if (method.equals("filteringDates")) {
+                String[] params = param.split("\\|\\|");
+                params[0] = params[0].substring(0, 11) + params[0].substring(params[0].length() - 4, params[0].length());
+                params[1] = params[1].substring(0, 11) + params[1].substring(params[1].length() - 4, params[1].length());
+                emptyText = " when filtering for entries created between " + params[0] + " and " + params[1];
+            } else if (method.equals("filteringDate")) {
+                emptyText = " when filtering for entries created on " + param;
+            } else {
+                if (param.equals("normal")) {
+                    param = "active";
+                }
+                emptyText = " when " + method + " for " + param + " entries";
+            }
+            tv.setText("No results found" + emptyText);
         } else {
-            for (Entry e : entriesList) {
+            tv.setVisibility(View.GONE);
+        }
+    }
+
+    public void filterEntries(String filterSelected, ArrayList<Entry> entryList) {
+        boolean noSearch;
+        if (entryList == entriesList) {
+            noSearch = true;
+            resetSearch();
+        } else {
+            noSearch = false;
+        }
+        filterActive = filterSelected;
+        ArrayList<Entry> entriesMatchingFilter = new ArrayList<>();
+        if (filterSelected.equals("All")) {
+            for (Entry e : entryList) {
+                if (!e.getStatus().equals("replacedByModified")) {
+                    entriesMatchingFilter.add(e);
+                }
+            }
+        } else {
+            for (Entry e : entryList) {
                 if (e.getStatus().equals(filterSelected)) {
                     entriesMatchingFilter.add(e);
                 }
             }
         }
-        listAdapter.listData.clear();
-        listAdapter.listData.addAll(entriesMatchingFilter);
+        listAdapter = new EntryListActivity.ListAdapter(entriesMatchingFilter);
+        entriesListView.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
+        if (noSearch) {
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "filtering", filterActive);
+        } else {
+            placeholderMessageOnOff(listAdapter.listData.size() == 0, "searching", searchActive + "||" + filterActive);
+        }
     }
 
-    public void searchEntriesOnKeyword (String searchString) {
-        ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
-        for (Entry e : entriesList) {
-            if (e.getEntryName().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryResponsibilities().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryDecision().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryOutcome().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
-            } else if (e.getEntryComment().toLowerCase().contains(searchString.toLowerCase())) {
-                entriesMatchingSearch.add(e);
+    public void searchEntriesOnKeyword(String searchString) {
+        if (!searchString.equals("")) {
+            searchActive = searchString;
+            if (!returningFromOtherView) {
+                resetFilter();
+            }
+            ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
+            for (Entry e : entriesList) {
+                if (!e.getStatus().equals("replacedByModified")) {
+                    if (e.getEntryName().toLowerCase().contains(searchString.toLowerCase())) {
+                        entriesMatchingSearch.add(e);
+                    } else if (e.getEntryResponsibilities().toLowerCase().contains(searchString.toLowerCase())) {
+                        entriesMatchingSearch.add(e);
+                    } else if (e.getEntryDecision().toLowerCase().contains(searchString.toLowerCase())) {
+                        entriesMatchingSearch.add(e);
+                    } else if (e.getEntryOutcome().toLowerCase().contains(searchString.toLowerCase())) {
+                        entriesMatchingSearch.add(e);
+                    } else if (e.getEntryComment().toLowerCase().contains(searchString.toLowerCase())) {
+                        entriesMatchingSearch.add(e);
+                    }
+                }
+            }
+            if (!returningFromOtherView) {
+                filterByStatusDialog(entriesMatchingSearch);
+            } else {
+                filterEntries(filterActive, entriesMatchingSearch);
+                returningFromOtherView = false;
             }
         }
-        listAdapter.listData.clear();
-        listAdapter.listData.addAll(entriesMatchingSearch);
-        listAdapter.notifyDataSetChanged();
     }
 
-    public void  searchEntriesBetweenDates(Date startDate, Date endDate){
+    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
         for (Entry e : entriesList) {
-            String[] stringDate = e.getDateTimeCreated().split(" ");
-            String entryDateString = stringDate[0];
-            Date entryDate = convert(e.getDateTimeCreated());
-            if ((startDate.before(entryDate) && endDate.after(entryDate))|| startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
-                entriesMatchingDates.add(e);
+            if (!e.getStatus().equals("replacedByModified")) {
+                String[] stringDate = e.getDateTimeCreated().split(" ");
+                String entryDateString = stringDate[0];
+                Date entryDate = convert(e.getDateTimeCreated());
+                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) || endDate.equals(entryDate)) {
+                    entriesMatchingDates.add(e);
+                }
             }
         }
         listAdapter.listData.clear();
         listAdapter.listData.addAll(entriesMatchingDates);
         listAdapter.notifyDataSetChanged();
-        }
-
-//    public void searchEntriesBetweenDates(Date startDate, Date endDate) {
-//        ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        for (Entry e : entriesList) {
-//            String[] stringDate = e.getDateTimeCreated().split(" ");
-//            DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
-//            try {
-//                entryDate = formatter.parse(stringDate[0]);
-//                System.out.println(entryDate);
-//                if ((startDate.before(entryDate) && endDate.after(entryDate)) || startDate.equals(entryDate) ||  endDate.equals(entryDate)) {
-//                    entriesMatchingDates.add(e);
-//                }
-//            } catch (ParseException exp) {
-//                exp.printStackTrace();
-//            }
-//
-//        }
-//        listAdapter.listData.clear();
-//        listAdapter.listData.addAll(entriesMatchingDates);
-//        listAdapter.notifyDataSetChanged();
-//    }
+        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filteringDates", startDate.toString() + "||" + endDate.toString());
+    }
 
     public void filterEntriesOnDate(String s2) {
         ArrayList<Entry> entriesMatchingDates = new ArrayList<Entry>();
-//        Date entryDate;
-//        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-//        String s2 = formatter.format(date2);
         for (Entry e : entriesList) {
-            String[] stringDate = e.getDateTimeCreated().split(" ");
-            String s1 = stringDate[0];
-            if (s1.equals(s2)) {
-                entriesMatchingDates.add(e);
+            if (!e.getStatus().equals("replacedByModified")) {
+                String[] stringDate = e.getDateTimeCreated().split(" ");
+                String s1 = stringDate[0];
+                if (s1.equals(s2)) {
+                    entriesMatchingDates.add(e);
+                }
             }
         }
-            listAdapter.listData.clear();
-            listAdapter.listData.addAll(entriesMatchingDates);
-            listAdapter.notifyDataSetChanged();
-
+        listAdapter.listData.clear();
+        listAdapter.listData.addAll(entriesMatchingDates);
+        listAdapter.notifyDataSetChanged();
+        placeholderMessageOnOff(listAdapter.listData.size() == 0, "filteringDate", s2);
     }
-//    public Date convert(String s){
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-//        Date convertedDate = new Date();
-//        try {
-//            convertedDate = dateFormat.parse(s);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return convertedDate;
-//    }
 
-
-
-
-
-public Date convert(String s){
-    DateFormat formatter ;
-    Date date = null;
-    formatter = new SimpleDateFormat("dd-MM-yyyy");
-    try {
-        date = (Date)formatter.parse(s);
-    } catch (ParseException e) {
-        e.printStackTrace();
+    public Date convert(String s) {
+        DateFormat formatter;
+        Date date = null;
+        formatter = new SimpleDateFormat("dd-MM-yyyy");
+        try {
+            date = (Date) formatter.parse(s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
-    //System.out.println("Today is " +date.getTime());
-    return date;
-}
 }

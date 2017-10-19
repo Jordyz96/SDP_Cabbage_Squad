@@ -8,10 +8,12 @@
         android:id="@+id/tvEntryDetailsLabel"
         android:layout_gravity="center"
         android:textSize="30sp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="Detail" />
+        android:gravity="center_horizontal"
+        android:text="Detail"
+        android:background="@color/colorPrimary"/>
 
     <TextView
         android:id="@+id/tvEntryDetailsTitle"
@@ -22,21 +24,27 @@
         android:text="Title" />
 
     <TextView
-        android:id="@+id/tvEntryDetailsContent"
+        android:id="@+id/tvNumOfVersions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        android:layout_marginTop="5dp"
-        android:text="Content" />
+        android:layout_marginTop="10dp"
+        android:text="Numbers of previous versions" />
+
+    <TextView
+        android:id="@+id/tvNumOfAttachment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        android:text="Numbers of attachments" />
 
     <Button
         android:id="@+id/bCloseEntryDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@color/colorAccent"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorWhite"
         android:textSize="20sp"
         android:text="Close" />
 </LinearLayout>

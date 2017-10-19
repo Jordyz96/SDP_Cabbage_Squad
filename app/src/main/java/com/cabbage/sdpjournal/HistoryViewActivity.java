@@ -39,7 +39,6 @@ public class HistoryViewActivity extends AppCompatActivity {
     FirebaseUser firebaseUser;
     DatabaseReference databaseReference;
     DatabaseReference entryRef;
-    DatabaseReference attachmentRef;
     FirebaseAuth.AuthStateListener mAuthListener;
     String preID;
 
@@ -114,6 +113,7 @@ public class HistoryViewActivity extends AppCompatActivity {
                 //Sign out of the authenticator and return to login activity.
                 firebaseAuth.signOut();
                 HistoryViewActivity.this.startActivity(new Intent(HistoryViewActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password
@@ -137,13 +137,12 @@ public class HistoryViewActivity extends AppCompatActivity {
                 entriesList.clear();
                 for (DataSnapshot ds : dataSnapshot.getChildren()){
                     Entry entry = ds.getValue(Entry.class);
-                    if (!entry.getPredecessorEntryID().equals("") && entry.getPredecessorEntryID().equals(preID) || entry.getEntryID().equals(preID)){
+                    if (entry.getStatus().equals("replacedByModified") && entry.getPredecessorEntryID().equals(preID) || entry.getEntryID().equals(preID)){
                         entriesList.add(entry);
                     }
                     listAdapter = new HistoryListAdapter(HistoryViewActivity.this, entriesList);
                     lv.setAdapter(listAdapter);
                 }
-
             }
 
             @Override

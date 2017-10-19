@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cabbage.sdpjournal.UserInfo.UserInformation;
@@ -50,10 +51,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     //Layout elements
     Button registerBtn;
-    Button backBtn;
+    TextView toLoginBtn;
     EditText emailEt;
     EditText passwordEt;
-    EditText usernameEt;
 
     //Firebase variables
     private FirebaseDatabase mFirebaseDatabase;
@@ -82,14 +82,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         //Initialises layout elemenets
         registerBtn = (Button) findViewById(R.id.registerBtn);
-        backBtn = (Button) findViewById(R.id.backBtn);
+        toLoginBtn = (TextView) findViewById(R.id.click_to_login);
         emailEt = (EditText) findViewById(R.id.emailEt);
         passwordEt = (EditText) findViewById(R.id.passwordEt);
-        usernameEt = (EditText) findViewById(R.id.usernameEt);
 
         //Set a listener for the register button and one for the back button
         registerBtn.setOnClickListener(this);
-        backBtn.setOnClickListener(this);
+        toLoginBtn.setOnClickListener(this);
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -149,7 +148,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         //Gathers the string from the fields
         final String email = emailEt.getText().toString();
         final String password = passwordEt.getText().toString();
-        final String username = usernameEt.getText().toString();
 
         //Initialises variables of validation process
         boolean cancel = false;
@@ -182,31 +180,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     passwordEt.setError(getString(R.string.error_invalid_short_password));
                     focusView = passwordEt;
                     cancel = true;
+                    break;
                 case 1:
                     passwordEt.setError(getString(R.string.error_invalid_long_password));
                     focusView = passwordEt;
                     cancel = true;
+                    break;
             }
         }
 
-        //If the username field is empty
-        if (TextUtils.isEmpty(username)) {
-            usernameEt.setError(getString(R.string.error_no_username));
-            focusView = usernameEt;
-            cancel = true;
-            //If not empty then check if it is too long or short
-        } else {
-            switch (isEnteredValid(username)) {
-                case 0:
-                    usernameEt.setError(getString(R.string.error_invalid_short_username));
-                    focusView = usernameEt;
-                    cancel = true;
-                case 1:
-                    usernameEt.setError(getString(R.string.error_invalid_long_username));
-                    focusView = usernameEt;
-                    cancel = true;
-            }
-        }
 
         // If there is an error, don't attempt login and focus the first
         if (cancel) {
@@ -225,7 +207,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     //If successful show a toast telling the user and call the loginUser to log them in
                     if (task.isSuccessful()) {
                         Toast.makeText(RegisterActivity.this, REGISTER_SUCCESS, Toast.LENGTH_SHORT).show();
-                        loginUser(email, password, username);
+                        loginUser(email, password);
                         //If unsuccessful show a toast telling the user
                     } else {
                         Toast.makeText(RegisterActivity.this, REGISTER_FAILED, Toast.LENGTH_SHORT).show();
@@ -242,9 +224,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      *
      * @param email    Email entered of new user
      * @param password Password entered of new user
-     * @param username Username entered of new user
      */
-    private void loginUser(final String email, String password, final String username) {
+    private void loginUser(final String email, String password) {
         //Calling the sign-in with the email and password
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
@@ -255,13 +236,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     FirebaseUser user = mAuth.getCurrentUser();
                     String userID = user.getUid();
                     //Creates a new user information object with the email and username
-                    UserInformation userInformation = new UserInformation(email, username);
+                    UserInformation userInformation = new UserInformation(email);
                     //Sets the new object's valuables as nodes of the user in the database
                     myRef.child(DB_USERS).child(userID).setValue(userInformation);
                     //Creates a toast to inform the user everything is set up
                     Toast.makeText(RegisterActivity.this, LOGIN_SUCCESS, Toast.LENGTH_SHORT).show();
                     //Moves the new user to the main activity
                     RegisterActivity.this.startActivity(new Intent(RegisterActivity.this, JournalListActivity.class));
+                    finish();
                     //If unsuccessful create a toast informing the user
                 } else {
                     Toast.makeText(RegisterActivity.this, LOGIN_FAILED, Toast.LENGTH_SHORT).show();

@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.cabbage.sdpjournal.Adpter.JournalListAdapter;
 import com.cabbage.sdpjournal.Model.Constants;
 import com.cabbage.sdpjournal.Model.Journal;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -60,11 +59,11 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
         fab.setOnClickListener(this);
         
         init();
+
     }
 
     //initialize stuff...
     private void init() {
-        //just prevent being required to login everytime...
         myFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser myFireBaseUser = myFirebaseAuth.getCurrentUser();
         String userID = "";
@@ -92,8 +91,6 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                 // ...
             }
         };
-
-        //setting up things
         listView = (ListView) findViewById(R.id.gvJournalViewTest);
 
         //setting adapter
@@ -151,6 +148,7 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                 //Sign out of the authenticator and return to login activity.
                 myFirebaseAuth.signOut();
                 JournalListActivity.this.startActivity(new Intent(JournalListActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password
@@ -214,8 +212,6 @@ public class JournalListActivity extends AppCompatActivity implements View.OnCli
                     if (journalColor.equals(Constants.Select_Color)){
                         //make it default
                         journalColor = Constants.Default_Color;
-                    }else {
-                        Toast.makeText(JournalListActivity.this, journalColor, Toast.LENGTH_SHORT).show();
                     }
                 }
 

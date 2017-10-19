@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -43,7 +45,7 @@ import java.util.Random;
 
 import static android.content.ContentValues.TAG;
 
-public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener{
+public class NewEntryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button saveButton;
     private EditText etEntryName;
@@ -53,25 +55,15 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     SimpleDateFormat simpleDateFormat;
     private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    StorageReference storageReference;
-    StorageReference filePath;
-    Uri imageUri, audioUri, attURI;
-    String lastPath, attFileName;
-    long audioDuration;
-    ArrayList<String> lastPathArray, fileNameList;
-    ArrayList<Long> audioDurationList;
+    StorageReference storageReference, filePath;
+    Uri imageUri, audioUri;
+    String lastPath, attFileName,audioFileName;
+    ArrayList<String> lastPathArray;
     ArrayList<Uri> uriList;
-    ArrayList<Uri> audioUriList;
-    int count = 0;
-
+    int count = 0, protectCount = 0;
+    long duration, lastDown;
     MediaRecorder mediaRecorder;
-    String audioFileName;
-    long duration;
-    long lastDown;
-    int k;
-    int fileNameCount;
-
-    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    boolean audioAdded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,36 +73,25 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        myFirebaseAuth = FirebaseAuth.getInstance();
-
-        storageReference = FirebaseStorage.getInstance().getReference();
-
-        uriList = new ArrayList<>();
-        audioUriList = new ArrayList<>();
-        lastPathArray = new ArrayList<>();
-        audioDurationList = new ArrayList<>();
-        fileNameList = new ArrayList<>();
-
-        audioDurationList.clear();
-        audioUriList.clear();
-        fileNameList.clear();
-        k = 0;
-        fileNameCount = 0;
-
-        init();
-    }
-
-    private void init() {
-        db = FirebaseDatabase.getInstance().getReference();
-
+        //setting up view elements
         saveButton = (Button) findViewById(R.id.saveButton);
         etEntryName = (EditText) findViewById(R.id.etEntryName);
         etResponsibilities = (EditText) findViewById(R.id.etResponsibilities);
         etDecisions = (EditText) findViewById(R.id.etDecision);
         etOutcome = (EditText) findViewById(R.id.etOutcome);
         etComment = (EditText) findViewById(R.id.etComment);
-
         saveButton.setOnClickListener(this);
+
+        uriList = new ArrayList<>();
+        lastPathArray = new ArrayList<>();
+
+        firebaseSetup();
+    }
+
+    private void firebaseSetup() {
+        myFirebaseAuth = FirebaseAuth.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
+        db = FirebaseDatabase.getInstance().getReference();
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -133,7 +114,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constants.Gallery_Request && resultCode == RESULT_OK){
+        if (requestCode == Constants.Gallery_Request && resultCode == RESULT_OK) {
             imageUri = data.getData();
             lastPath = imageUri.getLastPathSegment();
             uriList.add(imageUri);
@@ -145,6 +126,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * Creates the options menu on the action bar.
+     *
      * @param menu Menu at the top right of the screen
      * @return true
      */
@@ -157,17 +139,19 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * Sets a listener that triggers when an option from the taskbar menu is selected.
+     *
      * @param item Which item on the menu was selected.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Finds which item was selected
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             //If item is logout
             case R.id.action_logout:
                 //Sign out of the authenticator and return to login activity.
                 myFirebaseAuth.signOut();
                 NewEntryActivity.this.startActivity(new Intent(NewEntryActivity.this, LoginActivity.class));
+                finish();
                 return true;
 
             //If item is reset password
@@ -178,16 +162,14 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                 chooseImage();
                 return true;
             case R.id.action_audio:
-                recordAudioDialog();
-                return true;
-            case R.id.action_video:
+                requestPermissions();
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void recordAudioDialog(){
+    private void recordAudioDialog() {
         AlertDialog.Builder ab = new AlertDialog.Builder(NewEntryActivity.this);
         View myView = getLayoutInflater().inflate(R.layout.dialog_record_audio, null);
 
@@ -203,26 +185,27 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         recordBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     label.setText("Recording...");
                     lastDown = System.currentTimeMillis();
                     audioFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-                    audioFileName += "/audio" + fileNameCount + ".3gp";
+                    audioFileName += "/audio.3gp";
                     startRecording();
-                }else if (motionEvent.getAction() == MotionEvent.ACTION_UP){
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     label.setText("Recorded");
                     duration = System.currentTimeMillis() - lastDown;
                     stopRecording();
-                    if (duration >= 1000){
-                        Uri uri = Uri.fromFile(new File(audioFileName));
-                        fileNameCount++;
-                        audioUriList.add(uri);
+                    if (duration >= 1000) {
+                        audioUri = Uri.fromFile(new File(audioFileName));
                         attFileName = audioFileName;
-                        fileNameList.add(attFileName);
-                        audioDurationList.add(duration);
+                        audioAdded = true;
                         Toast.makeText(NewEntryActivity.this, "Audio recorded", Toast.LENGTH_SHORT).show();
-                        count++;
-                    }else {
+                        //Users can only create one audio, each new audio will overwrite the previous one.
+                        if (protectCount == 0){
+                            count++;
+                        }
+                        protectCount++;
+                    } else {
                         Toast.makeText(NewEntryActivity.this, "Message too short", Toast.LENGTH_SHORT).show();
                     }
 
@@ -239,13 +222,13 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private void chooseImage(){
+    private void chooseImage() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, Constants.Gallery_Request);
     }
 
-    private void startRecording(){
+    private void startRecording() {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -254,19 +237,18 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
 
         try {
             mediaRecorder.prepare();
-        }catch (IOException e){
+        } catch (IOException e) {
             Log.e(TAG, "prepare() failed");
         }
 
         mediaRecorder.start();
     }
 
-    private void stopRecording(){
+    private void stopRecording() {
         mediaRecorder.stop();
         mediaRecorder.release();
         mediaRecorder = null;
     }
-
 
 
     @Override
@@ -322,7 +304,7 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         if (validationPassed(entryName, entryResponsibilities, entryDecision, entryOutcome)) {
             Entry entry = new Entry(entryID, entryName
                     , entryResponsibilities, entryDecision, entryOutcome, entryComment
-                    , dataTimeCreated, status, journalID, predecessorEntryID, count);
+                    , dataTimeCreated, status, journalID, predecessorEntryID, count, 0);
 
             if (TextUtils.isEmpty(entryComment)) {
                 entry.setEntryComment("You did not leave any comment on it");
@@ -338,35 +320,30 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
                     .child(journalID).child(Constants.Entries_End_Point).child(entryID);
             noteReference.setValue(entry);
 
+            Log.d("NEW Journal Entry", " ==>" + entryID.toString());
+
             //deal with media stuff
 
             //audio
-            if (audioUriList.size() != 0){
-                for (int i = 0; i < audioUriList.size(); i++){
-                    audioUri = audioUriList.get(i);
-                    filePath = storageReference.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
-                            .child(journalID).child(Constants.Entries_End_Point).child(entryID)
-                            .child("Attachment").child("new_audio_" + i + ".3gp");
-                    filePath.putFile(audioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            String format = "audio";
-                            Uri attachmentPath = taskSnapshot.getDownloadUrl();
-                            String attachmentID = db.push().getKey();
-                            audioDuration = audioDurationList.get(k);
-                            attURI = audioUriList.get(k);
-                            attFileName = fileNameList.get(k);
-                            k++;
-                            Attachment attachment = new Attachment(attachmentPath.toString(), format, attachmentID,
-                                    entryID, audioDuration, attFileName);
-                            DatabaseReference attachRef = db.child(Constants.Users_End_Point).child(userID)
-                                    .child(Constants.Journals_End_Point)
-                                    .child(journalID).child(Constants.Entries_End_Point).child(entryID)
-                                    .child(Constants.Attachments_End_Point).child(attachmentID);
-                            attachRef.setValue(attachment);
-                        }
-                    });
-                }
+            if (audioAdded) {
+                filePath = storageReference.child(Constants.Users_End_Point).child(userID).child(Constants.Journals_End_Point)
+                        .child(journalID).child(Constants.Entries_End_Point).child(entryID)
+                        .child("Attachment").child("new_audio.3gp");
+                filePath.putFile(audioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        String format = "audio";
+                        Uri attachmentPath = taskSnapshot.getDownloadUrl();
+                        String attachmentID = db.push().getKey();
+                        Attachment attachment = new Attachment(attachmentPath.toString(), format, attachmentID,
+                                entryID, duration, attFileName);
+                        DatabaseReference attachRef = db.child(Constants.Users_End_Point).child(userID)
+                                .child(Constants.Journals_End_Point)
+                                .child(journalID).child(Constants.Entries_End_Point).child(entryID)
+                                .child(Constants.Attachments_End_Point).child(attachmentID);
+                        attachRef.setValue(attachment);
+                    }
+                });
             }
 
             //image
@@ -408,26 +385,78 @@ public class NewEntryActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private boolean validationPassed(String name, String res, String decision, String outCome){
+    private boolean validationPassed(String name, String res, String decision, String outCome) {
         boolean isValid = true;
 
         if (TextUtils.isEmpty(name)) {
             etEntryName.setError("Entry name must not be empty");
-            isValid=false;
+            isValid = false;
         }
-        if (TextUtils.isEmpty(res)){
+        if (TextUtils.isEmpty(res)) {
             etResponsibilities.setError("Responsibilities must not be empty");
-            isValid=false;
+            isValid = false;
         }
-        if (TextUtils.isEmpty(decision)){
+        if (TextUtils.isEmpty(decision)) {
             etDecisions.setError("Decision must not be empty");
-            isValid=false;
+            isValid = false;
         }
-        if (TextUtils.isEmpty(outCome)){
+        if (TextUtils.isEmpty(outCome)) {
             etOutcome.setError("Outcome must not be empty");
-            isValid=false;
+            isValid = false;
         }
 
         return isValid;
     }
+
+    public void requestPermissions() {
+        boolean requestAudio = false;
+        boolean requestWriteExternalStorage = false;
+        if (ContextCompat.checkSelfPermission(NewEntryActivity.this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestAudio = true;
+        }
+
+        if (ContextCompat.checkSelfPermission(NewEntryActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestWriteExternalStorage = true;
+        }
+
+        if (!requestAudio && !requestWriteExternalStorage) {
+            recordAudioDialog();
+        } else if (requestAudio && requestWriteExternalStorage) {
+            ActivityCompat.requestPermissions(NewEntryActivity.this, new String[]{android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else if (requestAudio) {
+            ActivityCompat.requestPermissions(NewEntryActivity.this, new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
+        } else if (requestWriteExternalStorage) {
+            ActivityCompat.requestPermissions(NewEntryActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                boolean allowAudio = true;
+                if (grantResults.length == 0) {
+                    // disable the attachment function
+                    allowAudio = false;
+                } else {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            // permission was granted, yay!
+                        } else {
+                            // disable the attachment function
+                            allowAudio = false;
+                            break;
+                        }
+                    }
+                    return;
+                }
+                if (allowAudio) {
+                    recordAudioDialog();
+                }
+            }
+        }
+
+
+    }
+
 }

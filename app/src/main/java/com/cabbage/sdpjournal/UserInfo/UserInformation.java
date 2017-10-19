@@ -14,11 +14,9 @@ public class UserInformation {
     /**
      * Constructor for creating an new object with all of it's variables set
      * @param email email of the user
-     * @param username username of the user
      */
-    public UserInformation(String email, String username){
+    public UserInformation(String email){
         mEmail = email;
-        mUsername = username;
     }
 
     /**
@@ -37,19 +35,4 @@ public class UserInformation {
         this.mEmail = mEmail;
     }
 
-    /**
-     * Getter for mUsername
-     * @return mUsername
-     */
-    public String getUsername() {
-        return mUsername;
-    }
-
-    /**
-     * Setter for mUsername
-     * @param mUsername
-     */
-    public void setUsername(String mUsername) {
-        this.mUsername = mUsername;
-    }
 }

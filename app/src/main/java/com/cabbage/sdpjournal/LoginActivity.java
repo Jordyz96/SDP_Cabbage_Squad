@@ -48,8 +48,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     //Layout elements
     private Button loginBtn;
-    private Button registerBtn;
-    private TextView tvForgotPassword;
+    private TextView toRegisterBtn;
+    private TextView mForgotPassword;
     private EditText emailEt;
     private EditText passwordEt;
 
@@ -73,19 +73,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
 
         //Initialises progress dialog
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
 
         //Initialises the layout elements
         loginBtn = (Button) findViewById(R.id.loginBtn);
-        registerBtn = (Button) findViewById(R.id.registerBtn);
-        tvForgotPassword = (TextView) findViewById(R.id.tvForgotPassword);
+        toRegisterBtn = (TextView) findViewById(R.id.click_to_register);
+        mForgotPassword = (TextView) findViewById(R.id.forgot_password);
         emailEt = (EditText) findViewById(R.id.emailEt);
         passwordEt = (EditText) findViewById(R.id.passwordEt);
 
         //Sets listeners that trigger when the login button is pressed and another for the register button
         loginBtn.setOnClickListener(this);
-        registerBtn.setOnClickListener(this);
-        tvForgotPassword.setOnClickListener(this);
+        toRegisterBtn.setOnClickListener(this);
+        mForgotPassword.setOnClickListener(this);
 
         //Set listener that triggers when a user signs out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -134,11 +134,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             //Calls loginUser function
             loginUser();
         }
-        if (v == registerBtn) {
+        if (v == toRegisterBtn) {
             //If register moves to register activity
             LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         }
-        if (v == tvForgotPassword) {
+        if (v == mForgotPassword) {
 
             //if a user forgot his password and click "forgotPassword", popup dialog will show up and ask for an email address
             //and send a reset email to the given email address
@@ -149,11 +149,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             TextView tvLabel = (TextView) myview.findViewById(R.id.tvResetRequestLabel);
             final EditText etemailAddress = (EditText) myview.findViewById(R.id.etEmAddress);
             Button resetBtn = (Button) myview.findViewById(R.id.resetPasswordBtn);
+            Button cancelBtn = (Button) myview.findViewById(R.id.cancelBtn);
 
             tvLabel.setText(Constants.Reset_Password);
             ab.setView(myview);
             final AlertDialog dialog = ab.create();
             dialog.show();
+
+            cancelBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.hide();
+                }
+            });
 
             resetBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -243,6 +251,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     //If they match the database move to main activity
                     if (task.isSuccessful()) {
                         LoginActivity.this.startActivity(new Intent(LoginActivity.this, JournalListActivity.class));
+                        finish();
                     } else {
                         //Else inform user that login was unsuccessful
                         Toast.makeText(LoginActivity.this, FAILED_LOGIN, Toast.LENGTH_SHORT).show();
