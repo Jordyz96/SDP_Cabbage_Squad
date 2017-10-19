@@ -49,20 +49,23 @@ public class HistoryListAdapter extends BaseAdapter {
         if (view == null){
             view = LayoutInflater.from(c).inflate(R.layout.style_history_list, viewGroup,false);
         }
-        TextView tvDateTime = (TextView) view.findViewById(R.id.tvDateTimeLabel);
-        TextView tvContent = (TextView) view.findViewById(R.id.tvContent);
-        TextView tvCount = (TextView) view.findViewById(R.id.tvCountLabel);
+        TextView tvDateTime = (TextView) view.findViewById(R.id.tvDateTime);
+        TextView tvRes = (TextView) view.findViewById(R.id.tvRes);
+        TextView tvDe = (TextView) view.findViewById(R.id.tvDecisions);
+        TextView tvOut = (TextView) view.findViewById(R.id.tvOutcome);
+        TextView tvCount = (TextView) view.findViewById(R.id.tvCount);
 
-        String content = "Responsibilities: " + entries.get(i).getEntryResponsibilities()
-                + "\nDecision: " + entries.get(i).getEntryDecision() + "\nOutcome: "
-                + entries.get(i).getEntryOutcome();
-
+        String date = entries.get(i).getDateTimeCreated();
+        String res = entries.get(i).getEntryResponsibilities();
+        String de = entries.get(i).getEntryDecision();
+        String out = entries.get(i).getEntryOutcome();
         int count = entries.get(i).getCountAttachment();
 
-        tvDateTime.setText(entries.get(i).getDateTimeCreated());
-        tvContent.setText(content);
-        tvCount.setText("Attachments: " + count);
-
+        tvDateTime.setText(date);
+        tvRes.setText(res);
+        tvDe.setText(de);
+        tvOut.setText(out);
+        tvCount.setText(count + "");
 
         return view;
     }

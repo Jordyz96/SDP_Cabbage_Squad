@@ -9,17 +9,82 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvDateTimeLabel"
         android:textSize="20dp"
+        android:text="Creation Time"
+        android:textStyle="bold"
         />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tvContent"
-        android:height="100dp"/>
+        android:id="@id/tvDateTime"
+        android:textStyle="italic"
+        android:text="datetime"
+        android:textSize="15dp"
+        />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tvCountLabel"
+        android:id="@+id/tvResLabel"
+        android:layout_marginTop="15dp"
         android:textSize="20dp"
+        android:text="Responsibilities"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvRes"
+        android:textSize="15dp"
+        android:textStyle="italic"
+        android:text="res"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Decisions"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:id="@+id/tvDecisionsLabel"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Decisions"
+        android:textSize="15dp"
+        android:textStyle="italic"
+        android:id="@+id/tvDecisions"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Outcome"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:id="@+id/tvOutcomeLabel"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Outcome"
+        android:textSize="15dp"
+        android:textStyle="italic"
+        android:id="@+id/tvOutcome"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Attachment"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:id="@+id/tvCountLabel"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvCount"
+        android:textStyle="italic"
+        android:text="1"
+        android:textSize="15dp"
         />
 
 </LinearLayout>
