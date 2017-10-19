@@ -75,6 +75,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
 
     private String searchActive = "";
     private String filterActive = "normal";
+    private boolean returningFromOtherView = false;
 
     class ViewHolder {
         public TextView title;
@@ -810,6 +811,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                 String search = data.getStringExtra("search");
                 filterActive = filter;
                 searchActive = search;
+                returningFromOtherView = true;
             }
         }
     }
@@ -819,7 +821,7 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void resetFilter() {
-        filterActive = "Active";
+        filterActive = "normal";
     }
 
     public void placeholderMessageOnOff(boolean empty, String method, String param) {
@@ -888,7 +890,9 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
     public void searchEntriesOnKeyword(String searchString) {
         if (!searchString.equals("")) {
             searchActive = searchString;
-            resetFilter();
+            if (!returningFromOtherView) {
+                resetFilter();
+            }
             ArrayList<Entry> entriesMatchingSearch = new ArrayList<Entry>();
             for (Entry e : entriesList) {
                 if (!e.getStatus().equals("replacedByModified")) {
@@ -905,7 +909,12 @@ public class EntryListActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
             }
-            filterByStatusDialog(entriesMatchingSearch);
+            if (!returningFromOtherView) {
+                filterByStatusDialog(entriesMatchingSearch);
+            } else {
+                filterEntries(filterActive, entriesMatchingSearch);
+                returningFromOtherView = false;
+            }
         }
     }
 
